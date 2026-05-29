@@ -2,16 +2,18 @@ export default function Home() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-zinc-950 px-6 text-center text-white">
       <div className="max-w-3xl">
-        <p className="mb-4 text-sm font-medium uppercase tracking-[0.3em] text-emerald-400">
+        <p className="mb-4 text-sm font-medium tracking-[0.3em] text-emerald-400 uppercase">
           Conta Clara
         </p>
 
         <h1 className="mb-6 text-4xl font-bold tracking-tight sm:text-6xl">
-          Um controle financeiro simples para quem quer parar de se perder nas contas.
+          Um controle financeiro simples para quem quer parar de se perder nas
+          contas.
         </h1>
 
         <p className="mb-8 text-lg text-zinc-300 sm:text-xl">
-          Organize suas contas, cartão, assinaturas e gastos do mês em um painel fácil de entender.
+          Organize suas contas, cartão, assinaturas e gastos do mês em um painel
+          fácil de entender.
         </p>
 
         <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">

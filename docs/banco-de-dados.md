@@ -18,22 +18,22 @@ A regra principal continua sendo:
 
 A modelagem do banco precisa permitir:
 
-* cadastro e login de usuários;
-* criação de perfil do usuário;
-* teste grátis de 30 dias;
-* controle manual de assinatura;
-* organização por espaço financeiro;
-* controle de receitas;
-* controle de despesas;
-* categorias;
-* contas fixas;
-* assinaturas;
-* cartão de crédito;
-* compras no cartão;
-* metas financeiras;
-* fechamento mensal;
-* painel administrativo simples;
-* segurança para que cada usuário acesse apenas seus próprios dados.
+- cadastro e login de usuários;
+- criação de perfil do usuário;
+- teste grátis de 30 dias;
+- controle manual de assinatura;
+- organização por espaço financeiro;
+- controle de receitas;
+- controle de despesas;
+- categorias;
+- contas fixas;
+- assinaturas;
+- cartão de crédito;
+- compras no cartão;
+- metas financeiras;
+- fechamento mensal;
+- painel administrativo simples;
+- segurança para que cada usuário acesse apenas seus próprios dados.
 
 ---
 
@@ -41,17 +41,17 @@ A modelagem do banco precisa permitir:
 
 As tabelas principais da V2 inicial serão:
 
-* `profiles`;
-* `financial_spaces`;
-* `subscriptions`;
-* `categories`;
-* `transactions`;
-* `recurring_items`;
-* `credit_cards`;
-* `card_purchases`;
-* `goals`;
-* `monthly_closings`;
-* `admin_notes`.
+- `profiles`;
+- `financial_spaces`;
+- `subscriptions`;
+- `categories`;
+- `transactions`;
+- `recurring_items`;
+- `credit_cards`;
+- `card_purchases`;
+- `goals`;
+- `monthly_closings`;
+- `admin_notes`.
 
 ---
 
@@ -99,10 +99,10 @@ Representar o ambiente financeiro do usuário.
 
 No sistema, isso pode aparecer para o cliente como:
 
-* Minha Conta Clara;
-* Minha Casa;
-* Finanças do Casal;
-* Controle da Família.
+- Minha Conta Clara;
+- Minha Casa;
+- Finanças do Casal;
+- Controle da Família.
 
 ## Campos
 
@@ -174,12 +174,12 @@ Controlar o acesso do cliente ao Conta Clara.
 
 Essa tabela será usada para o modelo de:
 
-* teste grátis de 30 dias;
-* plano mensal;
-* plano anual;
-* acesso expirado;
-* bloqueio manual;
-* ativação manual pelo administrador.
+- teste grátis de 30 dias;
+- plano mensal;
+- plano anual;
+- acesso expirado;
+- bloqueio manual;
+- ativação manual pelo administrador.
 
 ## Campos
 
@@ -272,26 +272,26 @@ expense
 
 ## Categorias padrão de receita
 
-* Salário;
-* freelance;
-* serviços;
-* vendas;
-* ajuda familiar;
-* outros.
+- Salário;
+- freelance;
+- serviços;
+- vendas;
+- ajuda familiar;
+- outros.
 
 ## Categorias padrão de despesa
 
-* Moradia;
-* mercado;
-* energia;
-* água;
-* internet;
-* transporte;
-* saúde;
-* lazer;
-* cartão;
-* assinaturas;
-* outros.
+- Moradia;
+- mercado;
+- energia;
+- água;
+- internet;
+- transporte;
+- saúde;
+- lazer;
+- cartão;
+- assinaturas;
+- outros.
 
 ## Observação
 
@@ -394,17 +394,17 @@ Controlar contas fixas, assinaturas e itens recorrentes.
 
 Exemplos:
 
-* internet;
-* energia;
-* água;
-* aluguel;
-* Netflix;
-* Spotify;
-* academia;
-* celular;
-* financiamento;
-* escola;
-* faculdade.
+- internet;
+- energia;
+- água;
+- aluguel;
+- Netflix;
+- Spotify;
+- academia;
+- celular;
+- financiamento;
+- escola;
+- faculdade.
 
 ## Campos
 
@@ -515,11 +515,11 @@ Na V2 inicial, o cartão será simples.
 
 Não entram no início:
 
-* parcelamento avançado;
-* juros;
-* rotativo;
-* controle complexo de limite;
-* múltiplos titulares.
+- parcelamento avançado;
+- juros;
+- rotativo;
+- controle complexo de limite;
+- múltiplos titulares.
 
 ---
 
@@ -605,12 +605,12 @@ cancelled
 
 ## Exemplos de metas
 
-* Reserva de emergência;
-* viagem;
-* quitar dívida;
-* comprar notebook;
-* reforma da casa;
-* guardar dinheiro para o casal.
+- Reserva de emergência;
+- viagem;
+- quitar dívida;
+- comprar notebook;
+- reforma da casa;
+- guardar dinheiro para o casal.
 
 ## Exemplo
 
@@ -729,10 +729,10 @@ A regra principal será:
 
 Exemplo:
 
-* Maria não pode ver os lançamentos do João;
-* João não pode editar as metas da Maria;
-* um usuário expirado não deve acessar as telas internas normalmente;
-* apenas o administrador pode acessar a área administrativa.
+- Maria não pode ver os lançamentos do João;
+- João não pode editar as metas da Maria;
+- um usuário expirado não deve acessar as telas internas normalmente;
+- apenas o administrador pode acessar a área administrativa.
 
 ---
 
@@ -778,16 +778,16 @@ Quando o usuário se cadastra, o sistema deve:
 
 As tabelas obrigatórias para a V2 inicial são:
 
-* `profiles`;
-* `financial_spaces`;
-* `subscriptions`;
-* `categories`;
-* `transactions`;
-* `recurring_items`;
-* `credit_cards`;
-* `card_purchases`;
-* `goals`;
-* `monthly_closings`.
+- `profiles`;
+- `financial_spaces`;
+- `subscriptions`;
+- `categories`;
+- `transactions`;
+- `recurring_items`;
+- `credit_cards`;
+- `card_purchases`;
+- `goals`;
+- `monthly_closings`.
 
 A tabela `admin_notes` pode entrar na primeira versão administrativa ou ser adicionada logo depois.
 

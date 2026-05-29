@@ -22,15 +22,15 @@ Apresentar o Conta Clara, explicar sua proposta e levar o usuário para o teste 
 
 ### Conteúdo principal
 
-* Nome do produto: Conta Clara;
-* frase principal;
-* explicação curta;
-* botão para começar teste grátis;
-* botão para falar pelo WhatsApp;
-* benefícios principais;
-* planos;
-* perguntas frequentes;
-* chamada final.
+- Nome do produto: Conta Clara;
+- frase principal;
+- explicação curta;
+- botão para começar teste grátis;
+- botão para falar pelo WhatsApp;
+- benefícios principais;
+- planos;
+- perguntas frequentes;
+- chamada final.
 
 ### Frase principal
 
@@ -42,8 +42,8 @@ Apresentar o Conta Clara, explicar sua proposta e levar o usuário para o teste 
 
 ### Botões
 
-* Começar teste grátis;
-* Falar pelo WhatsApp.
+- Começar teste grátis;
+- Falar pelo WhatsApp.
 
 ### Seções
 
@@ -65,14 +65,14 @@ Criar a conta do usuário e iniciar o teste grátis de 30 dias.
 
 ### Campos
 
-* Nome completo;
-* e-mail;
-* senha;
-* confirmar senha.
+- Nome completo;
+- e-mail;
+- senha;
+- confirmar senha.
 
 ### Botão principal
 
-* Criar minha conta grátis.
+- Criar minha conta grátis.
 
 ### Após o cadastro
 
@@ -95,14 +95,14 @@ Permitir que o usuário acesse sua conta.
 
 ### Campos
 
-* E-mail;
-* senha.
+- E-mail;
+- senha.
 
 ### Ações
 
-* Entrar;
-* criar conta grátis;
-* recuperar senha.
+- Entrar;
+- criar conta grátis;
+- recuperar senha.
 
 ---
 
@@ -114,7 +114,7 @@ Permitir que o usuário recupere o acesso sem depender do administrador.
 
 ### Campos
 
-* E-mail.
+- E-mail.
 
 ### Mensagem após envio
 
@@ -134,10 +134,10 @@ Quando o usuário faz login, mas a assinatura está expirada.
 
 ### Conteúdo
 
-* mensagem informando que o acesso expirou;
-* plano mensal;
-* plano anual;
-* botão para falar pelo WhatsApp.
+- mensagem informando que o acesso expirou;
+- plano mensal;
+- plano anual;
+- botão para falar pelo WhatsApp.
 
 ### Texto sugerido
 
@@ -145,12 +145,12 @@ Quando o usuário faz login, mas a assinatura está expirada.
 
 ### Planos
 
-* Mensal: R$ 14,90;
-* anual: R$ 129,00.
+- Mensal: R$ 14,90;
+- anual: R$ 129,00.
 
 ### Botão
 
-* Falar com Eraldo no WhatsApp.
+- Falar com Eraldo no WhatsApp.
 
 ---
 
@@ -164,27 +164,27 @@ Configurar o Conta Clara de forma simples logo após o cadastro.
 
 ### Campos
 
-* Nome do controle financeiro;
-* tipo de uso;
-* renda mensal aproximada;
-* dia principal de recebimento;
-* maior objetivo financeiro no momento.
+- Nome do controle financeiro;
+- tipo de uso;
+- renda mensal aproximada;
+- dia principal de recebimento;
+- maior objetivo financeiro no momento.
 
 ### Tipos de uso
 
-* Pessoal;
-* casal;
-* família.
+- Pessoal;
+- casal;
+- família.
 
 ### Exemplos de nome do controle
 
-* Minha Casa;
-* Finanças do Casal;
-* Controle da Família.
+- Minha Casa;
+- Finanças do Casal;
+- Controle da Família.
 
 ### Botão
 
-* Começar a organizar.
+- Começar a organizar.
 
 ### Observação
 
@@ -200,21 +200,21 @@ Mostrar a situação financeira do mês de forma clara e rápida.
 
 ### Perguntas que a tela deve responder
 
-* Quanto entrou este mês?
-* Quanto saiu?
-* Quanto ainda falta pagar?
-* Quanto está no cartão?
-* O mês está positivo ou negativo?
-* Quais contas vencem em breve?
+- Quanto entrou este mês?
+- Quanto saiu?
+- Quanto ainda falta pagar?
+- Quanto está no cartão?
+- O mês está positivo ou negativo?
+- Quais contas vencem em breve?
 
 ### Cards principais
 
-* Receitas do mês;
-* despesas pagas;
-* despesas pendentes;
-* cartão do mês;
-* saldo previsto;
-* meta do mês.
+- Receitas do mês;
+- despesas pagas;
+- despesas pendentes;
+- cartão do mês;
+- saldo previsto;
+- meta do mês.
 
 ### Bloco especial: Saúde do mês
 
@@ -230,19 +230,19 @@ Este bloco será um diferencial do Conta Clara.
 
 ### Listas rápidas
 
-* Próximas contas a vencer;
-* últimos lançamentos;
-* assinaturas do mês;
-* fatura atual do cartão.
+- Próximas contas a vencer;
+- últimos lançamentos;
+- assinaturas do mês;
+- fatura atual do cartão.
 
 ### Gráficos
 
-* Receitas x despesas;
-* gastos por categoria.
+- Receitas x despesas;
+- gastos por categoria.
 
 ### Botão principal
 
-* Novo lançamento.
+- Novo lançamento.
 
 ---
 
@@ -254,40 +254,40 @@ Listar receitas e despesas, permitindo filtrar, editar e marcar como pago.
 
 ### Filtros
 
-* Mês;
-* tipo;
-* status;
-* categoria.
+- Mês;
+- tipo;
+- status;
+- categoria.
 
 ### Tipos
 
-* Receita;
-* despesa.
+- Receita;
+- despesa.
 
 ### Status
 
-* Pago;
-* pendente;
-* vencido;
-* cancelado.
+- Pago;
+- pendente;
+- vencido;
+- cancelado.
 
 ### Informações exibidas
 
-* Descrição;
-* categoria;
-* data;
-* valor;
-* status;
-* forma de pagamento;
-* ações.
+- Descrição;
+- categoria;
+- data;
+- valor;
+- status;
+- forma de pagamento;
+- ações.
 
 ### Ações
 
-* Criar lançamento;
-* editar;
-* excluir;
-* marcar como pago;
-* marcar como pendente.
+- Criar lançamento;
+- editar;
+- excluir;
+- marcar como pago;
+- marcar como pendente.
 
 ---
 
@@ -299,42 +299,42 @@ Cadastrar uma receita ou despesa.
 
 ### Campos
 
-* Tipo;
-* descrição;
-* valor;
-* data de vencimento;
-* data de pagamento;
-* categoria;
-* forma de pagamento;
-* status;
-* observação.
+- Tipo;
+- descrição;
+- valor;
+- data de vencimento;
+- data de pagamento;
+- categoria;
+- forma de pagamento;
+- status;
+- observação.
 
 ### Tipos
 
-* Receita;
-* despesa.
+- Receita;
+- despesa.
 
 ### Formas de pagamento
 
-* Pix;
-* dinheiro;
-* débito;
-* crédito;
-* boleto;
-* transferência;
-* outro.
+- Pix;
+- dinheiro;
+- débito;
+- crédito;
+- boleto;
+- transferência;
+- outro.
 
 ### Status
 
-* Pendente;
-* pago;
-* vencido;
-* cancelado.
+- Pendente;
+- pago;
+- vencido;
+- cancelado.
 
 ### Botões
 
-* Salvar lançamento;
-* cancelar.
+- Salvar lançamento;
+- cancelar.
 
 ---
 
@@ -346,32 +346,32 @@ Permitir que o usuário organize receitas e despesas por categoria.
 
 ### Categorias padrão de despesa
 
-* Moradia;
-* mercado;
-* energia;
-* água;
-* internet;
-* transporte;
-* saúde;
-* lazer;
-* cartão;
-* assinaturas;
-* outros.
+- Moradia;
+- mercado;
+- energia;
+- água;
+- internet;
+- transporte;
+- saúde;
+- lazer;
+- cartão;
+- assinaturas;
+- outros.
 
 ### Categorias padrão de receita
 
-* Salário;
-* freelance;
-* serviços;
-* vendas;
-* ajuda familiar;
-* outros.
+- Salário;
+- freelance;
+- serviços;
+- vendas;
+- ajuda familiar;
+- outros.
 
 ### Ações
 
-* Criar categoria;
-* editar categoria;
-* inativar categoria.
+- Criar categoria;
+- editar categoria;
+- inativar categoria.
 
 ### Observação
 
@@ -387,49 +387,49 @@ Controlar gastos que se repetem.
 
 ### Exemplos
 
-* Aluguel;
-* internet;
-* energia;
-* água;
-* Netflix;
-* Spotify;
-* academia;
-* celular;
-* faculdade;
-* financiamento.
+- Aluguel;
+- internet;
+- energia;
+- água;
+- Netflix;
+- Spotify;
+- academia;
+- celular;
+- faculdade;
+- financiamento.
 
 ### Campos
 
-* Nome;
-* valor;
-* categoria;
-* dia de vencimento;
-* frequência;
-* tipo;
-* status.
+- Nome;
+- valor;
+- categoria;
+- dia de vencimento;
+- frequência;
+- tipo;
+- status.
 
 ### Frequências
 
-* Mensal;
-* anual.
+- Mensal;
+- anual.
 
 ### Tipos
 
-* Conta fixa;
-* assinatura.
+- Conta fixa;
+- assinatura.
 
 ### Status
 
-* Ativa;
-* inativa.
+- Ativa;
+- inativa.
 
 ### Ações
 
-* Criar conta fixa;
-* criar assinatura;
-* editar;
-* inativar;
-* gerar lançamento do mês.
+- Criar conta fixa;
+- criar assinatura;
+- editar;
+- inativar;
+- gerar lançamento do mês.
 
 ---
 
@@ -441,49 +441,49 @@ Permitir controle simples da fatura do cartão.
 
 ### Campos do cartão
 
-* Nome do cartão;
-* banco ou instituição;
-* limite opcional;
-* dia de fechamento;
-* dia de vencimento;
-* status.
+- Nome do cartão;
+- banco ou instituição;
+- limite opcional;
+- dia de fechamento;
+- dia de vencimento;
+- status.
 
 ### Informações exibidas
 
-* Fatura atual;
-* total da fatura;
-* data de vencimento;
-* compras do mês;
-* status da fatura.
+- Fatura atual;
+- total da fatura;
+- data de vencimento;
+- compras do mês;
+- status da fatura.
 
 ### Status da fatura
 
-* Aberta;
-* fechada;
-* paga.
+- Aberta;
+- fechada;
+- paga.
 
 ### Campos da compra
 
-* Descrição;
-* valor;
-* data da compra;
-* categoria;
-* cartão;
-* observação.
+- Descrição;
+- valor;
+- data da compra;
+- categoria;
+- cartão;
+- observação.
 
 ### Ações
 
-* Adicionar compra;
-* editar compra;
-* excluir compra;
-* marcar fatura como paga.
+- Adicionar compra;
+- editar compra;
+- excluir compra;
+- marcar fatura como paga.
 
 ### O que fica para depois
 
-* Parcelamento avançado;
-* juros;
-* rotativo;
-* limite usado automático complexo.
+- Parcelamento avançado;
+- juros;
+- rotativo;
+- limite usado automático complexo.
 
 ---
 
@@ -495,41 +495,41 @@ Ajudar o usuário a organizar objetivos financeiros.
 
 ### Exemplos
 
-* Reserva de emergência;
-* viagem;
-* quitar dívida;
-* comprar notebook;
-* reforma da casa;
-* guardar dinheiro para o casal.
+- Reserva de emergência;
+- viagem;
+- quitar dívida;
+- comprar notebook;
+- reforma da casa;
+- guardar dinheiro para o casal.
 
 ### Campos
 
-* Nome da meta;
-* valor alvo;
-* valor atual;
-* prazo;
-* status.
+- Nome da meta;
+- valor alvo;
+- valor atual;
+- prazo;
+- status.
 
 ### Status
 
-* Ativa;
-* concluída;
-* cancelada.
+- Ativa;
+- concluída;
+- cancelada.
 
 ### Exibição
 
-* Barra de progresso;
-* porcentagem concluída;
-* quanto falta;
-* prazo final.
+- Barra de progresso;
+- porcentagem concluída;
+- quanto falta;
+- prazo final.
 
 ### Ações
 
-* Criar meta;
-* atualizar valor;
-* editar;
-* concluir;
-* cancelar.
+- Criar meta;
+- atualizar valor;
+- editar;
+- concluir;
+- cancelar.
 
 ---
 
@@ -541,30 +541,30 @@ Mostrar resumos financeiros de forma simples.
 
 ### Relatórios da V2 inicial
 
-* Resumo mensal;
-* resumo anual;
-* receitas x despesas;
-* gastos por categoria;
-* evolução do saldo;
-* maiores despesas do mês.
+- Resumo mensal;
+- resumo anual;
+- receitas x despesas;
+- gastos por categoria;
+- evolução do saldo;
+- maiores despesas do mês.
 
 ### Filtros
 
-* Mês;
-* ano;
-* categoria.
+- Mês;
+- ano;
+- categoria.
 
 ### Gráficos
 
-* Barras para receitas x despesas;
-* pizza ou rosca para categorias;
-* linha para evolução mensal.
+- Barras para receitas x despesas;
+- pizza ou rosca para categorias;
+- linha para evolução mensal.
 
 ### Perguntas que os relatórios devem responder
 
-* Gastei mais com o quê?
-* Sobrou ou faltou dinheiro?
-* Meu ano está melhorando ou piorando?
+- Gastei mais com o quê?
+- Sobrou ou faltou dinheiro?
+- Meu ano está melhorando ou piorando?
 
 ---
 
@@ -576,16 +576,16 @@ Permitir que o usuário encerre o mês com segurança.
 
 ### Informações exibidas antes de fechar
 
-* Total de receitas;
-* total de despesas;
-* total do cartão;
-* saldo final;
-* contas pendentes;
-* faturas pendentes.
+- Total de receitas;
+- total de despesas;
+- total do cartão;
+- saldo final;
+- contas pendentes;
+- faturas pendentes.
 
 ### Botão principal
 
-* Fechar mês.
+- Fechar mês.
 
 ### Confirmação
 
@@ -593,9 +593,9 @@ Permitir que o usuário encerre o mês com segurança.
 
 ### Ações
 
-* Fechar mês;
-* reabrir mês;
-* ver meses fechados.
+- Fechar mês;
+- reabrir mês;
+- ver meses fechados.
 
 ---
 
@@ -607,42 +607,42 @@ Permitir ajustes básicos da conta.
 
 ### Seção: Perfil
 
-* Nome;
-* e-mail;
-* telefone;
-* foto futuramente.
+- Nome;
+- e-mail;
+- telefone;
+- foto futuramente.
 
 ### Seção: Minha Conta Clara
 
-* Nome do controle;
-* tipo de uso.
+- Nome do controle;
+- tipo de uso.
 
 ### Tipos de uso
 
-* Pessoal;
-* casal;
-* família.
+- Pessoal;
+- casal;
+- família.
 
 ### Seção: Assinatura
 
-* Status;
-* data de início do teste;
-* data final do teste;
-* plano atual;
-* botão para falar no WhatsApp.
+- Status;
+- data de início do teste;
+- data final do teste;
+- plano atual;
+- botão para falar no WhatsApp.
 
 ### Status de assinatura
 
-* Teste grátis;
-* ativo;
-* expirado;
-* bloqueado;
-* cancelado.
+- Teste grátis;
+- ativo;
+- expirado;
+- bloqueado;
+- cancelado.
 
 ### Seção: Preferências
 
-* Moeda: Real brasileiro;
-* tema claro ou escuro futuramente.
+- Moeda: Real brasileiro;
+- tema claro ou escuro futuramente.
 
 ---
 
@@ -656,31 +656,31 @@ Permitir que o administrador controle os clientes, testes grátis e assinaturas 
 
 ### Informações exibidas
 
-* Nome do cliente;
-* e-mail;
-* telefone;
-* status;
-* plano;
-* data de cadastro;
-* fim do teste grátis;
-* fim do plano atual.
+- Nome do cliente;
+- e-mail;
+- telefone;
+- status;
+- plano;
+- data de cadastro;
+- fim do teste grátis;
+- fim do plano atual.
 
 ### Status
 
-* Teste grátis;
-* ativo;
-* expirado;
-* bloqueado;
-* cancelado.
+- Teste grátis;
+- ativo;
+- expirado;
+- bloqueado;
+- cancelado.
 
 ### Ações
 
-* Ativar mensal;
-* ativar anual;
-* bloquear;
-* desbloquear;
-* ver detalhes;
-* adicionar observação futuramente.
+- Ativar mensal;
+- ativar anual;
+- bloquear;
+- desbloquear;
+- ver detalhes;
+- adicionar observação futuramente.
 
 ---
 
@@ -688,59 +688,59 @@ Permitir que o administrador controle os clientes, testes grátis e assinaturas 
 
 ## Menu do cliente
 
-* Dashboard;
-* lançamentos;
-* contas fixas;
-* cartão;
-* metas;
-* relatórios;
-* fechamento;
-* configurações.
+- Dashboard;
+- lançamentos;
+- contas fixas;
+- cartão;
+- metas;
+- relatórios;
+- fechamento;
+- configurações.
 
 ## Menu administrativo
 
-* Admin.
+- Admin.
 
 ---
 
 # 6. O que entra na V2 inicial
 
-* Landing page;
-* cadastro;
-* login;
-* recuperar senha;
-* onboarding;
-* dashboard;
-* lançamentos;
-* categorias;
-* contas fixas;
-* assinaturas;
-* cartão simples;
-* metas;
-* relatórios básicos;
-* fechamento mensal;
-* configurações;
-* acesso expirado;
-* admin simples;
-* teste grátis de 30 dias;
-* controle manual de assinatura.
+- Landing page;
+- cadastro;
+- login;
+- recuperar senha;
+- onboarding;
+- dashboard;
+- lançamentos;
+- categorias;
+- contas fixas;
+- assinaturas;
+- cartão simples;
+- metas;
+- relatórios básicos;
+- fechamento mensal;
+- configurações;
+- acesso expirado;
+- admin simples;
+- teste grátis de 30 dias;
+- controle manual de assinatura.
 
 ---
 
 # 7. O que fica para depois
 
-* Pagamento automático;
-* Pix automático;
-* Mercado Pago;
-* Stripe;
-* Open Finance;
-* importação de extrato bancário;
-* aplicativo mobile;
-* notificações por WhatsApp;
-* modo casal com dois logins;
-* anexos de comprovantes;
-* parcelamento avançado;
-* inteligência artificial;
-* controle de investimentos.
+- Pagamento automático;
+- Pix automático;
+- Mercado Pago;
+- Stripe;
+- Open Finance;
+- importação de extrato bancário;
+- aplicativo mobile;
+- notificações por WhatsApp;
+- modo casal com dois logins;
+- anexos de comprovantes;
+- parcelamento avançado;
+- inteligência artificial;
+- controle de investimentos.
 
 ---

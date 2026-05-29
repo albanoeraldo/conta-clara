@@ -30,14 +30,14 @@ A ideia central do nome é mostrar que o produto ajuda o usuário a enxergar mel
 
 O Conta Clara promete entregar uma experiência simples para o usuário entender:
 
-* quanto entrou no mês;
-* quanto saiu;
-* quanto ainda falta pagar;
-* quanto está no cartão;
-* quais assinaturas estão ativas;
-* quais contas vencem em breve;
-* se o mês está positivo ou negativo;
-* como estão suas metas financeiras.
+- quanto entrou no mês;
+- quanto saiu;
+- quanto ainda falta pagar;
+- quanto está no cartão;
+- quais assinaturas estão ativas;
+- quais contas vencem em breve;
+- se o mês está positivo ou negativo;
+- como estão suas metas financeiras.
 
 A proposta não é criar um sistema financeiro complexo, mas sim uma ferramenta clara, prática e confiável para o dia a dia.
 
@@ -61,14 +61,14 @@ Se a funcionalidade complicar sem necessidade, ela deve ficar para uma versão f
 
 O público inicial do Conta Clara será formado por:
 
-* pessoas comuns que querem organizar as contas do mês;
-* casais que desejam acompanhar melhor os gastos;
-* famílias pequenas;
-* clientes que já fazem serviços com Eraldo Albano;
-* pessoas que não gostam de planilhas;
-* pessoas que se perdem com cartão de crédito;
-* pessoas que esquecem contas fixas e assinaturas;
-* pessoas que querem começar a guardar dinheiro, mas não sabem para onde o dinheiro está indo.
+- pessoas comuns que querem organizar as contas do mês;
+- casais que desejam acompanhar melhor os gastos;
+- famílias pequenas;
+- clientes que já fazem serviços com Eraldo Albano;
+- pessoas que não gostam de planilhas;
+- pessoas que se perdem com cartão de crédito;
+- pessoas que esquecem contas fixas e assinaturas;
+- pessoas que querem começar a guardar dinheiro, mas não sabem para onde o dinheiro está indo.
 
 O foco inicial não será em empresas, grandes negócios ou sistemas financeiros complexos.
 
@@ -78,12 +78,12 @@ O foco inicial não será em empresas, grandes negócios ou sistemas financeiros
 
 A estratégia inicial será oferecer o Conta Clara para clientes que já fazem algum serviço com Eraldo Albano, como:
 
-* formatação de computador;
-* manutenção;
-* suporte técnico;
-* instalação de programas;
-* organização de computador;
-* serviços relacionados à assistência técnica.
+- formatação de computador;
+- manutenção;
+- suporte técnico;
+- instalação de programas;
+- organização de computador;
+- serviços relacionados à assistência técnica.
 
 A abordagem comercial inicial será:
 
@@ -162,16 +162,16 @@ Preparar a base do sistema para, futuramente, evoluir para um modelo SaaS com co
 
 A stack proposta para a V2 será:
 
-* Next.js;
-* TypeScript;
-* Tailwind CSS;
-* Supabase;
-* PostgreSQL;
-* Row Level Security;
-* React Hook Form;
-* Zod;
-* Recharts;
-* Vercel.
+- Next.js;
+- TypeScript;
+- Tailwind CSS;
+- Supabase;
+- PostgreSQL;
+- Row Level Security;
+- React Hook Form;
+- Zod;
+- Recharts;
+- Vercel.
 
 Essa stack foi escolhida por permitir uma aplicação moderna, escalável, organizada e adequada para portfólio e produto real.
 
@@ -183,33 +183,33 @@ A primeira versão profissional do Conta Clara terá foco no essencial.
 
 ### Área pública
 
-* Landing page;
-* cadastro;
-* login;
-* recuperação de senha;
-* tela de acesso expirado.
+- Landing page;
+- cadastro;
+- login;
+- recuperação de senha;
+- tela de acesso expirado.
 
 ### Área do cliente
 
-* onboarding inicial;
-* dashboard mensal;
-* lançamentos de receitas e despesas;
-* categorias;
-* contas fixas;
-* assinaturas;
-* cartão de crédito simples;
-* metas;
-* relatórios básicos;
-* fechamento mensal;
-* configurações.
+- onboarding inicial;
+- dashboard mensal;
+- lançamentos de receitas e despesas;
+- categorias;
+- contas fixas;
+- assinaturas;
+- cartão de crédito simples;
+- metas;
+- relatórios básicos;
+- fechamento mensal;
+- configurações.
 
 ### Área administrativa
 
-* listagem de clientes;
-* visualização do status de acesso;
-* ativação manual de plano mensal;
-* ativação manual de plano anual;
-* bloqueio e desbloqueio de acesso.
+- listagem de clientes;
+- visualização do status de acesso;
+- ativação manual de plano mensal;
+- ativação manual de plano anual;
+- bloqueio e desbloqueio de acesso.
 
 ---
 
@@ -217,23 +217,23 @@ A primeira versão profissional do Conta Clara terá foco no essencial.
 
 Entram na V2 inicial:
 
-* autenticação com Supabase;
-* cadastro de usuário;
-* teste grátis de 30 dias;
-* controle manual de assinatura;
-* dashboard do mês;
-* receitas;
-* despesas;
-* categorias;
-* contas fixas;
-* assinaturas;
-* cartão de crédito simples;
-* metas simples;
-* relatórios básicos;
-* fechamento mensal;
-* painel administrativo simples;
-* deploy na Vercel;
-* documentação no GitHub.
+- autenticação com Supabase;
+- cadastro de usuário;
+- teste grátis de 30 dias;
+- controle manual de assinatura;
+- dashboard do mês;
+- receitas;
+- despesas;
+- categorias;
+- contas fixas;
+- assinaturas;
+- cartão de crédito simples;
+- metas simples;
+- relatórios básicos;
+- fechamento mensal;
+- painel administrativo simples;
+- deploy na Vercel;
+- documentação no GitHub.
 
 ---
 
@@ -241,23 +241,23 @@ Entram na V2 inicial:
 
 Ficam para versões futuras:
 
-* pagamento automático;
-* integração com Pix automático;
-* Mercado Pago;
-* Stripe;
-* Open Finance;
-* importação de extrato bancário;
-* aplicativo mobile;
-* notificações por WhatsApp;
-* modo casal com dois logins;
-* anexos de comprovantes;
-* parcelamento avançado no cartão;
-* inteligência artificial;
-* controle de investimentos;
-* controle avançado de dívidas;
-* emissão de relatórios em PDF;
-* multiusuário completo;
-* planos com diferentes limites.
+- pagamento automático;
+- integração com Pix automático;
+- Mercado Pago;
+- Stripe;
+- Open Finance;
+- importação de extrato bancário;
+- aplicativo mobile;
+- notificações por WhatsApp;
+- modo casal com dois logins;
+- anexos de comprovantes;
+- parcelamento avançado no cartão;
+- inteligência artificial;
+- controle de investimentos;
+- controle avançado de dívidas;
+- emissão de relatórios em PDF;
+- multiusuário completo;
+- planos com diferentes limites.
 
 Essas funcionalidades podem ser importantes no futuro, mas não devem travar a construção da primeira versão profissional.
 
@@ -275,11 +275,11 @@ A experiência precisa ser guiada, direta e amigável.
 
 O usuário deve abrir o painel e entender rapidamente:
 
-* como está o mês;
-* o que falta pagar;
-* quanto já gastou;
-* quanto tem no cartão;
-* se está no caminho certo ou precisa se cuidar.
+- como está o mês;
+- o que falta pagar;
+- quanto já gastou;
+- quanto tem no cartão;
+- se está no caminho certo ou precisa se cuidar.
 
 ---
 
@@ -289,25 +289,25 @@ A comunicação do Conta Clara deve ser simples, humana e direta.
 
 Evitar termos técnicos como:
 
-* fluxo de caixa;
-* conciliação;
-* regime de competência;
-* centro de custo;
-* demonstrativo financeiro;
-* análise patrimonial.
+- fluxo de caixa;
+- conciliação;
+- regime de competência;
+- centro de custo;
+- demonstrativo financeiro;
+- análise patrimonial.
 
 Preferir termos que o usuário comum entende:
 
-* contas do mês;
-* gastos;
-* cartão;
-* assinaturas;
-* dinheiro que entrou;
-* dinheiro que saiu;
-* falta pagar;
-* mês positivo;
-* mês apertado;
-* meta.
+- contas do mês;
+- gastos;
+- cartão;
+- assinaturas;
+- dinheiro que entrou;
+- dinheiro que saiu;
+- falta pagar;
+- mês positivo;
+- mês apertado;
+- meta.
 
 ---
 
@@ -315,13 +315,13 @@ Preferir termos que o usuário comum entende:
 
 O Conta Clara deve passar a sensação de:
 
-* organização;
-* confiança;
-* simplicidade;
-* segurança;
-* clareza;
-* controle;
-* tranquilidade.
+- organização;
+- confiança;
+- simplicidade;
+- segurança;
+- clareza;
+- controle;
+- tranquilidade.
 
 O usuário não deve se sentir intimidado ao usar o sistema.
 
@@ -337,14 +337,14 @@ A validação inicial será feita com clientes reais, começando por pessoas que
 
 O objetivo da validação será descobrir:
 
-* se as pessoas entendem a proposta;
-* se conseguem usar sem dificuldade;
-* se o dashboard realmente ajuda;
-* quais funcionalidades mais usam;
-* quais partes geram dúvidas;
-* se pagariam para continuar usando;
-* se o preço faz sentido;
-* se indicariam para outra pessoa.
+- se as pessoas entendem a proposta;
+- se conseguem usar sem dificuldade;
+- se o dashboard realmente ajuda;
+- quais funcionalidades mais usam;
+- quais partes geram dúvidas;
+- se pagariam para continuar usando;
+- se o preço faz sentido;
+- se indicariam para outra pessoa.
 
 A validação será mais importante do que adicionar muitas funcionalidades no começo.
 
@@ -354,16 +354,16 @@ A validação será mais importante do que adicionar muitas funcionalidades no c
 
 No início, as métricas podem ser simples:
 
-* número de usuários em teste grátis;
-* número de usuários que ativaram plano mensal;
-* número de usuários que ativaram plano anual;
-* quantidade de lançamentos criados;
-* quantidade de contas fixas cadastradas;
-* quantidade de cartões cadastrados;
-* quantidade de usuários que continuam usando após 30 dias;
-* feedbacks positivos;
-* dúvidas recorrentes;
-* cancelamentos.
+- número de usuários em teste grátis;
+- número de usuários que ativaram plano mensal;
+- número de usuários que ativaram plano anual;
+- quantidade de lançamentos criados;
+- quantidade de contas fixas cadastradas;
+- quantidade de cartões cadastrados;
+- quantidade de usuários que continuam usando após 30 dias;
+- feedbacks positivos;
+- dúvidas recorrentes;
+- cancelamentos.
 
 Essas informações ajudarão a decidir os próximos passos do produto.
 
