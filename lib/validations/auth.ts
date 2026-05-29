@@ -20,3 +20,18 @@ export const loginSchema = z.object({
 });
 
 export type LoginFormData = z.infer<typeof loginSchema>;
+
+export const onboardingSchema = z.object({
+  spaceName: z.string().min(3, "Digite um nome para seu controle financeiro."),
+  spaceType: z.enum(["personal", "couple", "family"], {
+    message: "Selecione o tipo de uso.",
+  }),
+  monthlyIncome: z
+    .string()
+    .optional()
+    .refine((value) => !value || Number(value) >= 0, {
+      message: "A renda mensal não pode ser negativa.",
+    }),
+});
+
+export type OnboardingFormData = z.infer<typeof onboardingSchema>;
