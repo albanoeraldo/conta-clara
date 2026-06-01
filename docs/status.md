@@ -1,5 +1,11 @@
 # Status do Projeto — Conta Clara
 
+## Versão atual
+
+Versão funcional atual: **v0.1.0**
+
+Esta versão representa a primeira versão funcional validada do Conta Clara, com autenticação, onboarding, dashboard, lançamentos, categorias, perfil, configurações, gráfico, identidade visual inicial e documentação.
+
 Este documento registra o status atual do desenvolvimento do Conta Clara.
 
 ## Visão geral
