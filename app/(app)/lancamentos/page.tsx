@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { Ban, CircleCheck, Search, SquarePen } from "lucide-react";
 
+import { getActiveCategories, type Category } from "@/services/categories";
 import { AppEmptyState } from "@/components/ui/app-empty-state";
 import { AppFeedback } from "@/components/ui/app-feedback";
 import { AppLoadingState } from "@/components/ui/app-loading-state";
@@ -66,6 +67,8 @@ const paymentMethodLabels: Record<Transaction["payment_method"], string> = {
 export default function LancamentosPage() {
   const [financialSpaceId, setFinancialSpaceId] = useState<string | null>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [categoryFilter, setCategoryFilter] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [typeFilter, setTypeFilter] = useState<"all" | "income" | "expense">(
     "all",
@@ -96,7 +99,18 @@ export default function LancamentosPage() {
 
     const matchesMonth = transaction.due_date.startsWith(monthFilter);
 
-    return matchesSearch && matchesType && matchesStatus && matchesMonth;
+    const matchesCategory =
+      categoryFilter === "all" ||
+      (categoryFilter === "uncategorized" && !transaction.category_id) ||
+      transaction.category_id === categoryFilter;
+
+    return (
+      matchesSearch &&
+      matchesType &&
+      matchesStatus &&
+      matchesMonth &&
+      matchesCategory
+    );
   });
 
   const loadTransactions = useCallback(async () => {
@@ -115,10 +129,14 @@ export default function LancamentosPage() {
         return;
       }
 
-      const userTransactions = await getTransactions(currentFinancialSpaceId);
+      const [userTransactions, activeCategories] = await Promise.all([
+        getTransactions(currentFinancialSpaceId),
+        getActiveCategories(currentFinancialSpaceId),
+      ]);
 
       setFinancialSpaceId(currentFinancialSpaceId);
       setTransactions(userTransactions);
+      setCategories(activeCategories);
     } catch (error) {
       setErrorMessage(
         error instanceof Error
@@ -239,7 +257,7 @@ export default function LancamentosPage() {
         description="Refine a visualização dos lançamentos por tipo, status e mês."
         className="mb-6"
       >
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
           <div>
             <label
               htmlFor="searchTerm"
@@ -282,6 +300,31 @@ export default function LancamentosPage() {
               <option value="all">Todos</option>
               <option value="income">Receitas</option>
               <option value="expense">Despesas</option>
+            </select>
+          </div>
+
+          <div>
+            <label
+              htmlFor="categoryFilter"
+              className="mb-2 block text-sm font-medium text-zinc-200"
+            >
+              Categoria
+            </label>
+
+            <select
+              id="categoryFilter"
+              value={categoryFilter}
+              onChange={(event) => setCategoryFilter(event.target.value)}
+              className="w-full rounded-xl border border-zinc-700 bg-zinc-950 px-4 py-3 text-sm text-white transition outline-none focus:border-blue-400"
+            >
+              <option value="all">Todas</option>
+              <option value="uncategorized">Sem categoria</option>
+
+              {categories.map((category) => (
+                <option key={category.id} value={category.id}>
+                  {category.name}
+                </option>
+              ))}
             </select>
           </div>
 
@@ -357,7 +400,7 @@ export default function LancamentosPage() {
         <AppSection>
           <AppEmptyState
             title="Nenhum lançamento encontrado"
-            description="Ajuste a busca ou os filtros aplicados. Se preferir, cadastre uma nova receita ou despesa para acompanhar seu mês."
+            description="Ajuste a busca, categoria ou filtros aplicados. Se preferir, cadastre uma nova receita ou despesa para acompanhar seu mês."
             action={
               <AppLinkButton href="/lancamentos/novo">
                 Cadastrar lançamento
