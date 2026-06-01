@@ -1,4 +1,8 @@
-import type { ButtonHTMLAttributes, ReactNode } from "react";
+import type {
+  AnchorHTMLAttributes,
+  ButtonHTMLAttributes,
+  ReactNode,
+} from "react";
 import Link from "next/link";
 
 type ButtonVariant = "primary" | "secondary" | "danger" | "ghost";
@@ -13,9 +17,10 @@ type BaseProps = {
 
 type AppButtonProps = BaseProps & ButtonHTMLAttributes<HTMLButtonElement>;
 
-type AppLinkButtonProps = BaseProps & {
-  href: string;
-};
+type AppLinkButtonProps = BaseProps &
+  AnchorHTMLAttributes<HTMLAnchorElement> & {
+    href: string;
+  };
 
 const variantStyles: Record<ButtonVariant, string> = {
   primary:
@@ -41,7 +46,7 @@ function getButtonClassName({
   size?: ButtonSize;
   className?: string;
 }) {
-  return `inline-flex items-center justify-center font-semibold transition disabled:cursor-not-allowed disabled:opacity-70 ${variantStyles[variant]} ${sizeStyles[size]} ${className}`;
+  return `inline-flex cursor-pointer items-center justify-center gap-2 font-semibold transition disabled:cursor-not-allowed disabled:opacity-70 ${variantStyles[variant]} ${sizeStyles[size]} ${className}`;
 }
 
 export function AppButton({
@@ -67,11 +72,13 @@ export function AppLinkButton({
   variant = "primary",
   size = "md",
   className = "",
+  ...props
 }: AppLinkButtonProps) {
   return (
     <Link
       href={href}
       className={getButtonClassName({ variant, size, className })}
+      {...props}
     >
       {children}
     </Link>

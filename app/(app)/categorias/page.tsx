@@ -2,8 +2,11 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Ban, Check, RotateCcw, SquarePen, X } from "lucide-react";
 import { useForm } from "react-hook-form";
 
+import { AppButton } from "@/components/ui/app-button";
+import { AppSection } from "@/components/ui/app-section";
 import { getUserFinancialSpaceId } from "@/lib/auth/financial-space";
 import { getCurrentUser } from "@/lib/auth/session";
 import {
@@ -17,8 +20,6 @@ import {
   updateCategoryActiveStatus,
   updateCategoryName,
 } from "@/services/categories";
-import { AppButton } from "@/components/ui/app-button";
-import { AppSection } from "@/components/ui/app-section";
 
 export default function CategoriasPage() {
   const [financialSpaceId, setFinancialSpaceId] = useState<string | null>(null);
@@ -446,7 +447,7 @@ function CategoryGroup({
                     </div>
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-2 sm:justify-end">
+                  <div className="flex items-center gap-4 sm:justify-end">
                     <span
                       className={`rounded-full px-3 py-1 text-xs font-medium ${
                         category.active
@@ -459,50 +460,84 @@ function CategoryGroup({
 
                     {isEditing ? (
                       <>
-                        <AppButton
+                        <button
                           type="button"
-                          size="sm"
+                          title="Salvar categoria"
+                          aria-label="Salvar categoria"
                           onClick={() => void onSaveEditing(category.id)}
                           disabled={isUpdating}
+                          className="inline-flex cursor-pointer items-center justify-center p-1.5 text-emerald-400 transition hover:text-emerald-300 disabled:cursor-not-allowed disabled:opacity-50"
                         >
-                          {isUpdating ? "Salvando..." : "Salvar"}
-                        </AppButton>
+                          {isUpdating ? (
+                            <span className="text-xs">...</span>
+                          ) : (
+                            <>
+                              <Check className="h-6 w-6" />
+                              <span className="sr-only">Salvar</span>
+                            </>
+                          )}
+                        </button>
 
-                        <AppButton
+                        <button
                           type="button"
-                          variant="secondary"
-                          size="sm"
+                          title="Cancelar edição"
+                          aria-label="Cancelar edição"
                           onClick={onCancelEditing}
                           disabled={isUpdating}
+                          className="inline-flex cursor-pointer items-center justify-center p-1.5 text-zinc-400 transition hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
                         >
-                          Cancelar
-                        </AppButton>
+                          <X className="h-6 w-6" />
+                          <span className="sr-only">Cancelar</span>
+                        </button>
                       </>
                     ) : (
                       <>
-                        <AppButton
+                        <button
                           type="button"
-                          variant="secondary"
-                          size="sm"
+                          title="Editar categoria"
+                          aria-label="Editar categoria"
                           onClick={() => onStartEditing(category)}
                           disabled={isUpdating}
+                          className="inline-flex cursor-pointer items-center justify-center p-1.5 text-zinc-400 transition hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
                         >
-                          Editar
-                        </AppButton>
+                          <SquarePen className="h-6 w-6" />
+                          <span className="sr-only">Editar</span>
+                        </button>
 
-                        <AppButton
+                        <button
                           type="button"
-                          variant={category.active ? "danger" : "primary"}
-                          size="sm"
+                          title={
+                            category.active
+                              ? "Desativar categoria"
+                              : "Reativar categoria"
+                          }
+                          aria-label={
+                            category.active
+                              ? "Desativar categoria"
+                              : "Reativar categoria"
+                          }
                           onClick={() => void onToggleStatus(category)}
                           disabled={isUpdating}
+                          className={`inline-flex cursor-pointer items-center justify-center p-1.5 transition disabled:cursor-not-allowed disabled:opacity-50 ${
+                            category.active
+                              ? "text-red-400 hover:text-red-300"
+                              : "text-emerald-400 hover:text-emerald-300"
+                          }`}
                         >
-                          {isUpdating
-                            ? "Atualizando..."
-                            : category.active
-                              ? "Desativar"
-                              : "Reativar"}
-                        </AppButton>
+                          {isUpdating ? (
+                            <span className="text-xs">...</span>
+                          ) : category.active ? (
+                            <>
+                              <Ban className="h-6 w-6" />
+                              <span className="sr-only">Desativar</span>
+                            </>
+                          ) : (
+                            <>
+                              <RotateCcw className="h-6 w-6" />
+                              <span className="sr-only">Reativar</span>
+                            </>
+                          )}
+                        </button>
                       </>
                     )}
                   </div>

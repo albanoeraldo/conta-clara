@@ -1,8 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
+import { Ban, CircleCheck, SquarePen } from "lucide-react";
 
-import { AppButton, AppLinkButton } from "@/components/ui/app-button";
+import { AppLinkButton } from "@/components/ui/app-button";
 import { AppSection } from "@/components/ui/app-section";
 import { getUserFinancialSpaceId } from "@/lib/auth/financial-space";
 import { getCurrentUser } from "@/lib/auth/session";
@@ -413,38 +415,57 @@ export default function LancamentosPage() {
                       {formatCurrency(Number(transaction.amount))}
                     </strong>
 
-                    <div className="flex w-full flex-wrap gap-2 xl:justify-end">
-                      <AppLinkButton
+                    <div className="flex w-full items-center gap-4 xl:justify-end">
+                      <Link
                         href={`/lancamentos/${transaction.id}/editar`}
-                        variant="secondary"
-                        size="sm"
+                        title="Editar"
+                        aria-label="Editar lançamento"
+                        className="inline-flex cursor-pointer items-center justify-center p-1.5 text-zinc-400 transition hover:text-white"
                       >
-                        Editar
-                      </AppLinkButton>
+                        <SquarePen className="h-6 w-6" />
+                        <span className="sr-only">Editar</span>
+                      </Link>
 
                       {transaction.status !== "cancelled" && (
-                        <AppButton
+                        <button
                           type="button"
-                          variant="danger"
-                          size="sm"
+                          title="Cancelar"
+                          aria-label="Cancelar lançamento"
                           onClick={() =>
                             void handleCancelTransaction(transaction.id)
                           }
                           disabled={isUpdating}
+                          className="inline-flex cursor-pointer items-center justify-center p-1.5 text-red-400 transition hover:text-red-300 disabled:cursor-not-allowed disabled:opacity-50"
                         >
-                          {isUpdating ? "Atualizando..." : "Cancelar"}
-                        </AppButton>
+                          {isUpdating ? (
+                            <span className="text-xs">...</span>
+                          ) : (
+                            <>
+                              <Ban className="h-6 w-6" />
+                              <span className="sr-only">Cancelar</span>
+                            </>
+                          )}
+                        </button>
                       )}
 
                       {isPending && (
-                        <AppButton
+                        <button
                           type="button"
-                          size="sm"
+                          title="Marcar como pago"
+                          aria-label="Marcar lançamento como pago"
                           onClick={() => void handleMarkAsPaid(transaction.id)}
                           disabled={isUpdating}
+                          className="inline-flex cursor-pointer items-center justify-center p-1.5 text-emerald-400 transition hover:text-emerald-300 disabled:cursor-not-allowed disabled:opacity-50"
                         >
-                          {isUpdating ? "Atualizando..." : "Marcar como pago"}
-                        </AppButton>
+                          {isUpdating ? (
+                            <span className="text-xs">...</span>
+                          ) : (
+                            <>
+                              <CircleCheck className="h-6 w-6" />
+                              <span className="sr-only">Marcar como pago</span>
+                            </>
+                          )}
+                        </button>
                       )}
                     </div>
                   </div>

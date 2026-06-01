@@ -3,6 +3,17 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import type { LucideIcon } from "lucide-react";
+import {
+  LayoutDashboard,
+  ListChecks,
+  LogOut,
+  Menu,
+  Settings,
+  Tags,
+  UserRound,
+  X,
+} from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 
 import { Logo } from "@/components/brand/logo";
@@ -13,26 +24,37 @@ type AppLayoutProps = {
   children: ReactNode;
 };
 
-const navigationItems = [
+type NavigationItem = {
+  href: string;
+  label: string;
+  icon: LucideIcon;
+};
+
+const navigationItems: NavigationItem[] = [
   {
     href: "/dashboard",
     label: "Dashboard",
+    icon: LayoutDashboard,
   },
   {
     href: "/lancamentos",
     label: "Lançamentos",
+    icon: ListChecks,
   },
   {
     href: "/categorias",
     label: "Categorias",
+    icon: Tags,
   },
   {
     href: "/perfil",
     label: "Perfil",
+    icon: UserRound,
   },
   {
     href: "/configuracoes",
     label: "Configurações",
+    icon: Settings,
   },
 ];
 
@@ -129,17 +151,19 @@ export default function AppLayout({ children }: AppLayoutProps) {
             <nav className="flex flex-wrap gap-2 rounded-2xl border border-zinc-800 bg-zinc-900/70 p-1">
               {navigationItems.map((item) => {
                 const isActive = isNavigationItemActive(item.href);
+                const Icon = item.icon;
 
                 return (
                   <Link
                     key={item.href}
                     href={item.href}
-                    className={`rounded-xl px-4 py-2 text-sm font-medium transition ${
+                    className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition ${
                       isActive
                         ? "bg-emerald-400 text-zinc-950 shadow-sm shadow-emerald-950/30"
                         : "text-zinc-400 hover:bg-zinc-800 hover:text-white"
                     }`}
                   >
+                    <Icon className="h-4 w-4" />
                     {item.label}
                   </Link>
                 );
@@ -150,8 +174,9 @@ export default function AppLayout({ children }: AppLayoutProps) {
               type="button"
               onClick={handleLogout}
               disabled={isLoggingOut}
-              className="rounded-xl border border-zinc-800 bg-zinc-900/70 px-4 py-2 text-sm font-medium text-zinc-300 transition hover:border-red-400/40 hover:bg-red-400/10 hover:text-red-300 disabled:cursor-not-allowed disabled:opacity-60"
+              className="flex items-center gap-2 rounded-xl border border-zinc-800 bg-zinc-900/70 px-4 py-2 text-sm font-medium text-zinc-300 transition hover:border-red-400/40 hover:bg-red-400/10 hover:text-red-300 disabled:cursor-not-allowed disabled:opacity-60"
             >
+              <LogOut className="h-4 w-4" />
               {isLoggingOut ? "Saindo..." : "Sair"}
             </button>
           </div>
@@ -159,9 +184,19 @@ export default function AppLayout({ children }: AppLayoutProps) {
           <button
             type="button"
             onClick={() => setIsMobileMenuOpen((current) => !current)}
-            className="rounded-xl border border-zinc-800 bg-zinc-900/70 px-4 py-2 text-sm font-semibold text-zinc-200 transition hover:bg-zinc-800 lg:hidden"
+            className="flex items-center gap-2 rounded-xl border border-zinc-800 bg-zinc-900/70 px-4 py-2 text-sm font-semibold text-zinc-200 transition hover:bg-zinc-800 lg:hidden"
           >
-            {isMobileMenuOpen ? "Fechar" : "Menu"}
+            {isMobileMenuOpen ? (
+              <>
+                <X className="h-4 w-4" />
+                Fechar
+              </>
+            ) : (
+              <>
+                <Menu className="h-4 w-4" />
+                Menu
+              </>
+            )}
           </button>
         </div>
 
@@ -170,17 +205,19 @@ export default function AppLayout({ children }: AppLayoutProps) {
             <nav className="grid gap-2 rounded-2xl border border-zinc-800 bg-zinc-900/95 p-3 shadow-xl">
               {navigationItems.map((item) => {
                 const isActive = isNavigationItemActive(item.href);
+                const Icon = item.icon;
 
                 return (
                   <Link
                     key={item.href}
                     href={item.href}
-                    className={`rounded-xl px-4 py-3 text-sm font-medium transition ${
+                    className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition ${
                       isActive
                         ? "bg-emerald-400 text-zinc-950"
                         : "text-zinc-300 hover:bg-zinc-800 hover:text-white"
                     }`}
                   >
+                    <Icon className="h-4 w-4" />
                     {item.label}
                   </Link>
                 );
@@ -190,8 +227,9 @@ export default function AppLayout({ children }: AppLayoutProps) {
                 type="button"
                 onClick={handleLogout}
                 disabled={isLoggingOut}
-                className="mt-2 rounded-xl border border-red-400/30 bg-red-400/10 px-4 py-3 text-left text-sm font-medium text-red-300 transition hover:bg-red-400/20 disabled:cursor-not-allowed disabled:opacity-60"
+                className="mt-2 flex items-center gap-3 rounded-xl border border-red-400/30 bg-red-400/10 px-4 py-3 text-left text-sm font-medium text-red-300 transition hover:bg-red-400/20 disabled:cursor-not-allowed disabled:opacity-60"
               >
+                <LogOut className="h-4 w-4" />
                 {isLoggingOut ? "Saindo..." : "Sair"}
               </button>
             </nav>
