@@ -3,16 +3,16 @@
 import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 
 import { getUserFinancialSpaceId } from "@/lib/auth/financial-space";
 import { getCurrentUser } from "@/lib/auth/session";
 import { supabase } from "@/lib/supabase/client";
-import { getActiveCategories, type Category } from "@/services/categories";
 import {
   transactionSchema,
   type TransactionFormData,
 } from "@/lib/validations/auth";
+import { getActiveCategories, type Category } from "@/services/categories";
 
 export default function NovoLancamentoPage() {
   const [financialSpaceId, setFinancialSpaceId] = useState<string | null>(null);
@@ -25,7 +25,7 @@ export default function NovoLancamentoPage() {
     register,
     handleSubmit,
     reset,
-    watch,
+    control,
     formState: { errors, isSubmitting },
   } = useForm<TransactionFormData>({
     resolver: zodResolver(transactionSchema),
@@ -38,7 +38,10 @@ export default function NovoLancamentoPage() {
     },
   });
 
-  const selectedType = watch("type");
+  const selectedType = useWatch({
+    control,
+    name: "type",
+  });
 
   const filteredCategories = categories.filter(
     (category) => category.type === selectedType,

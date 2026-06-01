@@ -76,6 +76,16 @@ const defaultCategories: DefaultCategory[] = [
   },
 ];
 
+export type Category = {
+  id: string;
+  name: string;
+  type: "income" | "expense";
+  color: string | null;
+  icon: string | null;
+  is_default: boolean;
+  active: boolean;
+};
+
 export async function createDefaultCategories(financialSpaceId: string) {
   const { data: existingCategories, error: existingCategoriesError } =
     await supabase
@@ -89,7 +99,7 @@ export async function createDefaultCategories(financialSpaceId: string) {
     throw new Error(existingCategoriesError.message);
   }
 
-  if (existingCategories.length > 0) {
+  if ((existingCategories?.length ?? 0) > 0) {
     return;
   }
 
@@ -112,16 +122,6 @@ export async function createDefaultCategories(financialSpaceId: string) {
   }
 }
 
-export type Category = {
-  id: string;
-  name: string;
-  type: "income" | "expense";
-  color: string | null;
-  icon: string | null;
-  is_default: boolean;
-  active: boolean;
-};
-
 export async function getActiveCategories(financialSpaceId: string) {
   const { data, error } = await supabase
     .from("categories")
@@ -136,4 +136,45 @@ export async function getActiveCategories(financialSpaceId: string) {
   }
 
   return data as Category[];
+}
+
+export async function getCategories(financialSpaceId: string) {
+  const { data, error } = await supabase
+    .from("categories")
+    .select("id, name, type, color, icon, is_default, active")
+    .eq("financial_space_id", financialSpaceId)
+    .order("type", { ascending: true })
+    .order("name", { ascending: true });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data as Category[];
+}
+
+type CreateCategoryInput = {
+  financialSpaceId: string;
+  name: string;
+  type: "income" | "expense";
+};
+
+export async function createCategory({
+  financialSpaceId,
+  name,
+  type,
+}: CreateCategoryInput) {
+  const { error } = await supabase.from("categories").insert({
+    financial_space_id: financialSpaceId,
+    name,
+    type,
+    color: type === "income" ? "#22c55e" : "#ef4444",
+    icon: "tag",
+    is_default: false,
+    active: true,
+  });
+
+  if (error) {
+    throw new Error(error.message);
+  }
 }
