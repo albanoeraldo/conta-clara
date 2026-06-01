@@ -2,6 +2,7 @@ import { supabase } from "@/lib/supabase/client";
 
 export type Transaction = {
   id: string;
+  category_id: string | null;
   type: "income" | "expense";
   description: string;
   amount: number;
@@ -44,7 +45,7 @@ export async function getLatestTransactions(financialSpaceId: string) {
   const { data, error } = await supabase
     .from("transactions")
     .select(
-      "id, type, description, amount, due_date, paid_date, status, payment_method, notes, created_at",
+      "id, category_id, type, description, amount, due_date, paid_date, status, payment_method, notes, created_at",
     )
     .eq("financial_space_id", financialSpaceId)
     .order("created_at", { ascending: false })
@@ -63,7 +64,7 @@ export async function getCurrentMonthTransactions(financialSpaceId: string) {
   const { data, error } = await supabase
     .from("transactions")
     .select(
-      "id, type, description, amount, due_date, paid_date, status, payment_method, notes, created_at",
+      "id, category_id, type, description, amount, due_date, paid_date, status, payment_method, notes, created_at",
     )
     .eq("financial_space_id", financialSpaceId)
     .gte("due_date", startDate)
@@ -81,7 +82,7 @@ export async function getTransactions(financialSpaceId: string) {
   const { data, error } = await supabase
     .from("transactions")
     .select(
-      "id, type, description, amount, due_date, paid_date, status, payment_method, notes, created_at",
+      "id, category_id, type, description, amount, due_date, paid_date, status, payment_method, notes, created_at",
     )
     .eq("financial_space_id", financialSpaceId)
     .order("due_date", { ascending: false });
@@ -109,6 +110,69 @@ export async function markTransactionAsPaid({
     .update({
       status: "paid",
       paid_date: today,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", transactionId)
+    .eq("financial_space_id", financialSpaceId);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+}
+
+export async function getTransactionById({
+  transactionId,
+  financialSpaceId,
+}: {
+  transactionId: string;
+  financialSpaceId: string;
+}) {
+  const { data, error } = await supabase
+    .from("transactions")
+    .select(
+      "id, category_id, type, description, amount, due_date, paid_date, status, payment_method, notes, created_at",
+    )
+    .eq("id", transactionId)
+    .eq("financial_space_id", financialSpaceId)
+    .single();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data as Transaction;
+}
+
+export async function updateTransaction({
+  transactionId,
+  financialSpaceId,
+  data,
+}: {
+  transactionId: string;
+  financialSpaceId: string;
+  data: {
+    type: "income" | "expense";
+    description: string;
+    amount: number;
+    due_date: string;
+    paid_date: string | null;
+    status: "pending" | "paid";
+    payment_method:
+      | "pix"
+      | "money"
+      | "debit"
+      | "credit_card"
+      | "bank_transfer"
+      | "boleto"
+      | "other";
+    notes: string | null;
+    category_id: string | null;
+  };
+}) {
+  const { error } = await supabase
+    .from("transactions")
+    .update({
+      ...data,
       updated_at: new Date().toISOString(),
     })
     .eq("id", transactionId)

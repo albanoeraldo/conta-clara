@@ -377,6 +377,13 @@ export default function LancamentosPage() {
                       {formatCurrency(Number(transaction.amount))}
                     </strong>
 
+                    <Link
+                      href={`/lancamentos/${transaction.id}/editar`}
+                      className="rounded-full border border-zinc-700 px-3 py-1 text-xs font-semibold text-zinc-300 transition hover:bg-zinc-900 hover:text-white"
+                    >
+                      Editar
+                    </Link>
+
                     {isPending && (
                       <button
                         type="button"
