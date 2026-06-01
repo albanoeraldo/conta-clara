@@ -27,7 +27,9 @@ As principais funcionalidades já foram implementadas:
 
 ### 1. Melhorias visuais
 
-- Criar logotipo definitivo.
+- Direção de marca documentada em `docs/branding.md`.
+- Prompt para geração de logo documentado em `docs/prompts/logo-gemini.md`.
+- Criar logotipo definitivo com base na direção de marca.
 - Melhorar paleta de cores.
 - Adicionar ícones no menu.
 - Adicionar ícones nos botões de ação.
