@@ -2,6 +2,9 @@
 
 import { useEffect, useState } from "react";
 
+import { AppEmptyState } from "@/components/ui/app-empty-state";
+import { AppFeedback } from "@/components/ui/app-feedback";
+import { AppLoadingState } from "@/components/ui/app-loading-state";
 import { IncomeExpenseChart } from "@/components/dashboard/income-expense-chart";
 import { AppLinkButton } from "@/components/ui/app-button";
 import { SummaryCard } from "@/components/dashboard/summary-card";
@@ -230,9 +233,7 @@ export default function DashboardPage() {
       </section>
 
       {errorMessage && (
-        <div className="mb-8 rounded-2xl bg-red-400/10 p-4 text-center text-sm text-red-300">
-          {errorMessage}
-        </div>
+        <AppFeedback type="error" message={errorMessage} className="mb-8" />
       )}
 
       <section className="grid gap-6 xl:grid-cols-3">
@@ -242,23 +243,14 @@ export default function DashboardPage() {
             description="Os lançamentos mais recentes aparecem aqui."
           >
             {isLoading && (
-              <div className="rounded-2xl border border-dashed border-zinc-700 p-8 text-center">
-                <p className="text-sm text-zinc-400">
-                  Carregando lançamentos...
-                </p>
-              </div>
+              <AppLoadingState message="Carregando lançamentos..." />
             )}
 
             {!isLoading && !errorMessage && latestTransactions.length === 0 && (
-              <div className="rounded-2xl border border-dashed border-zinc-700 p-8 text-center">
-                <p className="text-sm text-zinc-400">
-                  Nenhum lançamento cadastrado ainda.
-                </p>
-
-                <p className="mt-2 text-sm text-zinc-500">
-                  Comece adicionando sua primeira receita ou despesa.
-                </p>
-              </div>
+              <AppEmptyState
+                title="Nenhum lançamento cadastrado ainda"
+                description="Comece adicionando sua primeira receita ou despesa para visualizar o resumo do seu mês."
+              />
             )}
 
             {!isLoading && !errorMessage && latestTransactions.length > 0 && (
@@ -312,17 +304,14 @@ export default function DashboardPage() {
         <aside className="space-y-6">
           <AppSection title="Próximas contas">
             {isLoading && (
-              <div className="rounded-2xl border border-dashed border-zinc-700 p-6 text-center">
-                <p className="text-sm text-zinc-400">Carregando contas...</p>
-              </div>
+              <AppLoadingState message="Carregando próximas contas..." />
             )}
 
             {!isLoading && upcomingPendingTransactions.length === 0 && (
-              <div className="rounded-2xl border border-dashed border-zinc-700 p-6 text-center">
-                <p className="text-sm text-zinc-400">
-                  Nenhuma conta próxima do vencimento.
-                </p>
-              </div>
+              <AppEmptyState
+                title="Nenhuma conta pendente"
+                description="Quando houver despesas pendentes no mês atual, elas aparecerão aqui."
+              />
             )}
 
             {!isLoading && upcomingPendingTransactions.length > 0 && (

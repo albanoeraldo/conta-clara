@@ -5,6 +5,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Ban, Check, RotateCcw, SquarePen, X } from "lucide-react";
 import { useForm } from "react-hook-form";
 
+import { AppEmptyState } from "@/components/ui/app-empty-state";
+import { AppFeedback } from "@/components/ui/app-feedback";
+import { AppLoadingState } from "@/components/ui/app-loading-state";
 import { AppButton } from "@/components/ui/app-button";
 import { AppSection } from "@/components/ui/app-section";
 import { getUserFinancialSpaceId } from "@/lib/auth/financial-space";
@@ -294,44 +297,31 @@ export default function CategoriasPage() {
           </AppButton>
         </form>
 
-        {statusMessage && (
-          <p
-            className={`mt-5 rounded-xl px-4 py-3 text-center text-sm ${
-              statusType === "success"
-                ? "bg-emerald-400/10 text-emerald-300"
-                : "bg-red-400/10 text-red-300"
-            }`}
-          >
-            {statusMessage}
-          </p>
+        {statusMessage && statusType && (
+          <AppFeedback
+            type={statusType}
+            message={statusMessage}
+            className="mt-5"
+          />
         )}
       </AppSection>
 
       {isLoading && (
         <AppSection>
-          <p className="text-center text-sm text-zinc-400">
-            Carregando categorias...
-          </p>
+          <AppLoadingState message="Carregando categorias..." />
         </AppSection>
       )}
 
       {!isLoading && errorMessage && (
-        <section className="rounded-3xl bg-red-400/10 p-6 text-center text-sm text-red-300">
-          {errorMessage}
-        </section>
+        <AppFeedback type="error" message={errorMessage} />
       )}
 
       {!isLoading && !errorMessage && categories.length === 0 && (
         <AppSection>
-          <div className="rounded-2xl border border-dashed border-zinc-700 p-8 text-center">
-            <h2 className="text-xl font-semibold">
-              Nenhuma categoria encontrada
-            </h2>
-
-            <p className="mt-3 text-sm text-zinc-400">
-              As categorias padrão serão criadas no onboarding.
-            </p>
-          </div>
+          <AppEmptyState
+            title="Nenhuma categoria encontrada"
+            description="As categorias padrão serão criadas no onboarding. Você também pode criar categorias personalizadas para organizar melhor seus lançamentos."
+          />
         </AppSection>
       )}
 
@@ -400,11 +390,10 @@ function CategoryGroup({
   return (
     <AppSection title={title} description={description}>
       {categories.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-zinc-700 p-6 text-center">
-          <p className="text-sm text-zinc-400">
-            Nenhuma categoria cadastrada neste tipo.
-          </p>
-        </div>
+        <AppEmptyState
+          title="Nenhuma categoria neste tipo"
+          description="Quando houver categorias cadastradas para este tipo, elas aparecerão aqui."
+        />
       ) : (
         <div className="space-y-3">
           {categories.map((category) => {

@@ -5,6 +5,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { AppButton } from "@/components/ui/app-button";
 import { AppSection } from "@/components/ui/app-section";
+import { AppFeedback } from "@/components/ui/app-feedback";
+import { AppLoadingState } from "@/components/ui/app-loading-state";
 
 import { getCurrentUser } from "@/lib/auth/session";
 import {
@@ -126,9 +128,9 @@ export default function ConfiguracoesPage() {
   if (isLoading) {
     return (
       <main>
-        <section className="rounded-3xl border border-zinc-800 bg-zinc-900/70 p-8 text-center shadow-xl">
-          <p className="text-sm text-zinc-400">Carregando configurações...</p>
-        </section>
+        <AppSection>
+          <AppLoadingState message="Carregando configurações..." />
+        </AppSection>
       </main>
     );
   }
@@ -235,16 +237,8 @@ export default function ConfiguracoesPage() {
             </AppButton>
           </div>
 
-          {statusMessage && (
-            <p
-              className={`rounded-xl px-4 py-3 text-center text-sm ${
-                statusType === "success"
-                  ? "bg-emerald-400/10 text-emerald-300"
-                  : "bg-red-400/10 text-red-300"
-              }`}
-            >
-              {statusMessage}
-            </p>
+          {statusMessage && statusType && (
+            <AppFeedback type={statusType} message={statusMessage} />
           )}
         </form>
       </AppSection>

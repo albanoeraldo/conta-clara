@@ -4,6 +4,9 @@ import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { Ban, CircleCheck, SquarePen } from "lucide-react";
 
+import { AppEmptyState } from "@/components/ui/app-empty-state";
+import { AppFeedback } from "@/components/ui/app-feedback";
+import { AppLoadingState } from "@/components/ui/app-loading-state";
 import { AppLinkButton } from "@/components/ui/app-button";
 import { AppSection } from "@/components/ui/app-section";
 import { getUserFinancialSpaceId } from "@/lib/auth/financial-space";
@@ -304,47 +307,35 @@ export default function LancamentosPage() {
         </div>
       </AppSection>
 
-      {statusMessage && (
-        <section
-          className={`mb-6 rounded-2xl px-4 py-3 text-center text-sm ${
-            statusType === "success"
-              ? "bg-emerald-400/10 text-emerald-300"
-              : "bg-red-400/10 text-red-300"
-          }`}
-        >
-          {statusMessage}
-        </section>
+      {statusMessage && statusType && (
+        <AppFeedback
+          type={statusType}
+          message={statusMessage}
+          className="mb-6"
+        />
       )}
 
       {isLoading && (
         <AppSection>
-          <p className="text-center text-sm text-zinc-400">
-            Carregando lançamentos...
-          </p>
+          <AppLoadingState message="Carregando lançamentos..." />
         </AppSection>
       )}
 
       {!isLoading && errorMessage && (
-        <section className="rounded-3xl bg-red-400/10 p-6 text-center text-sm text-red-300">
-          {errorMessage}
-        </section>
+        <AppFeedback type="error" message={errorMessage} />
       )}
 
       {!isLoading && !errorMessage && filteredTransactions.length === 0 && (
         <AppSection>
-          <div className="rounded-2xl border border-dashed border-zinc-700 p-8 text-center">
-            <h2 className="text-xl font-semibold">
-              Nenhum lançamento encontrado
-            </h2>
-
-            <p className="mt-3 text-sm text-zinc-400">
-              Ajuste os filtros ou cadastre uma nova receita ou despesa.
-            </p>
-
-            <AppLinkButton href="/lancamentos/novo" className="mt-6">
-              Cadastrar lançamento
-            </AppLinkButton>
-          </div>
+          <AppEmptyState
+            title="Nenhum lançamento encontrado"
+            description="Ajuste os filtros ou cadastre uma nova receita ou despesa para acompanhar seu mês."
+            action={
+              <AppLinkButton href="/lancamentos/novo">
+                Cadastrar lançamento
+              </AppLinkButton>
+            }
+          />
         </AppSection>
       )}
 
