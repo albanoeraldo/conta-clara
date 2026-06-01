@@ -184,3 +184,23 @@ O Conta Clara deve sempre seguir estes princípios:
 ## Observação
 
 Esta direção de marca é inicial e poderá evoluir conforme o produto for testado com usuários reais.
+
+## Atualização visual v0.2.0
+
+A partir da fase `v0.2.0`, o Conta Clara passará por uma evolução visual.
+
+A nova direção busca deixar o produto menos genérico, mais vivo e com identidade mais própria, mantendo os princípios de simplicidade, clareza, confiança e facilidade de uso.
+
+A interface passará a seguir uma abordagem **light-first**, usando fundo claro como padrão, azul como cor principal, cards claros, sombras leves e textos em grafite.
+
+Essa decisão combina melhor com o nome **Conta Clara** e reforça a ideia de clareza, organização e facilidade.
+
+O modo escuro poderá ser implementado futuramente como uma opção para o usuário, mas não será o foco principal desta fase.
+
+A implementação da logo definitiva também não será feita nesta etapa. Primeiro será refinada a identidade visual da interface, incluindo página pública, login, cadastro, onboarding, dashboard, componentes base e microinterações.
+
+A direção visual detalhada está documentada em:
+
+```txt
+docs/visual-direction.md
+```
