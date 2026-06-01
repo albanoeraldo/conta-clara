@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { Ban, CircleCheck, SquarePen } from "lucide-react";
+import { Ban, CircleCheck, Search, SquarePen } from "lucide-react";
 
 import { AppEmptyState } from "@/components/ui/app-empty-state";
 import { AppFeedback } from "@/components/ui/app-feedback";
@@ -66,6 +66,7 @@ const paymentMethodLabels: Record<Transaction["payment_method"], string> = {
 export default function LancamentosPage() {
   const [financialSpaceId, setFinancialSpaceId] = useState<string | null>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
   const [typeFilter, setTypeFilter] = useState<"all" | "income" | "expense">(
     "all",
   );
@@ -82,6 +83,12 @@ export default function LancamentosPage() {
   const [statusType, setStatusType] = useState<"success" | "error" | "">("");
 
   const filteredTransactions = transactions.filter((transaction) => {
+    const normalizedSearchTerm = searchTerm.trim().toLowerCase();
+
+    const matchesSearch =
+      normalizedSearchTerm.length === 0 ||
+      transaction.description.toLowerCase().includes(normalizedSearchTerm);
+
     const matchesType = typeFilter === "all" || transaction.type === typeFilter;
 
     const matchesStatus =
@@ -89,7 +96,7 @@ export default function LancamentosPage() {
 
     const matchesMonth = transaction.due_date.startsWith(monthFilter);
 
-    return matchesType && matchesStatus && matchesMonth;
+    return matchesSearch && matchesType && matchesStatus && matchesMonth;
   });
 
   const loadTransactions = useCallback(async () => {
@@ -232,7 +239,28 @@ export default function LancamentosPage() {
         description="Refine a visualização dos lançamentos por tipo, status e mês."
         className="mb-6"
       >
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <div>
+            <label
+              htmlFor="searchTerm"
+              className="mb-2 block text-sm font-medium text-zinc-200"
+            >
+              Buscar
+            </label>
+
+            <div className="relative">
+              <Search className="pointer-events-none absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 text-zinc-500" />
+
+              <input
+                id="searchTerm"
+                type="search"
+                value={searchTerm}
+                onChange={(event) => setSearchTerm(event.target.value)}
+                placeholder="Buscar por descrição"
+                className="w-full rounded-xl border border-zinc-700 bg-zinc-950 py-3 pr-4 pl-11 text-sm text-white transition outline-none placeholder:text-zinc-500 focus:border-blue-400"
+              />
+            </div>
+          </div>
           <div>
             <label
               htmlFor="typeFilter"
@@ -329,7 +357,7 @@ export default function LancamentosPage() {
         <AppSection>
           <AppEmptyState
             title="Nenhum lançamento encontrado"
-            description="Ajuste os filtros ou cadastre uma nova receita ou despesa para acompanhar seu mês."
+            description="Ajuste a busca ou os filtros aplicados. Se preferir, cadastre uma nova receita ou despesa para acompanhar seu mês."
             action={
               <AppLinkButton href="/lancamentos/novo">
                 Cadastrar lançamento
