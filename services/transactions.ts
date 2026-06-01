@@ -76,3 +76,19 @@ export async function getCurrentMonthTransactions(financialSpaceId: string) {
 
   return data as Transaction[];
 }
+
+export async function getTransactions(financialSpaceId: string) {
+  const { data, error } = await supabase
+    .from("transactions")
+    .select(
+      "id, type, description, amount, due_date, paid_date, status, payment_method, notes, created_at",
+    )
+    .eq("financial_space_id", financialSpaceId)
+    .order("due_date", { ascending: false });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data as Transaction[];
+}
