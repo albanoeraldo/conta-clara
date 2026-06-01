@@ -17,6 +17,8 @@ import {
   updateCategoryActiveStatus,
   updateCategoryName,
 } from "@/services/categories";
+import { AppButton } from "@/components/ui/app-button";
+import { AppSection } from "@/components/ui/app-section";
 
 export default function CategoriasPage() {
   const [financialSpaceId, setFinancialSpaceId] = useState<string | null>(null);
@@ -55,7 +57,6 @@ export default function CategoriasPage() {
 
   const loadCategories = useCallback(async () => {
     try {
-      setIsLoading(true);
       setErrorMessage("");
 
       const user = await getCurrentUser();
@@ -235,15 +236,11 @@ export default function CategoriasPage() {
         </p>
       </div>
 
-      <section className="mb-8 rounded-3xl border border-zinc-800 bg-zinc-900/70 p-6 shadow-xl">
-        <div className="mb-5">
-          <h2 className="text-xl font-semibold">Nova categoria</h2>
-          <p className="mt-1 text-sm text-zinc-400">
-            Crie categorias personalizadas para deixar seus lançamentos mais
-            organizados.
-          </p>
-        </div>
-
+      <AppSection
+        title="Nova categoria"
+        description="Crie categorias personalizadas para deixar seus lançamentos mais organizados."
+        className="mb-8"
+      >
         <form
           onSubmit={handleSubmit(onSubmit)}
           className="grid gap-4 md:grid-cols-[1fr_220px_auto] md:items-start"
@@ -291,13 +288,9 @@ export default function CategoriasPage() {
             )}
           </div>
 
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="mt-7 rounded-xl bg-emerald-400 px-5 py-3 text-sm font-semibold text-zinc-950 transition hover:bg-emerald-300 disabled:cursor-not-allowed disabled:opacity-70"
-          >
+          <AppButton type="submit" disabled={isSubmitting} className="mt-7">
             {isSubmitting ? "Criando..." : "Criar categoria"}
-          </button>
+          </AppButton>
         </form>
 
         {statusMessage && (
@@ -311,12 +304,14 @@ export default function CategoriasPage() {
             {statusMessage}
           </p>
         )}
-      </section>
+      </AppSection>
 
       {isLoading && (
-        <section className="rounded-3xl border border-zinc-800 bg-zinc-900/70 p-8 text-center shadow-xl">
-          <p className="text-sm text-zinc-400">Carregando categorias...</p>
-        </section>
+        <AppSection>
+          <p className="text-center text-sm text-zinc-400">
+            Carregando categorias...
+          </p>
+        </AppSection>
       )}
 
       {!isLoading && errorMessage && (
@@ -326,15 +321,17 @@ export default function CategoriasPage() {
       )}
 
       {!isLoading && !errorMessage && categories.length === 0 && (
-        <section className="rounded-3xl border border-dashed border-zinc-700 bg-zinc-900/70 p-8 text-center shadow-xl">
-          <h2 className="text-xl font-semibold">
-            Nenhuma categoria encontrada
-          </h2>
+        <AppSection>
+          <div className="rounded-2xl border border-dashed border-zinc-700 p-8 text-center">
+            <h2 className="text-xl font-semibold">
+              Nenhuma categoria encontrada
+            </h2>
 
-          <p className="mt-3 text-sm text-zinc-400">
-            As categorias padrão serão criadas no onboarding.
-          </p>
-        </section>
+            <p className="mt-3 text-sm text-zinc-400">
+              As categorias padrão serão criadas no onboarding.
+            </p>
+          </div>
+        </AppSection>
       )}
 
       {!isLoading && !errorMessage && categories.length > 0 && (
@@ -400,12 +397,7 @@ function CategoryGroup({
   onToggleStatus,
 }: CategoryGroupProps) {
   return (
-    <div className="rounded-3xl border border-zinc-800 bg-zinc-900/70 p-6 shadow-xl">
-      <div className="mb-5">
-        <h2 className="text-xl font-semibold">{title}</h2>
-        <p className="mt-1 text-sm text-zinc-400">{description}</p>
-      </div>
-
+    <AppSection title={title} description={description}>
       {categories.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-zinc-700 p-6 text-center">
           <p className="text-sm text-zinc-400">
@@ -467,51 +459,50 @@ function CategoryGroup({
 
                     {isEditing ? (
                       <>
-                        <button
+                        <AppButton
                           type="button"
+                          size="sm"
                           onClick={() => void onSaveEditing(category.id)}
                           disabled={isUpdating}
-                          className="rounded-full bg-emerald-400/10 px-3 py-1 text-xs font-semibold text-emerald-300 transition hover:bg-emerald-400/20 disabled:cursor-not-allowed disabled:opacity-60"
                         >
                           {isUpdating ? "Salvando..." : "Salvar"}
-                        </button>
+                        </AppButton>
 
-                        <button
+                        <AppButton
                           type="button"
+                          variant="secondary"
+                          size="sm"
                           onClick={onCancelEditing}
                           disabled={isUpdating}
-                          className="rounded-full border border-zinc-700 px-3 py-1 text-xs font-semibold text-zinc-300 transition hover:bg-zinc-900 hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
                         >
                           Cancelar
-                        </button>
+                        </AppButton>
                       </>
                     ) : (
                       <>
-                        <button
+                        <AppButton
                           type="button"
+                          variant="secondary"
+                          size="sm"
                           onClick={() => onStartEditing(category)}
                           disabled={isUpdating}
-                          className="rounded-full border border-zinc-700 px-3 py-1 text-xs font-semibold text-zinc-300 transition hover:bg-zinc-900 hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
                         >
                           Editar
-                        </button>
+                        </AppButton>
 
-                        <button
+                        <AppButton
                           type="button"
+                          variant={category.active ? "danger" : "primary"}
+                          size="sm"
                           onClick={() => void onToggleStatus(category)}
                           disabled={isUpdating}
-                          className={`rounded-full px-3 py-1 text-xs font-semibold transition disabled:cursor-not-allowed disabled:opacity-60 ${
-                            category.active
-                              ? "border border-red-400/30 text-red-300 hover:bg-red-400/10"
-                              : "bg-emerald-400/10 text-emerald-300 hover:bg-emerald-400/20"
-                          }`}
                         >
                           {isUpdating
                             ? "Atualizando..."
                             : category.active
                               ? "Desativar"
                               : "Reativar"}
-                        </button>
+                        </AppButton>
                       </>
                     )}
                   </div>
@@ -521,6 +512,6 @@ function CategoryGroup({
           })}
         </div>
       )}
-    </div>
+    </AppSection>
   );
 }

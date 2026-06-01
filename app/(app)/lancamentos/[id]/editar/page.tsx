@@ -2,10 +2,11 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useForm, useWatch } from "react-hook-form";
 
+import { AppButton, AppLinkButton } from "@/components/ui/app-button";
+import { AppSection } from "@/components/ui/app-section";
 import { getUserFinancialSpaceId } from "@/lib/auth/financial-space";
 import { getCurrentUser } from "@/lib/auth/session";
 import {
@@ -162,9 +163,11 @@ export default function EditarLancamentoPage() {
   if (isLoading) {
     return (
       <main>
-        <section className="rounded-3xl border border-zinc-800 bg-zinc-900/70 p-8 text-center shadow-xl">
-          <p className="text-sm text-zinc-400">Carregando lançamento...</p>
-        </section>
+        <AppSection>
+          <p className="text-center text-sm text-zinc-400">
+            Carregando lançamento...
+          </p>
+        </AppSection>
       </main>
     );
   }
@@ -183,7 +186,10 @@ export default function EditarLancamentoPage() {
         </p>
       </div>
 
-      <section className="rounded-3xl border border-zinc-800 bg-zinc-900/70 p-8 shadow-xl">
+      <AppSection
+        title="Dados do lançamento"
+        description="Revise e atualize as informações cadastradas."
+      >
         <form onSubmit={handleSubmit(onSubmit)} className="grid gap-5">
           <div>
             <label
@@ -382,20 +388,13 @@ export default function EditarLancamentoPage() {
           </div>
 
           <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
-            <Link
-              href="/lancamentos"
-              className="rounded-xl border border-zinc-700 px-5 py-3 text-center text-sm font-semibold text-zinc-300 transition hover:bg-zinc-900 hover:text-white"
-            >
+            <AppLinkButton href="/lancamentos" variant="secondary">
               Cancelar
-            </Link>
+            </AppLinkButton>
 
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="rounded-xl bg-emerald-400 px-5 py-3 text-sm font-semibold text-zinc-950 transition hover:bg-emerald-300 disabled:cursor-not-allowed disabled:opacity-70"
-            >
+            <AppButton type="submit" disabled={isSubmitting}>
               {isSubmitting ? "Salvando..." : "Salvar alterações"}
-            </button>
+            </AppButton>
           </div>
 
           {statusMessage && (
@@ -410,7 +409,7 @@ export default function EditarLancamentoPage() {
             </p>
           )}
         </form>
-      </section>
+      </AppSection>
     </main>
   );
 }

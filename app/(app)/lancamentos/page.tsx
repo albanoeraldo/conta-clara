@@ -1,8 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import Link from "next/link";
 
+import { AppButton, AppLinkButton } from "@/components/ui/app-button";
+import { AppSection } from "@/components/ui/app-section";
 import { getUserFinancialSpaceId } from "@/lib/auth/financial-space";
 import { getCurrentUser } from "@/lib/auth/session";
 import {
@@ -218,15 +219,14 @@ export default function LancamentosPage() {
           </p>
         </div>
 
-        <Link
-          href="/lancamentos/novo"
-          className="rounded-xl bg-emerald-400 px-5 py-3 text-center text-sm font-semibold text-zinc-950 transition hover:bg-emerald-300"
-        >
-          Novo lançamento
-        </Link>
+        <AppLinkButton href="/lancamentos/novo">Novo lançamento</AppLinkButton>
       </div>
 
-      <section className="mb-6 rounded-3xl border border-zinc-800 bg-zinc-900/70 p-6 shadow-xl">
+      <AppSection
+        title="Filtros"
+        description="Refine a visualização dos lançamentos por tipo, status e mês."
+        className="mb-6"
+      >
         <div className="grid gap-4 md:grid-cols-3">
           <div>
             <label
@@ -300,7 +300,7 @@ export default function LancamentosPage() {
             />
           </div>
         </div>
-      </section>
+      </AppSection>
 
       {statusMessage && (
         <section
@@ -315,9 +315,11 @@ export default function LancamentosPage() {
       )}
 
       {isLoading && (
-        <section className="rounded-3xl border border-zinc-800 bg-zinc-900/70 p-8 text-center shadow-xl">
-          <p className="text-sm text-zinc-400">Carregando lançamentos...</p>
-        </section>
+        <AppSection>
+          <p className="text-center text-sm text-zinc-400">
+            Carregando lançamentos...
+          </p>
+        </AppSection>
       )}
 
       {!isLoading && errorMessage && (
@@ -327,35 +329,28 @@ export default function LancamentosPage() {
       )}
 
       {!isLoading && !errorMessage && filteredTransactions.length === 0 && (
-        <section className="rounded-3xl border border-dashed border-zinc-700 bg-zinc-900/70 p-8 text-center shadow-xl">
-          <h2 className="text-xl font-semibold">
-            Nenhum lançamento encontrado
-          </h2>
+        <AppSection>
+          <div className="rounded-2xl border border-dashed border-zinc-700 p-8 text-center">
+            <h2 className="text-xl font-semibold">
+              Nenhum lançamento encontrado
+            </h2>
 
-          <p className="mt-3 text-sm text-zinc-400">
-            Ajuste os filtros ou cadastre uma nova receita ou despesa.
-          </p>
+            <p className="mt-3 text-sm text-zinc-400">
+              Ajuste os filtros ou cadastre uma nova receita ou despesa.
+            </p>
 
-          <Link
-            href="/lancamentos/novo"
-            className="mt-6 inline-flex rounded-xl bg-emerald-400 px-5 py-3 text-sm font-semibold text-zinc-950 transition hover:bg-emerald-300"
-          >
-            Cadastrar lançamento
-          </Link>
-        </section>
+            <AppLinkButton href="/lancamentos/novo" className="mt-6">
+              Cadastrar lançamento
+            </AppLinkButton>
+          </div>
+        </AppSection>
       )}
 
       {!isLoading && !errorMessage && filteredTransactions.length > 0 && (
-        <section className="rounded-3xl border border-zinc-800 bg-zinc-900/70 p-6 shadow-xl">
-          <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h2 className="text-xl font-semibold">Lista de lançamentos</h2>
-              <p className="mt-1 text-sm text-zinc-400">
-                {filteredTransactions.length} lançamento(s) encontrado(s).
-              </p>
-            </div>
-          </div>
-
+        <AppSection
+          title="Lista de lançamentos"
+          description={`${filteredTransactions.length} lançamento(s) encontrado(s).`}
+        >
           <div className="space-y-3">
             {filteredTransactions.map((transaction) => {
               const isIncome = transaction.type === "income";
@@ -418,42 +413,46 @@ export default function LancamentosPage() {
                       {formatCurrency(Number(transaction.amount))}
                     </strong>
 
-                    <Link
-                      href={`/lancamentos/${transaction.id}/editar`}
-                      className="rounded-full border border-zinc-700 px-3 py-1 text-xs font-semibold text-zinc-300 transition hover:bg-zinc-900 hover:text-white"
-                    >
-                      Editar
-                    </Link>
-
-                    {transaction.status !== "cancelled" && (
-                      <button
-                        type="button"
-                        onClick={() =>
-                          void handleCancelTransaction(transaction.id)
-                        }
-                        disabled={isUpdating}
-                        className="rounded-full border border-red-400/30 px-3 py-1 text-xs font-semibold text-red-300 transition hover:bg-red-400/10 disabled:cursor-not-allowed disabled:opacity-60"
+                    <div className="flex flex-wrap gap-2 lg:justify-end">
+                      <AppLinkButton
+                        href={`/lancamentos/${transaction.id}/editar`}
+                        variant="secondary"
+                        size="sm"
                       >
-                        {isUpdating ? "Atualizando..." : "Cancelar"}
-                      </button>
-                    )}
+                        Editar
+                      </AppLinkButton>
 
-                    {isPending && (
-                      <button
-                        type="button"
-                        onClick={() => void handleMarkAsPaid(transaction.id)}
-                        disabled={isUpdating}
-                        className="rounded-full bg-emerald-400/10 px-3 py-1 text-xs font-semibold text-emerald-300 transition hover:bg-emerald-400/20 disabled:cursor-not-allowed disabled:opacity-60"
-                      >
-                        {isUpdating ? "Atualizando..." : "Marcar como pago"}
-                      </button>
-                    )}
+                      {transaction.status !== "cancelled" && (
+                        <AppButton
+                          type="button"
+                          variant="danger"
+                          size="sm"
+                          onClick={() =>
+                            void handleCancelTransaction(transaction.id)
+                          }
+                          disabled={isUpdating}
+                        >
+                          {isUpdating ? "Atualizando..." : "Cancelar"}
+                        </AppButton>
+                      )}
+
+                      {isPending && (
+                        <AppButton
+                          type="button"
+                          size="sm"
+                          onClick={() => void handleMarkAsPaid(transaction.id)}
+                          disabled={isUpdating}
+                        >
+                          {isUpdating ? "Atualizando..." : "Marcar como pago"}
+                        </AppButton>
+                      )}
+                    </div>
                   </div>
                 </div>
               );
             })}
           </div>
-        </section>
+        </AppSection>
       )}
     </main>
   );

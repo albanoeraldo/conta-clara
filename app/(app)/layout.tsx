@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 
+import { Logo } from "@/components/brand/logo";
 import { getCurrentUser } from "@/lib/auth/session";
 import { supabase } from "@/lib/supabase/client";
 
@@ -75,10 +76,22 @@ export default function AppLayout({ children }: AppLayoutProps) {
     router.replace("/login");
   }
 
+  function isNavigationItemActive(href: string) {
+    if (href === "/dashboard") {
+      return pathname === href;
+    }
+
+    return pathname === href || pathname.startsWith(`${href}/`);
+  }
+
   if (isCheckingSession) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-zinc-950 px-6 text-white">
-        <section className="w-full max-w-md rounded-3xl border border-zinc-800 bg-zinc-900/70 p-8 text-center shadow-2xl">
+        <section className="w-full max-w-md rounded-3xl border border-zinc-800 bg-zinc-900/80 p-8 text-center shadow-2xl">
+          <div className="mx-auto mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-400 text-lg font-black text-zinc-950">
+            C
+          </div>
+
           <p className="mb-3 text-sm font-medium tracking-[0.3em] text-emerald-400 uppercase">
             Conta Clara
           </p>
@@ -97,30 +110,23 @@ export default function AppLayout({ children }: AppLayoutProps) {
 
   return (
     <div className="min-h-screen bg-zinc-950 text-white">
-      <header className="border-b border-zinc-800 bg-zinc-950/90 px-6 py-4 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-          <Link href="/dashboard" className="group">
-            <p className="text-sm font-medium tracking-[0.3em] text-emerald-400 uppercase">
-              Conta Clara
-            </p>
-            <p className="mt-1 text-xs text-zinc-500 group-hover:text-zinc-400">
-              Controle financeiro simples
-            </p>
-          </Link>
+      <header className="sticky top-0 z-40 border-b border-zinc-800 bg-zinc-950/95 px-6 py-4 backdrop-blur">
+        <div className="mx-auto flex max-w-7xl flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <Logo />
 
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-            <nav className="flex flex-wrap gap-2">
+          <div className="flex flex-col gap-3 xl:flex-row xl:items-center">
+            <nav className="flex flex-wrap gap-2 rounded-2xl border border-zinc-800 bg-zinc-900/70 p-1">
               {navigationItems.map((item) => {
-                const isActive = pathname === item.href;
+                const isActive = isNavigationItemActive(item.href);
 
                 return (
                   <Link
                     key={item.href}
                     href={item.href}
-                    className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+                    className={`rounded-xl px-4 py-2 text-sm font-medium transition ${
                       isActive
-                        ? "bg-emerald-400 text-zinc-950"
-                        : "bg-zinc-900 text-zinc-300 hover:bg-zinc-800 hover:text-white"
+                        ? "bg-emerald-400 text-zinc-950 shadow-sm shadow-emerald-950/30"
+                        : "text-zinc-400 hover:bg-zinc-800 hover:text-white"
                     }`}
                   >
                     {item.label}
@@ -133,7 +139,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
               type="button"
               onClick={handleLogout}
               disabled={isLoggingOut}
-              className="rounded-full border border-zinc-700 px-4 py-2 text-sm font-medium text-zinc-300 transition hover:bg-zinc-900 hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
+              className="rounded-xl border border-zinc-800 bg-zinc-900/70 px-4 py-2 text-sm font-medium text-zinc-300 transition hover:border-red-400/40 hover:bg-red-400/10 hover:text-red-300 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {isLoggingOut ? "Saindo..." : "Sair"}
             </button>
@@ -141,7 +147,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
         </div>
       </header>
 
-      <div className="mx-auto max-w-6xl px-6 py-8">{children}</div>
+      <main className="mx-auto max-w-7xl px-6 py-8">{children}</main>
     </div>
   );
 }

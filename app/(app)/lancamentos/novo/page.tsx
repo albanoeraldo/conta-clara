@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import Link from "next/link";
 import { useForm, useWatch } from "react-hook-form";
 
+import { AppButton, AppLinkButton } from "@/components/ui/app-button";
+import { AppSection } from "@/components/ui/app-section";
 import { getUserFinancialSpaceId } from "@/lib/auth/financial-space";
 import { getCurrentUser } from "@/lib/auth/session";
 import { supabase } from "@/lib/supabase/client";
@@ -92,10 +93,13 @@ export default function NovoLancamentoPage() {
       }
     }
 
-    loadCategories();
+    const timeoutId = window.setTimeout(() => {
+      void loadCategories();
+    }, 0);
 
     return () => {
       isMounted = false;
+      window.clearTimeout(timeoutId);
     };
   }, []);
 
@@ -154,7 +158,10 @@ export default function NovoLancamentoPage() {
         </p>
       </div>
 
-      <section className="rounded-3xl border border-zinc-800 bg-zinc-900/70 p-8 shadow-xl">
+      <AppSection
+        title="Dados do lançamento"
+        description="Preencha as informações principais da receita ou despesa."
+      >
         <form onSubmit={handleSubmit(onSubmit)} className="grid gap-5">
           <div>
             <label
@@ -358,20 +365,13 @@ export default function NovoLancamentoPage() {
           </div>
 
           <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
-            <Link
-              href="/dashboard"
-              className="rounded-xl border border-zinc-700 px-5 py-3 text-center text-sm font-semibold text-zinc-300 transition hover:bg-zinc-900 hover:text-white"
-            >
+            <AppLinkButton href="/dashboard" variant="secondary">
               Cancelar
-            </Link>
+            </AppLinkButton>
 
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="rounded-xl bg-emerald-400 px-5 py-3 text-sm font-semibold text-zinc-950 transition hover:bg-emerald-300 disabled:cursor-not-allowed disabled:opacity-70"
-            >
+            <AppButton type="submit" disabled={isSubmitting}>
               {isSubmitting ? "Salvando..." : "Salvar lançamento"}
-            </button>
+            </AppButton>
           </div>
 
           {statusMessage && (
@@ -386,7 +386,7 @@ export default function NovoLancamentoPage() {
             </p>
           )}
         </form>
-      </section>
+      </AppSection>
     </main>
   );
 }

@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 
-import { getUserFinancialSpaceId } from "@/lib/auth/financial-space";
 import { IncomeExpenseChart } from "@/components/dashboard/income-expense-chart";
+import { AppLinkButton } from "@/components/ui/app-button";
+import { SummaryCard } from "@/components/dashboard/summary-card";
+import { AppSection } from "@/components/ui/app-section";
+import { getUserFinancialSpaceId } from "@/lib/auth/financial-space";
 import { getCurrentUser } from "@/lib/auth/session";
 import {
   getCurrentMonthTransactions,
@@ -155,12 +157,7 @@ export default function DashboardPage() {
           </p>
         </div>
 
-        <Link
-          href="/lancamentos/novo"
-          className="rounded-xl bg-emerald-400 px-5 py-3 text-center text-sm font-semibold text-zinc-950 transition hover:bg-emerald-300"
-        >
-          Novo lançamento
-        </Link>
+        <AppLinkButton href="/lancamentos/novo">Novo lançamento</AppLinkButton>
       </header>
 
       <section className="mb-8 rounded-3xl border border-emerald-400/20 bg-emerald-400/10 p-6 shadow-xl">
@@ -198,42 +195,38 @@ export default function DashboardPage() {
         </div>
       </section>
 
-      <section className="mb-8 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-3xl border border-zinc-800 bg-zinc-900/70 p-6 shadow-xl">
-          <p className="text-sm text-zinc-400">Receitas do mês</p>
-          <strong className="mt-3 block text-2xl font-bold text-emerald-300">
-            {isLoading ? "..." : formatCurrency(monthlySummary.incomeTotal)}
-          </strong>
-        </div>
+      <section className="mb-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <SummaryCard
+          title="Receitas do mês"
+          value={isLoading ? "..." : formatCurrency(monthlySummary.incomeTotal)}
+          description="Entradas cadastradas para o mês atual."
+          tone="emerald"
+        />
 
-        <div className="rounded-3xl border border-zinc-800 bg-zinc-900/70 p-6 shadow-xl">
-          <p className="text-sm text-zinc-400">Despesas do mês</p>
-          <strong className="mt-3 block text-2xl font-bold text-red-300">
-            {isLoading ? "..." : formatCurrency(monthlySummary.expenseTotal)}
-          </strong>
-        </div>
+        <SummaryCard
+          title="Despesas do mês"
+          value={
+            isLoading ? "..." : formatCurrency(monthlySummary.expenseTotal)
+          }
+          description="Gastos e contas cadastrados no período."
+          tone="red"
+        />
 
-        <div className="rounded-3xl border border-zinc-800 bg-zinc-900/70 p-6 shadow-xl">
-          <p className="text-sm text-zinc-400">Saldo previsto</p>
-          <strong
-            className={`mt-3 block text-2xl font-bold ${
-              monthlySummary.predictedBalance >= 0
-                ? "text-emerald-300"
-                : "text-red-300"
-            }`}
-          >
-            {isLoading
-              ? "..."
-              : formatCurrency(monthlySummary.predictedBalance)}
-          </strong>
-        </div>
+        <SummaryCard
+          title="Saldo previsto"
+          value={
+            isLoading ? "..." : formatCurrency(monthlySummary.predictedBalance)
+          }
+          description="Diferença entre receitas e despesas do mês."
+          tone={monthlySummary.predictedBalance >= 0 ? "emerald" : "red"}
+        />
 
-        <div className="rounded-3xl border border-zinc-800 bg-zinc-900/70 p-6 shadow-xl">
-          <p className="text-sm text-zinc-400">Contas pendentes</p>
-          <strong className="mt-3 block text-2xl font-bold text-yellow-300">
-            {isLoading ? "..." : monthlySummary.pendingCount}
-          </strong>
-        </div>
+        <SummaryCard
+          title="Contas pendentes"
+          value={isLoading ? "..." : monthlySummary.pendingCount}
+          description="Lançamentos ainda não marcados como pagos."
+          tone="yellow"
+        />
       </section>
 
       {errorMessage && (
@@ -244,16 +237,10 @@ export default function DashboardPage() {
 
       <section className="grid gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
-          <div className="rounded-3xl border border-zinc-800 bg-zinc-900/70 p-6 shadow-xl">
-            <div className="mb-5 flex items-center justify-between">
-              <div>
-                <h2 className="text-xl font-semibold">Últimos lançamentos</h2>
-                <p className="mt-1 text-sm text-zinc-400">
-                  Os lançamentos mais recentes aparecem aqui.
-                </p>
-              </div>
-            </div>
-
+          <AppSection
+            title="Últimos lançamentos"
+            description="Os lançamentos mais recentes aparecem aqui."
+          >
             {isLoading && (
               <div className="rounded-2xl border border-dashed border-zinc-700 p-8 text-center">
                 <p className="text-sm text-zinc-400">
@@ -308,36 +295,30 @@ export default function DashboardPage() {
                 })}
               </div>
             )}
-          </div>
+          </AppSection>
 
-          <div className="rounded-3xl border border-zinc-800 bg-zinc-900/70 p-6 shadow-xl">
-            <div className="mb-5">
-              <h2 className="text-xl font-semibold">Receitas x despesas</h2>
-              <p className="mt-1 text-sm text-zinc-400">
-                Compare suas receitas e despesas cadastradas no mês atual.
-              </p>
-            </div>
-
+          <AppSection
+            title="Receitas x despesas"
+            description="Compare suas receitas e despesas cadastradas no mês atual."
+          >
             <IncomeExpenseChart
               incomeTotal={monthlySummary.incomeTotal}
               expenseTotal={monthlySummary.expenseTotal}
               isLoading={isLoading}
             />
-          </div>
+          </AppSection>
         </div>
 
         <aside className="space-y-6">
-          <div className="rounded-3xl border border-zinc-800 bg-zinc-900/70 p-6 shadow-xl">
-            <h2 className="text-xl font-semibold">Próximas contas</h2>
-
+          <AppSection title="Próximas contas">
             {isLoading && (
-              <div className="mt-5 rounded-2xl border border-dashed border-zinc-700 p-6 text-center">
+              <div className="rounded-2xl border border-dashed border-zinc-700 p-6 text-center">
                 <p className="text-sm text-zinc-400">Carregando contas...</p>
               </div>
             )}
 
             {!isLoading && upcomingPendingTransactions.length === 0 && (
-              <div className="mt-5 rounded-2xl border border-dashed border-zinc-700 p-6 text-center">
+              <div className="rounded-2xl border border-dashed border-zinc-700 p-6 text-center">
                 <p className="text-sm text-zinc-400">
                   Nenhuma conta próxima do vencimento.
                 </p>
@@ -345,7 +326,7 @@ export default function DashboardPage() {
             )}
 
             {!isLoading && upcomingPendingTransactions.length > 0 && (
-              <div className="mt-5 space-y-3">
+              <div className="space-y-3">
                 {upcomingPendingTransactions.map((transaction) => (
                   <div
                     key={transaction.id}
@@ -370,12 +351,10 @@ export default function DashboardPage() {
                 ))}
               </div>
             )}
-          </div>
+          </AppSection>
 
-          <div className="rounded-3xl border border-zinc-800 bg-zinc-900/70 p-6 shadow-xl">
-            <h2 className="text-xl font-semibold">Resumo rápido</h2>
-
-            <div className="mt-5 space-y-4">
+          <AppSection title="Resumo rápido">
+            <div className="space-y-4">
               <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
                 <span className="text-sm text-zinc-400">Mês atual</span>
                 <strong className="text-sm capitalize">
@@ -401,18 +380,16 @@ export default function DashboardPage() {
                 </strong>
               </div>
             </div>
-          </div>
+          </AppSection>
 
-          <div className="rounded-3xl border border-zinc-800 bg-zinc-900/70 p-6 shadow-xl">
-            <h2 className="text-xl font-semibold">Próximos passos</h2>
-
-            <ul className="mt-5 space-y-3 text-sm text-zinc-400">
+          <AppSection title="Próximos passos">
+            <ul className="space-y-3 text-sm text-zinc-400">
               <li>• Cadastrar primeira receita</li>
               <li>• Cadastrar primeira despesa</li>
               <li>• Organizar categorias</li>
               <li>• Acompanhar saldo do mês</li>
             </ul>
-          </div>
+          </AppSection>
         </aside>
       </section>
     </main>

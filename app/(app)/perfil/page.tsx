@@ -4,6 +4,8 @@ import { useCallback, useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
+import { AppSection } from "@/components/ui/app-section";
+import { AppButton } from "@/components/ui/app-button";
 import { getCurrentUser } from "@/lib/auth/session";
 import { profileSchema, type ProfileFormData } from "@/lib/validations/profile";
 import { getProfile, saveProfile } from "@/services/profile";
@@ -123,7 +125,10 @@ export default function PerfilPage() {
         </p>
       </div>
 
-      <section className="rounded-3xl border border-zinc-800 bg-zinc-900/70 p-8 shadow-xl">
+      <AppSection
+        title="Dados pessoais"
+        description="Atualize suas informações básicas de cadastro."
+      >
         <form onSubmit={handleSubmit(onSubmit)} className="grid gap-5">
           <div>
             <label
@@ -193,13 +198,9 @@ export default function PerfilPage() {
           </div>
 
           <div className="flex justify-end">
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="rounded-xl bg-emerald-400 px-5 py-3 text-sm font-semibold text-zinc-950 transition hover:bg-emerald-300 disabled:cursor-not-allowed disabled:opacity-70"
-            >
+            <AppButton type="submit" disabled={isSubmitting}>
               {isSubmitting ? "Salvando..." : "Salvar perfil"}
-            </button>
+            </AppButton>
           </div>
 
           {statusMessage && (
@@ -214,7 +215,7 @@ export default function PerfilPage() {
             </p>
           )}
         </form>
-      </section>
+      </AppSection>
     </main>
   );
 }

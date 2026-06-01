@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { AppButton } from "@/components/ui/app-button";
+import { AppSection } from "@/components/ui/app-section";
 
 import { getCurrentUser } from "@/lib/auth/session";
 import {
@@ -145,7 +147,10 @@ export default function ConfiguracoesPage() {
         </p>
       </div>
 
-      <section className="rounded-3xl border border-zinc-800 bg-zinc-900/70 p-8 shadow-xl">
+      <AppSection
+        title="Dados do espaço financeiro"
+        description="Atualize as informações principais usadas nos resumos do Conta Clara."
+      >
         <form onSubmit={handleSubmit(onSubmit)} className="grid gap-5">
           <div>
             <label
@@ -221,13 +226,9 @@ export default function ConfiguracoesPage() {
           </div>
 
           <div className="flex justify-end">
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="rounded-xl bg-emerald-400 px-5 py-3 text-sm font-semibold text-zinc-950 transition hover:bg-emerald-300 disabled:cursor-not-allowed disabled:opacity-70"
-            >
+            <AppButton type="submit" disabled={isSubmitting}>
               {isSubmitting ? "Salvando..." : "Salvar configurações"}
-            </button>
+            </AppButton>
           </div>
 
           {statusMessage && (
@@ -242,7 +243,7 @@ export default function ConfiguracoesPage() {
             </p>
           )}
         </form>
-      </section>
+      </AppSection>
     </main>
   );
 }
