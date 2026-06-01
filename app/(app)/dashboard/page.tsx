@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 
 import { getUserFinancialSpaceId } from "@/lib/auth/financial-space";
+import { IncomeExpenseChart } from "@/components/dashboard/income-expense-chart";
 import { getCurrentUser } from "@/lib/auth/session";
 import {
   getCurrentMonthTransactions,
@@ -313,15 +314,15 @@ export default function DashboardPage() {
             <div className="mb-5">
               <h2 className="text-xl font-semibold">Receitas x despesas</h2>
               <p className="mt-1 text-sm text-zinc-400">
-                Em breve, este espaço mostrará a comparação do mês em gráfico.
+                Compare suas receitas e despesas cadastradas no mês atual.
               </p>
             </div>
 
-            <div className="flex h-56 items-center justify-center rounded-2xl border border-dashed border-zinc-700">
-              <p className="text-sm text-zinc-500">
-                Gráfico será exibido quando houver lançamentos.
-              </p>
-            </div>
+            <IncomeExpenseChart
+              incomeTotal={monthlySummary.incomeTotal}
+              expenseTotal={monthlySummary.expenseTotal}
+              isLoading={isLoading}
+            />
           </div>
         </div>
 
