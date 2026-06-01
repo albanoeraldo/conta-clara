@@ -360,7 +360,7 @@ export default function LancamentosPage() {
               return (
                 <div
                   key={transaction.id}
-                  className="grid gap-4 rounded-2xl border border-zinc-800 bg-zinc-950/70 p-4 lg:grid-cols-[1.5fr_1fr_1fr_1fr_auto] lg:items-center"
+                  className="grid gap-4 rounded-2xl border border-zinc-800 bg-zinc-950/70 p-4 md:grid-cols-2 xl:grid-cols-[1.5fr_1fr_1fr_1fr_auto] xl:items-center"
                 >
                   <div>
                     <p className="font-medium text-white">
@@ -403,7 +403,7 @@ export default function LancamentosPage() {
                     </p>
                   </div>
 
-                  <div className="flex flex-col items-start gap-3 lg:items-end">
+                  <div className="flex flex-col items-start gap-3 md:col-span-2 xl:col-span-1 xl:items-end">
                     <strong
                       className={`text-lg ${
                         isIncome ? "text-emerald-300" : "text-red-300"
@@ -413,7 +413,7 @@ export default function LancamentosPage() {
                       {formatCurrency(Number(transaction.amount))}
                     </strong>
 
-                    <div className="flex flex-wrap gap-2 lg:justify-end">
+                    <div className="flex w-full flex-wrap gap-2 xl:justify-end">
                       <AppLinkButton
                         href={`/lancamentos/${transaction.id}/editar`}
                         variant="secondary"

@@ -197,8 +197,12 @@ export default function PerfilPage() {
             )}
           </div>
 
-          <div className="flex justify-end">
-            <AppButton type="submit" disabled={isSubmitting}>
+          <div className="flex justify-stretch sm:justify-end">
+            <AppButton
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full sm:w-auto"
+            >
               {isSubmitting ? "Salvando..." : "Salvar perfil"}
             </AppButton>
           </div>

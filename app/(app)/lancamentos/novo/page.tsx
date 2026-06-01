@@ -186,7 +186,7 @@ export default function NovoLancamentoPage() {
             )}
           </div>
 
-          <div className="grid gap-5 md:grid-cols-2">
+          <div className="grid gap-4 md:grid-cols-2 md:gap-5">
             <div>
               <label
                 htmlFor="amount"
@@ -264,7 +264,7 @@ export default function NovoLancamentoPage() {
             </select>
           </div>
 
-          <div className="grid gap-5 md:grid-cols-2">
+          <div className="grid gap-4 md:grid-cols-2 md:gap-5">
             <div>
               <label
                 htmlFor="dueDate"
@@ -364,7 +364,7 @@ export default function NovoLancamentoPage() {
             )}
           </div>
 
-          <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
+          <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
             <AppLinkButton href="/dashboard" variant="secondary">
               Cancelar
             </AppLinkButton>

@@ -225,8 +225,12 @@ export default function ConfiguracoesPage() {
             </p>
           </div>
 
-          <div className="flex justify-end">
-            <AppButton type="submit" disabled={isSubmitting}>
+          <div className="flex justify-stretch sm:justify-end">
+            <AppButton
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full sm:w-auto"
+            >
               {isSubmitting ? "Salvando..." : "Salvar configurações"}
             </AppButton>
           </div>

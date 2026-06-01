@@ -214,7 +214,7 @@ export default function EditarLancamentoPage() {
             )}
           </div>
 
-          <div className="grid gap-5 md:grid-cols-2">
+          <div className="grid gap-4 md:grid-cols-2 md:gap-5">
             <div>
               <label
                 htmlFor="amount"
@@ -287,7 +287,7 @@ export default function EditarLancamentoPage() {
             </select>
           </div>
 
-          <div className="grid gap-5 md:grid-cols-2">
+          <div className="grid gap-4 md:grid-cols-2 md:gap-5">
             <div>
               <label
                 htmlFor="dueDate"
@@ -387,7 +387,7 @@ export default function EditarLancamentoPage() {
             )}
           </div>
 
-          <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
+          <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
             <AppLinkButton href="/lancamentos" variant="secondary">
               Cancelar
             </AppLinkButton>

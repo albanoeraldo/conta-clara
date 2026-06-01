@@ -52,18 +52,20 @@ export function SummaryCard({
 
   return (
     <div
-      className={`rounded-3xl border ${styles.border} ${styles.background} p-6 shadow-xl`}
+      className={`rounded-3xl border ${styles.border} ${styles.background} p-4 shadow-xl sm:p-6`}
     >
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className={`text-sm font-medium ${styles.label}`}>{title}</p>
 
-          <strong className={`mt-3 block text-3xl font-bold ${styles.value}`}>
+          <strong
+            className={`mt-3 block text-2xl font-bold sm:text-3xl ${styles.value}`}
+          >
             {value}
           </strong>
         </div>
 
-        <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-white/10 bg-zinc-950/70">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-zinc-950/70">
           <span
             className={`h-2.5 w-2.5 rounded-full ${styles.value} bg-current`}
           />

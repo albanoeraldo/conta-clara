@@ -42,6 +42,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
 
   const [isCheckingSession, setIsCheckingSession] = useState(true);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -68,6 +69,16 @@ export default function AppLayout({ children }: AppLayoutProps) {
     };
   }, [router]);
 
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      setIsMobileMenuOpen(false);
+    }, 0);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [pathname]);
+
   async function handleLogout() {
     setIsLoggingOut(true);
 
@@ -86,10 +97,10 @@ export default function AppLayout({ children }: AppLayoutProps) {
 
   if (isCheckingSession) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-zinc-950 px-6 text-white">
-        <section className="w-full max-w-md rounded-3xl border border-zinc-800 bg-zinc-900/80 p-8 text-center shadow-2xl">
+      <main className="flex min-h-screen items-center justify-center bg-zinc-950 px-4 text-white sm:px-6">
+        <section className="w-full max-w-md rounded-3xl border border-zinc-800 bg-zinc-900/80 p-6 text-center shadow-2xl sm:p-8">
           <div className="mx-auto mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-400 text-lg font-black text-zinc-950">
-            C
+            CC
           </div>
 
           <p className="mb-3 text-sm font-medium tracking-[0.3em] text-emerald-400 uppercase">
@@ -110,11 +121,11 @@ export default function AppLayout({ children }: AppLayoutProps) {
 
   return (
     <div className="min-h-screen bg-zinc-950 text-white">
-      <header className="sticky top-0 z-40 border-b border-zinc-800 bg-zinc-950/95 px-6 py-4 backdrop-blur">
-        <div className="mx-auto flex max-w-7xl flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+      <header className="sticky top-0 z-40 border-b border-zinc-800 bg-zinc-950/95 px-4 py-4 backdrop-blur sm:px-6">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4">
           <Logo />
 
-          <div className="flex flex-col gap-3 xl:flex-row xl:items-center">
+          <div className="hidden items-center gap-3 lg:flex">
             <nav className="flex flex-wrap gap-2 rounded-2xl border border-zinc-800 bg-zinc-900/70 p-1">
               {navigationItems.map((item) => {
                 const isActive = isNavigationItemActive(item.href);
@@ -144,10 +155,53 @@ export default function AppLayout({ children }: AppLayoutProps) {
               {isLoggingOut ? "Saindo..." : "Sair"}
             </button>
           </div>
+
+          <button
+            type="button"
+            onClick={() => setIsMobileMenuOpen((current) => !current)}
+            className="rounded-xl border border-zinc-800 bg-zinc-900/70 px-4 py-2 text-sm font-semibold text-zinc-200 transition hover:bg-zinc-800 lg:hidden"
+          >
+            {isMobileMenuOpen ? "Fechar" : "Menu"}
+          </button>
         </div>
+
+        {isMobileMenuOpen && (
+          <div className="mx-auto mt-4 max-w-7xl lg:hidden">
+            <nav className="grid gap-2 rounded-2xl border border-zinc-800 bg-zinc-900/95 p-3 shadow-xl">
+              {navigationItems.map((item) => {
+                const isActive = isNavigationItemActive(item.href);
+
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`rounded-xl px-4 py-3 text-sm font-medium transition ${
+                      isActive
+                        ? "bg-emerald-400 text-zinc-950"
+                        : "text-zinc-300 hover:bg-zinc-800 hover:text-white"
+                    }`}
+                  >
+                    {item.label}
+                  </Link>
+                );
+              })}
+
+              <button
+                type="button"
+                onClick={handleLogout}
+                disabled={isLoggingOut}
+                className="mt-2 rounded-xl border border-red-400/30 bg-red-400/10 px-4 py-3 text-left text-sm font-medium text-red-300 transition hover:bg-red-400/20 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {isLoggingOut ? "Saindo..." : "Sair"}
+              </button>
+            </nav>
+          </div>
+        )}
       </header>
 
-      <main className="mx-auto max-w-7xl px-6 py-8">{children}</main>
+      <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8">
+        {children}
+      </main>
     </div>
   );
 }

@@ -142,13 +142,13 @@ export default function DashboardPage() {
 
   return (
     <main>
-      <header className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <header className="mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <p className="mb-2 text-sm font-medium tracking-[0.3em] text-emerald-400 uppercase">
             Conta Clara
           </p>
 
-          <h1 className="text-3xl font-bold tracking-tight">
+          <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
             Dashboard do mês
           </h1>
 
@@ -160,12 +160,12 @@ export default function DashboardPage() {
         <AppLinkButton href="/lancamentos/novo">Novo lançamento</AppLinkButton>
       </header>
 
-      <section className="mb-8 rounded-3xl border border-emerald-400/20 bg-emerald-400/10 p-6 shadow-xl">
+      <section className="mb-8 rounded-3xl border border-emerald-400/20 bg-emerald-400/10 p-4 shadow-xl sm:p-6">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-sm font-medium text-emerald-300">Saúde do mês</p>
 
-            <h2 className="mt-2 text-2xl font-bold">
+            <h2 className="mt-2 text-xl font-bold sm:text-2xl">
               {monthlyTransactions.length > 0
                 ? monthlySummary.predictedBalance >= 0
                   ? "Seu mês está positivo"
@@ -235,8 +235,8 @@ export default function DashboardPage() {
         </div>
       )}
 
-      <section className="grid gap-6 lg:grid-cols-3">
-        <div className="space-y-6 lg:col-span-2">
+      <section className="grid gap-6 xl:grid-cols-3">
+        <div className="space-y-6 xl:col-span-2">
           <AppSection
             title="Últimos lançamentos"
             description="Os lançamentos mais recentes aparecem aqui."
