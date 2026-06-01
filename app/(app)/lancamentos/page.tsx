@@ -6,6 +6,7 @@ import Link from "next/link";
 import { getUserFinancialSpaceId } from "@/lib/auth/financial-space";
 import { getCurrentUser } from "@/lib/auth/session";
 import {
+  cancelTransaction,
   getTransactions,
   markTransactionAsPaid,
   type Transaction,
@@ -154,6 +155,46 @@ export default function LancamentosPage() {
         error instanceof Error
           ? error.message
           : "Erro ao marcar lançamento como pago.",
+      );
+    } finally {
+      setUpdatingTransactionId(null);
+    }
+  }
+
+  async function handleCancelTransaction(transactionId: string) {
+    const confirmCancel = window.confirm(
+      "Tem certeza que deseja cancelar este lançamento?",
+    );
+
+    if (!confirmCancel) {
+      return;
+    }
+
+    setStatusMessage("");
+    setStatusType("");
+
+    if (!financialSpaceId) {
+      setStatusType("error");
+      setStatusMessage("Não foi possível identificar sua Conta Clara.");
+      return;
+    }
+
+    try {
+      setUpdatingTransactionId(transactionId);
+
+      await cancelTransaction({
+        transactionId,
+        financialSpaceId,
+      });
+
+      setStatusType("success");
+      setStatusMessage("Lançamento cancelado com sucesso.");
+
+      await loadTransactions();
+    } catch (error) {
+      setStatusType("error");
+      setStatusMessage(
+        error instanceof Error ? error.message : "Erro ao cancelar lançamento.",
       );
     } finally {
       setUpdatingTransactionId(null);
@@ -383,6 +424,19 @@ export default function LancamentosPage() {
                     >
                       Editar
                     </Link>
+
+                    {transaction.status !== "cancelled" && (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          void handleCancelTransaction(transaction.id)
+                        }
+                        disabled={isUpdating}
+                        className="rounded-full border border-red-400/30 px-3 py-1 text-xs font-semibold text-red-300 transition hover:bg-red-400/10 disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        {isUpdating ? "Atualizando..." : "Cancelar"}
+                      </button>
+                    )}
 
                     {isPending && (
                       <button

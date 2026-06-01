@@ -182,3 +182,26 @@ export async function updateTransaction({
     throw new Error(error.message);
   }
 }
+
+type CancelTransactionInput = {
+  transactionId: string;
+  financialSpaceId: string;
+};
+
+export async function cancelTransaction({
+  transactionId,
+  financialSpaceId,
+}: CancelTransactionInput) {
+  const { error } = await supabase
+    .from("transactions")
+    .update({
+      status: "cancelled",
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", transactionId)
+    .eq("financial_space_id", financialSpaceId);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+}
