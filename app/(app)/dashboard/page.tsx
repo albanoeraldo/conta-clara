@@ -6,6 +6,7 @@ import Link from "next/link";
 import { getUserFinancialSpaceId } from "@/lib/auth/financial-space";
 import { getCurrentUser } from "@/lib/auth/session";
 import {
+  getCurrentMonthTransactions,
   getLatestTransactions,
   type Transaction,
 } from "@/services/transactions";
@@ -25,7 +26,35 @@ function formatDate(date: string) {
   }).format(new Date(`${date}T00:00:00`));
 }
 
-const statusLabels = {
+function getCurrentMonthLabel() {
+  return new Intl.DateTimeFormat("pt-BR", {
+    month: "long",
+    year: "numeric",
+  }).format(new Date());
+}
+
+function calculateMonthlySummary(transactions: Transaction[]) {
+  const incomeTotal = transactions
+    .filter((transaction) => transaction.type === "income")
+    .reduce((total, transaction) => total + Number(transaction.amount), 0);
+
+  const expenseTotal = transactions
+    .filter((transaction) => transaction.type === "expense")
+    .reduce((total, transaction) => total + Number(transaction.amount), 0);
+
+  const pendingCount = transactions.filter(
+    (transaction) => transaction.status === "pending",
+  ).length;
+
+  return {
+    incomeTotal,
+    expenseTotal,
+    predictedBalance: incomeTotal - expenseTotal,
+    pendingCount,
+  };
+}
+
+const statusLabels: Record<Transaction["status"], string> = {
   pending: "Pendente",
   paid: "Pago",
   overdue: "Atrasado",
@@ -33,14 +62,21 @@ const statusLabels = {
 };
 
 export default function DashboardPage() {
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [latestTransactions, setLatestTransactions] = useState<Transaction[]>(
+    [],
+  );
+  const [monthlyTransactions, setMonthlyTransactions] = useState<Transaction[]>(
+    [],
+  );
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
+
+  const monthlySummary = calculateMonthlySummary(monthlyTransactions);
 
   useEffect(() => {
     let isMounted = true;
 
-    async function loadTransactions() {
+    async function loadDashboardData() {
       try {
         const user = await getCurrentUser();
 
@@ -54,14 +90,17 @@ export default function DashboardPage() {
           return;
         }
 
-        const latestTransactions =
-          await getLatestTransactions(financialSpaceId);
+        const [latest, currentMonth] = await Promise.all([
+          getLatestTransactions(financialSpaceId),
+          getCurrentMonthTransactions(financialSpaceId),
+        ]);
 
         if (!isMounted) {
           return;
         }
 
-        setTransactions(latestTransactions);
+        setLatestTransactions(latest);
+        setMonthlyTransactions(currentMonth);
       } catch (error) {
         if (!isMounted) {
           return;
@@ -70,7 +109,7 @@ export default function DashboardPage() {
         setErrorMessage(
           error instanceof Error
             ? error.message
-            : "Erro ao carregar lançamentos.",
+            : "Erro ao carregar dados do dashboard.",
         );
       } finally {
         if (isMounted) {
@@ -79,7 +118,7 @@ export default function DashboardPage() {
       }
     }
 
-    loadTransactions();
+    loadDashboardData();
 
     return () => {
       isMounted = false;
@@ -117,12 +156,17 @@ export default function DashboardPage() {
             <p className="text-sm font-medium text-emerald-300">Saúde do mês</p>
 
             <h2 className="mt-2 text-2xl font-bold">
-              Seu mês ainda está em análise
+              {monthlyTransactions.length > 0
+                ? monthlySummary.predictedBalance >= 0
+                  ? "Seu mês está positivo"
+                  : "Seu mês precisa de atenção"
+                : "Seu mês ainda está em análise"}
             </h2>
 
             <p className="mt-2 text-sm text-emerald-100/80">
-              Conforme você cadastra receitas e despesas, o Conta Clara mostra
-              como está sua situação financeira.
+              {monthlyTransactions.length > 0
+                ? "Resumo calculado com base nos lançamentos cadastrados para o mês atual."
+                : "Conforme você cadastra receitas e despesas, o Conta Clara mostra como está sua situação financeira."}
             </p>
           </div>
 
@@ -131,7 +175,11 @@ export default function DashboardPage() {
               Status
             </p>
             <p className="mt-1 text-lg font-semibold text-emerald-300">
-              Acompanhando
+              {monthlyTransactions.length > 0
+                ? monthlySummary.predictedBalance >= 0
+                  ? "Em equilíbrio"
+                  : "Atenção"
+                : "Acompanhando"}
             </p>
           </div>
         </div>
@@ -141,31 +189,45 @@ export default function DashboardPage() {
         <div className="rounded-3xl border border-zinc-800 bg-zinc-900/70 p-6 shadow-xl">
           <p className="text-sm text-zinc-400">Receitas do mês</p>
           <strong className="mt-3 block text-2xl font-bold text-emerald-300">
-            R$ 0,00
+            {isLoading ? "..." : formatCurrency(monthlySummary.incomeTotal)}
           </strong>
         </div>
 
         <div className="rounded-3xl border border-zinc-800 bg-zinc-900/70 p-6 shadow-xl">
           <p className="text-sm text-zinc-400">Despesas do mês</p>
           <strong className="mt-3 block text-2xl font-bold text-red-300">
-            R$ 0,00
+            {isLoading ? "..." : formatCurrency(monthlySummary.expenseTotal)}
           </strong>
         </div>
 
         <div className="rounded-3xl border border-zinc-800 bg-zinc-900/70 p-6 shadow-xl">
           <p className="text-sm text-zinc-400">Saldo previsto</p>
-          <strong className="mt-3 block text-2xl font-bold text-white">
-            R$ 0,00
+          <strong
+            className={`mt-3 block text-2xl font-bold ${
+              monthlySummary.predictedBalance >= 0
+                ? "text-emerald-300"
+                : "text-red-300"
+            }`}
+          >
+            {isLoading
+              ? "..."
+              : formatCurrency(monthlySummary.predictedBalance)}
           </strong>
         </div>
 
         <div className="rounded-3xl border border-zinc-800 bg-zinc-900/70 p-6 shadow-xl">
           <p className="text-sm text-zinc-400">Contas pendentes</p>
           <strong className="mt-3 block text-2xl font-bold text-yellow-300">
-            0
+            {isLoading ? "..." : monthlySummary.pendingCount}
           </strong>
         </div>
       </section>
+
+      {errorMessage && (
+        <div className="mb-8 rounded-2xl bg-red-400/10 p-4 text-center text-sm text-red-300">
+          {errorMessage}
+        </div>
+      )}
 
       <section className="grid gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
@@ -187,13 +249,7 @@ export default function DashboardPage() {
               </div>
             )}
 
-            {!isLoading && errorMessage && (
-              <div className="rounded-2xl bg-red-400/10 p-4 text-center text-sm text-red-300">
-                {errorMessage}
-              </div>
-            )}
-
-            {!isLoading && !errorMessage && transactions.length === 0 && (
+            {!isLoading && !errorMessage && latestTransactions.length === 0 && (
               <div className="rounded-2xl border border-dashed border-zinc-700 p-8 text-center">
                 <p className="text-sm text-zinc-400">
                   Nenhum lançamento cadastrado ainda.
@@ -205,9 +261,9 @@ export default function DashboardPage() {
               </div>
             )}
 
-            {!isLoading && !errorMessage && transactions.length > 0 && (
+            {!isLoading && !errorMessage && latestTransactions.length > 0 && (
               <div className="space-y-3">
-                {transactions.map((transaction) => {
+                {latestTransactions.map((transaction) => {
                   const isIncome = transaction.type === "income";
 
                   return (
@@ -232,7 +288,7 @@ export default function DashboardPage() {
                         }`}
                       >
                         {isIncome ? "+" : "-"}{" "}
-                        {formatCurrency(transaction.amount)}
+                        {formatCurrency(Number(transaction.amount))}
                       </strong>
                     </div>
                   );
@@ -274,13 +330,19 @@ export default function DashboardPage() {
             <div className="mt-5 space-y-4">
               <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
                 <span className="text-sm text-zinc-400">Mês atual</span>
-                <strong className="text-sm">Junho/2026</strong>
+                <strong className="text-sm capitalize">
+                  {getCurrentMonthLabel()}
+                </strong>
               </div>
 
               <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
                 <span className="text-sm text-zinc-400">Status</span>
                 <strong className="text-sm text-emerald-300">
-                  Acompanhando
+                  {monthlyTransactions.length > 0
+                    ? monthlySummary.predictedBalance >= 0
+                      ? "Em equilíbrio"
+                      : "Atenção"
+                    : "Acompanhando"}
                 </strong>
               </div>
 
