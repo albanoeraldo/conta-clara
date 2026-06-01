@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 
 import { getCurrentUser } from "@/lib/auth/session";
+import { supabase } from "@/lib/supabase/client";
 
 type AppLayoutProps = {
   children: ReactNode;
@@ -33,7 +34,9 @@ const navigationItems = [
 export default function AppLayout({ children }: AppLayoutProps) {
   const router = useRouter();
   const pathname = usePathname();
+
   const [isCheckingSession, setIsCheckingSession] = useState(true);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -60,6 +63,14 @@ export default function AppLayout({ children }: AppLayoutProps) {
     };
   }, [router]);
 
+  async function handleLogout() {
+    setIsLoggingOut(true);
+
+    await supabase.auth.signOut();
+
+    router.replace("/login");
+  }
+
   if (isCheckingSession) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-zinc-950 px-6 text-white">
@@ -83,7 +94,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
   return (
     <div className="min-h-screen bg-zinc-950 text-white">
       <header className="border-b border-zinc-800 bg-zinc-950/90 px-6 py-4 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mx-auto flex max-w-6xl flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <Link href="/dashboard" className="group">
             <p className="text-sm font-medium tracking-[0.3em] text-emerald-400 uppercase">
               Conta Clara
@@ -93,25 +104,36 @@ export default function AppLayout({ children }: AppLayoutProps) {
             </p>
           </Link>
 
-          <nav className="flex flex-wrap gap-2">
-            {navigationItems.map((item) => {
-              const isActive = pathname === item.href;
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <nav className="flex flex-wrap gap-2">
+              {navigationItems.map((item) => {
+                const isActive = pathname === item.href;
 
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`rounded-full px-4 py-2 text-sm font-medium transition ${
-                    isActive
-                      ? "bg-emerald-400 text-zinc-950"
-                      : "bg-zinc-900 text-zinc-300 hover:bg-zinc-800 hover:text-white"
-                  }`}
-                >
-                  {item.label}
-                </Link>
-              );
-            })}
-          </nav>
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+                      isActive
+                        ? "bg-emerald-400 text-zinc-950"
+                        : "bg-zinc-900 text-zinc-300 hover:bg-zinc-800 hover:text-white"
+                    }`}
+                  >
+                    {item.label}
+                  </Link>
+                );
+              })}
+            </nav>
+
+            <button
+              type="button"
+              onClick={handleLogout}
+              disabled={isLoggingOut}
+              className="rounded-full border border-zinc-700 px-4 py-2 text-sm font-medium text-zinc-300 transition hover:bg-zinc-900 hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {isLoggingOut ? "Saindo..." : "Sair"}
+            </button>
+          </div>
         </div>
       </header>
 
