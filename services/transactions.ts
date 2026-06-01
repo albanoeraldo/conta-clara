@@ -92,3 +92,29 @@ export async function getTransactions(financialSpaceId: string) {
 
   return data as Transaction[];
 }
+
+type MarkTransactionAsPaidInput = {
+  transactionId: string;
+  financialSpaceId: string;
+};
+
+export async function markTransactionAsPaid({
+  transactionId,
+  financialSpaceId,
+}: MarkTransactionAsPaidInput) {
+  const today = formatDateToDatabase(new Date());
+
+  const { error } = await supabase
+    .from("transactions")
+    .update({
+      status: "paid",
+      paid_date: today,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", transactionId)
+    .eq("financial_space_id", financialSpaceId);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+}

@@ -1,11 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 
 import { getUserFinancialSpaceId } from "@/lib/auth/financial-space";
 import { getCurrentUser } from "@/lib/auth/session";
-import { getTransactions, type Transaction } from "@/services/transactions";
+import {
+  getTransactions,
+  markTransactionAsPaid,
+  type Transaction,
+} from "@/services/transactions";
 
 function formatCurrency(value: number) {
   return new Intl.NumberFormat("pt-BR", {
@@ -53,6 +57,7 @@ const paymentMethodLabels: Record<Transaction["payment_method"], string> = {
 };
 
 export default function LancamentosPage() {
+  const [financialSpaceId, setFinancialSpaceId] = useState<string | null>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [typeFilter, setTypeFilter] = useState<"all" | "income" | "expense">(
     "all",
@@ -62,7 +67,12 @@ export default function LancamentosPage() {
   >("all");
   const [monthFilter, setMonthFilter] = useState(getCurrentMonthValue());
   const [isLoading, setIsLoading] = useState(true);
+  const [updatingTransactionId, setUpdatingTransactionId] = useState<
+    string | null
+  >(null);
   const [errorMessage, setErrorMessage] = useState("");
+  const [statusMessage, setStatusMessage] = useState("");
+  const [statusType, setStatusType] = useState<"success" | "error" | "">("");
 
   const filteredTransactions = transactions.filter((transaction) => {
     const matchesType = typeFilter === "all" || transaction.type === typeFilter;
@@ -75,56 +85,80 @@ export default function LancamentosPage() {
     return matchesType && matchesStatus && matchesMonth;
   });
 
-  useEffect(() => {
-    let isMounted = true;
+  const loadTransactions = useCallback(async () => {
+    try {
+      setErrorMessage("");
 
-    async function loadTransactions() {
-      try {
-        const user = await getCurrentUser();
+      const user = await getCurrentUser();
 
-        if (!user) {
-          return;
-        }
-
-        const financialSpaceId = await getUserFinancialSpaceId(user.id);
-
-        if (!financialSpaceId) {
-          return;
-        }
-
-        const userTransactions = await getTransactions(financialSpaceId);
-
-        if (!isMounted) {
-          return;
-        }
-
-        setTransactions(userTransactions);
-      } catch (error) {
-        if (!isMounted) {
-          return;
-        }
-
-        setErrorMessage(
-          error instanceof Error
-            ? error.message
-            : "Erro ao carregar lançamentos.",
-        );
-      } finally {
-        if (isMounted) {
-          setIsLoading(false);
-        }
+      if (!user) {
+        return;
       }
-    }
 
+      const currentFinancialSpaceId = await getUserFinancialSpaceId(user.id);
+
+      if (!currentFinancialSpaceId) {
+        return;
+      }
+
+      const userTransactions = await getTransactions(currentFinancialSpaceId);
+
+      setFinancialSpaceId(currentFinancialSpaceId);
+      setTransactions(userTransactions);
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : "Erro ao carregar lançamentos.",
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
     const timeoutId = window.setTimeout(() => {
       void loadTransactions();
     }, 0);
 
     return () => {
-      isMounted = false;
       window.clearTimeout(timeoutId);
     };
-  }, []);
+  }, [loadTransactions]);
+
+  async function handleMarkAsPaid(transactionId: string) {
+    setStatusMessage("");
+    setStatusType("");
+
+    if (!financialSpaceId) {
+      setStatusType("error");
+      setStatusMessage("Não foi possível identificar sua Conta Clara.");
+      return;
+    }
+
+    try {
+      setUpdatingTransactionId(transactionId);
+
+      await markTransactionAsPaid({
+        transactionId,
+        financialSpaceId,
+      });
+
+      setStatusType("success");
+      setStatusMessage("Lançamento marcado como pago.");
+
+      await loadTransactions();
+    } catch (error) {
+      setStatusType("error");
+      setStatusMessage(
+        error instanceof Error
+          ? error.message
+          : "Erro ao marcar lançamento como pago.",
+      );
+    } finally {
+      setUpdatingTransactionId(null);
+    }
+  }
 
   return (
     <main>
@@ -227,6 +261,18 @@ export default function LancamentosPage() {
         </div>
       </section>
 
+      {statusMessage && (
+        <section
+          className={`mb-6 rounded-2xl px-4 py-3 text-center text-sm ${
+            statusType === "success"
+              ? "bg-emerald-400/10 text-emerald-300"
+              : "bg-red-400/10 text-red-300"
+          }`}
+        >
+          {statusMessage}
+        </section>
+      )}
+
       {isLoading && (
         <section className="rounded-3xl border border-zinc-800 bg-zinc-900/70 p-8 text-center shadow-xl">
           <p className="text-sm text-zinc-400">Carregando lançamentos...</p>
@@ -272,6 +318,8 @@ export default function LancamentosPage() {
           <div className="space-y-3">
             {filteredTransactions.map((transaction) => {
               const isIncome = transaction.type === "income";
+              const isPending = transaction.status === "pending";
+              const isUpdating = updatingTransactionId === transaction.id;
 
               return (
                 <div
@@ -319,14 +367,27 @@ export default function LancamentosPage() {
                     </p>
                   </div>
 
-                  <strong
-                    className={`text-lg ${
-                      isIncome ? "text-emerald-300" : "text-red-300"
-                    }`}
-                  >
-                    {isIncome ? "+" : "-"}{" "}
-                    {formatCurrency(Number(transaction.amount))}
-                  </strong>
+                  <div className="flex flex-col items-start gap-3 lg:items-end">
+                    <strong
+                      className={`text-lg ${
+                        isIncome ? "text-emerald-300" : "text-red-300"
+                      }`}
+                    >
+                      {isIncome ? "+" : "-"}{" "}
+                      {formatCurrency(Number(transaction.amount))}
+                    </strong>
+
+                    {isPending && (
+                      <button
+                        type="button"
+                        onClick={() => void handleMarkAsPaid(transaction.id)}
+                        disabled={isUpdating}
+                        className="rounded-full bg-emerald-400/10 px-3 py-1 text-xs font-semibold text-emerald-300 transition hover:bg-emerald-400/20 disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        {isUpdating ? "Atualizando..." : "Marcar como pago"}
+                      </button>
+                    )}
+                  </div>
                 </div>
               );
             })}
