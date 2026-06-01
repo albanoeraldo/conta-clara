@@ -2,12 +2,16 @@
 
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 
+import { getUserFinancialSpaceId } from "@/lib/auth/financial-space";
 import { supabase } from "@/lib/supabase/client";
 import { loginSchema, type LoginFormData } from "@/lib/validations/auth";
 
 export default function LoginPage() {
+  const router = useRouter();
+
   const [statusMessage, setStatusMessage] = useState("");
   const [statusType, setStatusType] = useState<"success" | "error" | "">("");
 
@@ -23,19 +27,28 @@ export default function LoginPage() {
     setStatusMessage("");
     setStatusType("");
 
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data: loginData, error } = await supabase.auth.signInWithPassword({
       email: data.email,
       password: data.password,
     });
 
-    if (error) {
+    if (error || !loginData.user) {
       setStatusType("error");
       setStatusMessage("E-mail ou senha inválidos.");
       return;
     }
 
+    const financialSpaceId = await getUserFinancialSpaceId(loginData.user.id);
+
     setStatusType("success");
     setStatusMessage("Login realizado com sucesso!");
+
+    if (financialSpaceId) {
+      router.replace("/dashboard");
+      return;
+    }
+
+    router.replace("/onboarding");
   }
 
   return (

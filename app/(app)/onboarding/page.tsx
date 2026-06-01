@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 
 import { supabase } from "@/lib/supabase/client";
@@ -11,6 +12,8 @@ import {
 } from "@/lib/validations/auth";
 
 export default function OnboardingPage() {
+  const router = useRouter();
+
   const [statusMessage, setStatusMessage] = useState("");
   const [statusType, setStatusType] = useState<"success" | "error" | "">("");
 
@@ -128,6 +131,8 @@ export default function OnboardingPage() {
     setStatusMessage(
       "Conta Clara configurada com sucesso! Em breve você será levado para o painel.",
     );
+
+    router.replace("/dashboard");
   }
 
   return (
