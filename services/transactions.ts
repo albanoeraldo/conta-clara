@@ -205,3 +205,26 @@ export async function cancelTransaction({
     throw new Error(error.message);
   }
 }
+
+export async function getUpcomingPendingTransactions(financialSpaceId: string) {
+  const { startDate, endDate } = getCurrentMonthDateRange();
+
+  const { data, error } = await supabase
+    .from("transactions")
+    .select(
+      "id, category_id, type, description, amount, due_date, paid_date, status, payment_method, notes, created_at",
+    )
+    .eq("financial_space_id", financialSpaceId)
+    .eq("type", "expense")
+    .eq("status", "pending")
+    .gte("due_date", startDate)
+    .lte("due_date", endDate)
+    .order("due_date", { ascending: true })
+    .limit(5);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data as Transaction[];
+}

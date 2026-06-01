@@ -8,6 +8,7 @@ import { getCurrentUser } from "@/lib/auth/session";
 import {
   getCurrentMonthTransactions,
   getLatestTransactions,
+  getUpcomingPendingTransactions,
   type Transaction,
 } from "@/services/transactions";
 
@@ -34,15 +35,19 @@ function getCurrentMonthLabel() {
 }
 
 function calculateMonthlySummary(transactions: Transaction[]) {
-  const incomeTotal = transactions
+  const activeTransactions = transactions.filter(
+    (transaction) => transaction.status !== "cancelled",
+  );
+
+  const incomeTotal = activeTransactions
     .filter((transaction) => transaction.type === "income")
     .reduce((total, transaction) => total + Number(transaction.amount), 0);
 
-  const expenseTotal = transactions
+  const expenseTotal = activeTransactions
     .filter((transaction) => transaction.type === "expense")
     .reduce((total, transaction) => total + Number(transaction.amount), 0);
 
-  const pendingCount = transactions.filter(
+  const pendingCount = activeTransactions.filter(
     (transaction) => transaction.status === "pending",
   ).length;
 
@@ -68,6 +73,8 @@ export default function DashboardPage() {
   const [monthlyTransactions, setMonthlyTransactions] = useState<Transaction[]>(
     [],
   );
+  const [upcomingPendingTransactions, setUpcomingPendingTransactions] =
+    useState<Transaction[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -90,9 +97,10 @@ export default function DashboardPage() {
           return;
         }
 
-        const [latest, currentMonth] = await Promise.all([
+        const [latest, currentMonth, upcomingPending] = await Promise.all([
           getLatestTransactions(financialSpaceId),
           getCurrentMonthTransactions(financialSpaceId),
+          getUpcomingPendingTransactions(financialSpaceId),
         ]);
 
         if (!isMounted) {
@@ -101,6 +109,7 @@ export default function DashboardPage() {
 
         setLatestTransactions(latest);
         setMonthlyTransactions(currentMonth);
+        setUpcomingPendingTransactions(upcomingPending);
       } catch (error) {
         if (!isMounted) {
           return;
@@ -118,10 +127,13 @@ export default function DashboardPage() {
       }
     }
 
-    loadDashboardData();
+    const timeoutId = window.setTimeout(() => {
+      void loadDashboardData();
+    }, 0);
 
     return () => {
       isMounted = false;
+      window.clearTimeout(timeoutId);
     };
   }, []);
 
@@ -317,11 +329,46 @@ export default function DashboardPage() {
           <div className="rounded-3xl border border-zinc-800 bg-zinc-900/70 p-6 shadow-xl">
             <h2 className="text-xl font-semibold">Próximas contas</h2>
 
-            <div className="mt-5 rounded-2xl border border-dashed border-zinc-700 p-6 text-center">
-              <p className="text-sm text-zinc-400">
-                Nenhuma conta próxima do vencimento.
-              </p>
-            </div>
+            {isLoading && (
+              <div className="mt-5 rounded-2xl border border-dashed border-zinc-700 p-6 text-center">
+                <p className="text-sm text-zinc-400">Carregando contas...</p>
+              </div>
+            )}
+
+            {!isLoading && upcomingPendingTransactions.length === 0 && (
+              <div className="mt-5 rounded-2xl border border-dashed border-zinc-700 p-6 text-center">
+                <p className="text-sm text-zinc-400">
+                  Nenhuma conta próxima do vencimento.
+                </p>
+              </div>
+            )}
+
+            {!isLoading && upcomingPendingTransactions.length > 0 && (
+              <div className="mt-5 space-y-3">
+                {upcomingPendingTransactions.map((transaction) => (
+                  <div
+                    key={transaction.id}
+                    className="rounded-2xl border border-zinc-800 bg-zinc-950/70 p-4"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="font-medium text-white">
+                          {transaction.description}
+                        </p>
+
+                        <p className="mt-1 text-sm text-zinc-500">
+                          Vence em {formatDate(transaction.due_date)}
+                        </p>
+                      </div>
+
+                      <strong className="text-sm text-red-300">
+                        {formatCurrency(Number(transaction.amount))}
+                      </strong>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="rounded-3xl border border-zinc-800 bg-zinc-900/70 p-6 shadow-xl">
