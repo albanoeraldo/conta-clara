@@ -47,6 +47,7 @@ export const transactionSchema = z.object({
   type: z.enum(["income", "expense"], {
     message: "Selecione o tipo do lançamento.",
   }),
+  categoryId: z.string().optional(),
   dueDate: z.string().min(1, "Informe a data de vencimento."),
   status: z.enum(["pending", "paid"], {
     message: "Selecione o status do lançamento.",

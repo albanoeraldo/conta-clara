@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
+import { createDefaultCategories } from "@/services/categories";
 import { useForm } from "react-hook-form";
 
 import { supabase } from "@/lib/supabase/client";
@@ -125,6 +126,10 @@ export default function OnboardingPage() {
         setStatusMessage(subscriptionError.message);
         return;
       }
+    }
+
+    if (financialSpaceId) {
+      await createDefaultCategories(financialSpaceId);
     }
 
     setStatusType("success");

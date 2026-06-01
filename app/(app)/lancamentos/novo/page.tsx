@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
@@ -8,12 +8,16 @@ import { useForm } from "react-hook-form";
 import { getUserFinancialSpaceId } from "@/lib/auth/financial-space";
 import { getCurrentUser } from "@/lib/auth/session";
 import { supabase } from "@/lib/supabase/client";
+import { getActiveCategories, type Category } from "@/services/categories";
 import {
   transactionSchema,
   type TransactionFormData,
 } from "@/lib/validations/auth";
 
 export default function NovoLancamentoPage() {
+  const [financialSpaceId, setFinancialSpaceId] = useState<string | null>(null);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [isLoadingCategories, setIsLoadingCategories] = useState(true);
   const [statusMessage, setStatusMessage] = useState("");
   const [statusType, setStatusType] = useState<"success" | "error" | "">("");
 
@@ -21,30 +25,80 @@ export default function NovoLancamentoPage() {
     register,
     handleSubmit,
     reset,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<TransactionFormData>({
     resolver: zodResolver(transactionSchema),
     defaultValues: {
       type: "expense",
+      categoryId: "",
       status: "pending",
       paymentMethod: "pix",
       notes: "",
     },
   });
 
+  const selectedType = watch("type");
+
+  const filteredCategories = categories.filter(
+    (category) => category.type === selectedType,
+  );
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadCategories() {
+      try {
+        const user = await getCurrentUser();
+
+        if (!user) {
+          return;
+        }
+
+        const currentFinancialSpaceId = await getUserFinancialSpaceId(user.id);
+
+        if (!currentFinancialSpaceId) {
+          return;
+        }
+
+        const activeCategories = await getActiveCategories(
+          currentFinancialSpaceId,
+        );
+
+        if (!isMounted) {
+          return;
+        }
+
+        setFinancialSpaceId(currentFinancialSpaceId);
+        setCategories(activeCategories);
+      } catch (error) {
+        if (!isMounted) {
+          return;
+        }
+
+        setStatusType("error");
+        setStatusMessage(
+          error instanceof Error
+            ? error.message
+            : "Erro ao carregar categorias.",
+        );
+      } finally {
+        if (isMounted) {
+          setIsLoadingCategories(false);
+        }
+      }
+    }
+
+    loadCategories();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   async function onSubmit(data: TransactionFormData) {
     setStatusMessage("");
     setStatusType("");
-
-    const user = await getCurrentUser();
-
-    if (!user) {
-      setStatusType("error");
-      setStatusMessage("Você precisa estar logado para criar um lançamento.");
-      return;
-    }
-
-    const financialSpaceId = await getUserFinancialSpaceId(user.id);
 
     if (!financialSpaceId) {
       setStatusType("error");
@@ -54,6 +108,7 @@ export default function NovoLancamentoPage() {
 
     const { error } = await supabase.from("transactions").insert({
       financial_space_id: financialSpaceId,
+      category_id: data.categoryId || null,
       type: data.type,
       description: data.description,
       amount: Number(data.amount),
@@ -75,6 +130,7 @@ export default function NovoLancamentoPage() {
 
     reset({
       type: "expense",
+      categoryId: "",
       status: "pending",
       paymentMethod: "pix",
       notes: "",
@@ -168,6 +224,34 @@ export default function NovoLancamentoPage() {
                 </p>
               )}
             </div>
+          </div>
+
+          <div>
+            <label
+              htmlFor="categoryId"
+              className="mb-2 block text-sm font-medium text-zinc-200"
+            >
+              Categoria
+            </label>
+
+            <select
+              id="categoryId"
+              {...register("categoryId")}
+              disabled={isLoadingCategories}
+              className="w-full rounded-xl border border-zinc-700 bg-zinc-950 px-4 py-3 text-sm text-white transition outline-none focus:border-emerald-400 disabled:cursor-not-allowed disabled:opacity-70"
+            >
+              <option value="">
+                {isLoadingCategories
+                  ? "Carregando categorias..."
+                  : "Sem categoria"}
+              </option>
+
+              {filteredCategories.map((category) => (
+                <option key={category.id} value={category.id}>
+                  {category.name}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div className="grid gap-5 md:grid-cols-2">
