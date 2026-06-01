@@ -178,3 +178,53 @@ export async function createCategory({
     throw new Error(error.message);
   }
 }
+
+type UpdateCategoryNameInput = {
+  categoryId: string;
+  financialSpaceId: string;
+  name: string;
+};
+
+export async function updateCategoryName({
+  categoryId,
+  financialSpaceId,
+  name,
+}: UpdateCategoryNameInput) {
+  const { error } = await supabase
+    .from("categories")
+    .update({
+      name,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", categoryId)
+    .eq("financial_space_id", financialSpaceId);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+}
+
+type UpdateCategoryActiveStatusInput = {
+  categoryId: string;
+  financialSpaceId: string;
+  active: boolean;
+};
+
+export async function updateCategoryActiveStatus({
+  categoryId,
+  financialSpaceId,
+  active,
+}: UpdateCategoryActiveStatusInput) {
+  const { error } = await supabase
+    .from("categories")
+    .update({
+      active,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", categoryId)
+    .eq("financial_space_id", financialSpaceId);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+}

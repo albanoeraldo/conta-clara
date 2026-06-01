@@ -14,6 +14,8 @@ import {
   createCategory,
   getCategories,
   type Category,
+  updateCategoryActiveStatus,
+  updateCategoryName,
 } from "@/services/categories";
 
 export default function CategoriasPage() {
@@ -23,6 +25,13 @@ export default function CategoriasPage() {
   const [errorMessage, setErrorMessage] = useState("");
   const [statusMessage, setStatusMessage] = useState("");
   const [statusType, setStatusType] = useState<"success" | "error" | "">("");
+  const [editingCategoryId, setEditingCategoryId] = useState<string | null>(
+    null,
+  );
+  const [editingCategoryName, setEditingCategoryName] = useState("");
+  const [updatingCategoryId, setUpdatingCategoryId] = useState<string | null>(
+    null,
+  );
 
   const {
     register,
@@ -46,6 +55,9 @@ export default function CategoriasPage() {
 
   const loadCategories = useCallback(async () => {
     try {
+      setIsLoading(true);
+      setErrorMessage("");
+
       const user = await getCurrentUser();
 
       if (!user) {
@@ -112,6 +124,99 @@ export default function CategoriasPage() {
       setStatusMessage(
         error instanceof Error ? error.message : "Erro ao criar categoria.",
       );
+    }
+  }
+
+  function startEditingCategory(category: Category) {
+    setStatusMessage("");
+    setStatusType("");
+    setEditingCategoryId(category.id);
+    setEditingCategoryName(category.name);
+  }
+
+  function cancelEditingCategory() {
+    setEditingCategoryId(null);
+    setEditingCategoryName("");
+  }
+
+  async function handleUpdateCategoryName(categoryId: string) {
+    setStatusMessage("");
+    setStatusType("");
+
+    if (!financialSpaceId) {
+      setStatusType("error");
+      setStatusMessage("Não foi possível identificar sua Conta Clara.");
+      return;
+    }
+
+    if (editingCategoryName.trim().length < 3) {
+      setStatusType("error");
+      setStatusMessage("O nome da categoria deve ter pelo menos 3 caracteres.");
+      return;
+    }
+
+    try {
+      setUpdatingCategoryId(categoryId);
+
+      await updateCategoryName({
+        categoryId,
+        financialSpaceId,
+        name: editingCategoryName.trim(),
+      });
+
+      setStatusType("success");
+      setStatusMessage("Categoria atualizada com sucesso!");
+
+      setEditingCategoryId(null);
+      setEditingCategoryName("");
+
+      await loadCategories();
+    } catch (error) {
+      setStatusType("error");
+      setStatusMessage(
+        error instanceof Error ? error.message : "Erro ao atualizar categoria.",
+      );
+    } finally {
+      setUpdatingCategoryId(null);
+    }
+  }
+
+  async function handleToggleCategoryStatus(category: Category) {
+    setStatusMessage("");
+    setStatusType("");
+
+    if (!financialSpaceId) {
+      setStatusType("error");
+      setStatusMessage("Não foi possível identificar sua Conta Clara.");
+      return;
+    }
+
+    try {
+      setUpdatingCategoryId(category.id);
+
+      await updateCategoryActiveStatus({
+        categoryId: category.id,
+        financialSpaceId,
+        active: !category.active,
+      });
+
+      setStatusType("success");
+      setStatusMessage(
+        category.active
+          ? "Categoria desativada com sucesso!"
+          : "Categoria reativada com sucesso!",
+      );
+
+      await loadCategories();
+    } catch (error) {
+      setStatusType("error");
+      setStatusMessage(
+        error instanceof Error
+          ? error.message
+          : "Erro ao atualizar status da categoria.",
+      );
+    } finally {
+      setUpdatingCategoryId(null);
     }
   }
 
@@ -238,12 +343,28 @@ export default function CategoriasPage() {
             title="Receitas"
             description="Categorias usadas para entradas de dinheiro."
             categories={incomeCategories}
+            editingCategoryId={editingCategoryId}
+            editingCategoryName={editingCategoryName}
+            updatingCategoryId={updatingCategoryId}
+            onStartEditing={startEditingCategory}
+            onCancelEditing={cancelEditingCategory}
+            onChangeEditingName={setEditingCategoryName}
+            onSaveEditing={handleUpdateCategoryName}
+            onToggleStatus={handleToggleCategoryStatus}
           />
 
           <CategoryGroup
             title="Despesas"
             description="Categorias usadas para gastos, contas e pagamentos."
             categories={expenseCategories}
+            editingCategoryId={editingCategoryId}
+            editingCategoryName={editingCategoryName}
+            updatingCategoryId={updatingCategoryId}
+            onStartEditing={startEditingCategory}
+            onCancelEditing={cancelEditingCategory}
+            onChangeEditingName={setEditingCategoryName}
+            onSaveEditing={handleUpdateCategoryName}
+            onToggleStatus={handleToggleCategoryStatus}
           />
         </section>
       )}
@@ -255,9 +376,29 @@ type CategoryGroupProps = {
   title: string;
   description: string;
   categories: Category[];
+  editingCategoryId: string | null;
+  editingCategoryName: string;
+  updatingCategoryId: string | null;
+  onStartEditing: (category: Category) => void;
+  onCancelEditing: () => void;
+  onChangeEditingName: (name: string) => void;
+  onSaveEditing: (categoryId: string) => Promise<void>;
+  onToggleStatus: (category: Category) => Promise<void>;
 };
 
-function CategoryGroup({ title, description, categories }: CategoryGroupProps) {
+function CategoryGroup({
+  title,
+  description,
+  categories,
+  editingCategoryId,
+  editingCategoryName,
+  updatingCategoryId,
+  onStartEditing,
+  onCancelEditing,
+  onChangeEditingName,
+  onSaveEditing,
+  onToggleStatus,
+}: CategoryGroupProps) {
   return (
     <div className="rounded-3xl border border-zinc-800 bg-zinc-900/70 p-6 shadow-xl">
       <div className="mb-5">
@@ -273,39 +414,111 @@ function CategoryGroup({ title, description, categories }: CategoryGroupProps) {
         </div>
       ) : (
         <div className="space-y-3">
-          {categories.map((category) => (
-            <div
-              key={category.id}
-              className="flex items-center justify-between rounded-2xl border border-zinc-800 bg-zinc-950/70 p-4"
-            >
-              <div className="flex items-center gap-3">
-                <span
-                  className="h-3 w-3 rounded-full"
-                  style={{ backgroundColor: category.color ?? "#71717a" }}
-                />
+          {categories.map((category) => {
+            const isEditing = editingCategoryId === category.id;
+            const isUpdating = updatingCategoryId === category.id;
 
-                <div>
-                  <p className="font-medium text-white">{category.name}</p>
+            return (
+              <div
+                key={category.id}
+                className="rounded-2xl border border-zinc-800 bg-zinc-950/70 p-4"
+              >
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="flex flex-1 items-center gap-3">
+                    <span
+                      className="h-3 w-3 rounded-full"
+                      style={{ backgroundColor: category.color ?? "#71717a" }}
+                    />
 
-                  <p className="mt-1 text-xs text-zinc-500">
-                    {category.is_default
-                      ? "Categoria padrão"
-                      : "Categoria criada"}
-                  </p>
+                    <div className="flex-1">
+                      {isEditing ? (
+                        <input
+                          type="text"
+                          value={editingCategoryName}
+                          onChange={(event) =>
+                            onChangeEditingName(event.target.value)
+                          }
+                          className="w-full rounded-xl border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-white transition outline-none focus:border-emerald-400"
+                        />
+                      ) : (
+                        <p className="font-medium text-white">
+                          {category.name}
+                        </p>
+                      )}
+
+                      <p className="mt-1 text-xs text-zinc-500">
+                        {category.is_default
+                          ? "Categoria padrão"
+                          : "Categoria criada"}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-2 sm:justify-end">
+                    <span
+                      className={`rounded-full px-3 py-1 text-xs font-medium ${
+                        category.active
+                          ? "bg-emerald-400/10 text-emerald-300"
+                          : "bg-zinc-800 text-zinc-400"
+                      }`}
+                    >
+                      {category.active ? "Ativa" : "Inativa"}
+                    </span>
+
+                    {isEditing ? (
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => void onSaveEditing(category.id)}
+                          disabled={isUpdating}
+                          className="rounded-full bg-emerald-400/10 px-3 py-1 text-xs font-semibold text-emerald-300 transition hover:bg-emerald-400/20 disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                          {isUpdating ? "Salvando..." : "Salvar"}
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={onCancelEditing}
+                          disabled={isUpdating}
+                          className="rounded-full border border-zinc-700 px-3 py-1 text-xs font-semibold text-zinc-300 transition hover:bg-zinc-900 hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                          Cancelar
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => onStartEditing(category)}
+                          disabled={isUpdating}
+                          className="rounded-full border border-zinc-700 px-3 py-1 text-xs font-semibold text-zinc-300 transition hover:bg-zinc-900 hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                          Editar
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => void onToggleStatus(category)}
+                          disabled={isUpdating}
+                          className={`rounded-full px-3 py-1 text-xs font-semibold transition disabled:cursor-not-allowed disabled:opacity-60 ${
+                            category.active
+                              ? "border border-red-400/30 text-red-300 hover:bg-red-400/10"
+                              : "bg-emerald-400/10 text-emerald-300 hover:bg-emerald-400/20"
+                          }`}
+                        >
+                          {isUpdating
+                            ? "Atualizando..."
+                            : category.active
+                              ? "Desativar"
+                              : "Reativar"}
+                        </button>
+                      </>
+                    )}
+                  </div>
                 </div>
               </div>
-
-              <span
-                className={`rounded-full px-3 py-1 text-xs font-medium ${
-                  category.active
-                    ? "bg-emerald-400/10 text-emerald-300"
-                    : "bg-zinc-800 text-zinc-400"
-                }`}
-              >
-                {category.active ? "Ativa" : "Inativa"}
-              </span>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>
