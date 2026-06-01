@@ -29,6 +29,10 @@ const navigationItems = [
     href: "/perfil",
     label: "Perfil",
   },
+  {
+    href: "/configuracoes",
+    label: "Configurações",
+  },
 ];
 
 export default function AppLayout({ children }: AppLayoutProps) {
