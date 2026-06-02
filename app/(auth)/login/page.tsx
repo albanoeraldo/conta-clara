@@ -82,6 +82,10 @@ export default function LoginPage() {
     <AuthShell
       title="Bem-vindo de volta!"
       description="Entre na sua conta para continuar acompanhando suas receitas, despesas e contas do mês."
+      illustrationSrc="/brand/conta-clara-cat.png"
+      illustrationAlt="Mascote do Conta Clara acompanhando o painel financeiro"
+      visualTitle="Seu mês organizado em um só lugar."
+      visualDescription="Acesse sua conta para acompanhar receitas, despesas, vencimentos e saldo previsto com clareza."
       footer={
         <p className="text-center text-sm text-slate-600">
           Ainda não tem uma conta?{" "}

@@ -75,45 +75,45 @@ export default function HomePage() {
         <div className="absolute inset-0 bg-linear-to-b from-black/10 via-transparent to-white/10" />
 
         <div className="relative z-10 mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-          <header className="flex items-center justify-between gap-4">
+          <header className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
             <Link
               href="/"
-              className="inline-flex items-center justify-center overflow-hidden rounded-2xl bg-white/95 px-1 py-4 shadow-sm"
+              className="inline-flex max-w-full items-center justify-center overflow-hidden rounded-2xl bg-white/95 px-3 py-2 shadow-sm sm:px-4 sm:py-3"
               aria-label="Ir para o início"
             >
-              <div className="relative h-20 w-85">
+              <div className="relative h-18 w-70 sm:h-20.5 sm:w-82.5 lg:h-20.5 lg:w-87.5">
                 <Image
                   src="/brand/conta-clara-logo-horizontal.png"
                   alt="Conta Clara"
                   fill
                   priority
-                  className="scale-[3.5] object-contain object-center"
+                  className="scale-[2.2] object-contain object-center sm:scale-[2.35] lg:scale-[2.45]"
                 />
               </div>
             </Link>
 
-            <nav className="flex items-center gap-2">
+            <nav className="flex w-full items-center gap-2 sm:w-auto">
               <Link
                 href="/login"
-                className="rounded-xl px-4 py-2 text-sm font-bold text-white/90 transition hover:bg-white/10 hover:text-white"
+                className="inline-flex flex-1 items-center justify-center rounded-xl px-4 py-2 text-sm font-bold text-white/90 transition hover:bg-white/10 hover:text-white sm:flex-none"
               >
                 Entrar
               </Link>
 
               <Link
                 href="/cadastro"
-                className="rounded-xl bg-white px-4 py-2 text-sm font-bold text-blue-700 transition hover:bg-blue-50"
+                className="inline-flex flex-1 items-center justify-center rounded-xl bg-white px-4 py-2 text-sm font-bold text-blue-700 transition hover:bg-blue-50 sm:flex-none"
               >
                 Criar conta
               </Link>
             </nav>
           </header>
 
-          <div className="grid min-h-155 items-center gap-10 py-16 lg:grid-cols-[0.9fr_1.1fr]">
+          <div className="grid min-h-155 items-center gap-10 py-14 lg:grid-cols-[0.9fr_1.1fr] lg:py-16">
             <div>
-              <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/15 px-4 py-2 text-sm font-bold text-white backdrop-blur">
-                <Sparkles className="h-4 w-4" />
-                Para organizar o mês sem complicação
+              <div className="mb-6 inline-flex max-w-full items-center gap-2 rounded-full border border-white/25 bg-white/15 px-4 py-2 text-sm font-bold text-white backdrop-blur">
+                <Sparkles className="h-4 w-4 shrink-0" />
+                <span>Para organizar o mês sem complicação</span>
               </div>
 
               <h1 className="max-w-3xl text-4xl leading-tight font-black tracking-tight text-white sm:text-5xl lg:text-6xl">
@@ -247,7 +247,7 @@ export default function HomePage() {
             return (
               <div
                 key={feature.title}
-                className="rounded-3xl border border-slate-100 bg-white p-6"
+                className="rounded-3xl border border-slate-100 bg-white p-6 shadow-sm"
               >
                 <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 text-blue-600">
                   <Icon className="h-6 w-6" />

@@ -119,21 +119,21 @@ export default function AppLayout({ children }: AppLayoutProps) {
 
   if (isCheckingSession) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-slate-50 px-4 text-slate-950 sm:px-6">
-        <section className="w-full max-w-md rounded-4xl border border-slate-100 bg-white p-6 text-center shadow-sm sm:p-8">
-          <div className="mb-6 flex justify-center">
-            <Logo href="/" variant="symbol" size="lg" />
+      <main className="flex min-h-screen items-center justify-center bg-slate-100 px-4 text-slate-950 sm:px-6">
+        <section className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-6 text-center shadow-sm sm:p-8">
+          <div className="mx-auto mb-6 flex justify-center">
+            <Logo />
           </div>
 
-          <p className="mb-3 text-sm font-black tracking-[0.3em] text-blue-700 uppercase">
+          <p className="mb-3 text-sm font-black tracking-[0.25em] text-blue-700 uppercase">
             Conta Clara
           </p>
 
-          <h1 className="text-2xl font-black tracking-tight">
+          <h1 className="text-2xl font-black tracking-tight text-slate-950">
             Verificando acesso...
           </h1>
 
-          <p className="mt-3 text-sm text-slate-500">
+          <p className="mt-3 text-sm leading-6 text-slate-500">
             Aguarde enquanto confirmamos sua sessão.
           </p>
         </section>
@@ -144,13 +144,13 @@ export default function AppLayout({ children }: AppLayoutProps) {
   return (
     <div className="min-h-screen bg-slate-100 text-slate-950">
       <aside className="fixed inset-y-0 left-0 z-40 hidden w-72 bg-[#0F2A5F] text-white lg:flex lg:flex-col">
-        <div className="border-b border-white/10 px-6 py-6">
-          <div className="rounded-3xl bg-white p-4 shadow-sm">
+        <div className="border-b border-white/10 px-4 py-5">
+          <div className="rounded-3xl bg-white px-4 py-3 shadow-sm">
             <Logo />
           </div>
         </div>
 
-        <nav className="flex-1 space-y-1 px-4 py-6">
+        <nav className="flex-1 space-y-2 px-4 py-6">
           {navigationItems.map((item) => {
             const isActive = isNavigationItemActive(item.href);
             const Icon = item.icon;
@@ -196,16 +196,16 @@ export default function AppLayout({ children }: AppLayoutProps) {
           <button
             type="button"
             onClick={() => setIsMobileMenuOpen((current) => !current)}
-            className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-50"
+            className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-bold text-slate-700 shadow-sm transition hover:bg-slate-50"
           >
             {isMobileMenuOpen ? (
               <>
-                <X className="h-4 w-4" />
+                <X className="h-5 w-5" />
                 Fechar
               </>
             ) : (
               <>
-                <Menu className="h-4 w-4" />
+                <Menu className="h-5 w-5" />
                 Menu
               </>
             )}
@@ -222,15 +222,17 @@ export default function AppLayout({ children }: AppLayoutProps) {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`group flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold transition-all duration-200 ease-out hover:-translate-y-0.5 ${
+                  className={`group flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold transition-all duration-200 ease-out active:scale-[0.99] ${
                     isActive
-                      ? "bg-white text-blue-700 shadow-sm"
-                      : "text-blue-100 hover:bg-white/10 hover:text-white"
+                      ? "bg-blue-50 text-blue-700 shadow-sm"
+                      : "text-slate-700 hover:bg-blue-50 hover:text-blue-700"
                   }`}
                 >
                   <Icon
                     className={`h-5 w-5 transition-transform duration-200 group-hover:scale-110 ${
-                      isActive ? "text-blue-600" : "text-blue-100"
+                      isActive
+                        ? "text-blue-600"
+                        : "text-slate-400 group-hover:text-blue-600"
                     }`}
                   />
                   {item.label}
@@ -242,9 +244,9 @@ export default function AppLayout({ children }: AppLayoutProps) {
               type="button"
               onClick={handleLogout}
               disabled={isLoggingOut}
-              className="group flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold text-blue-100 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-white/10 hover:text-white disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
+              className="mt-2 flex items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-bold text-slate-700 transition-all duration-200 hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              <LogOut className="h-5 w-5 transition-transform duration-200 group-hover:scale-110" />
+              <LogOut className="h-5 w-5" />
               {isLoggingOut ? "Saindo..." : "Sair"}
             </button>
           </nav>
@@ -252,7 +254,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
       </header>
 
       <main className="min-h-screen bg-slate-100 px-4 py-6 sm:px-6 sm:py-8 lg:pr-8 lg:pl-80">
-        <div className="mx-auto max-w-7xl">{children}</div>
+        {children}
       </main>
     </div>
   );
