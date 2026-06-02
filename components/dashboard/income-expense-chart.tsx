@@ -3,7 +3,7 @@
 import {
   Bar,
   BarChart,
-  Cell,
+  CartesianGrid,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -13,7 +13,7 @@ import {
 type IncomeExpenseChartProps = {
   incomeTotal: number;
   expenseTotal: number;
-  isLoading: boolean;
+  isLoading?: boolean;
 };
 
 function formatCurrency(value: number) {
@@ -26,75 +26,66 @@ function formatCurrency(value: number) {
 export function IncomeExpenseChart({
   incomeTotal,
   expenseTotal,
-  isLoading,
+  isLoading = false,
 }: IncomeExpenseChartProps) {
-  const hasData = incomeTotal > 0 || expenseTotal > 0;
-
-  const chartData = [
+  const data = [
     {
       name: "Receitas",
       value: incomeTotal,
-      fill: "#6ee7b7",
+      fill: "#2563eb",
     },
     {
       name: "Despesas",
       value: expenseTotal,
-      fill: "#fca5a5",
+      fill: "#f87171",
     },
   ];
 
   if (isLoading) {
     return (
-      <div className="flex h-56 items-center justify-center rounded-2xl border border-dashed border-zinc-700">
-        <p className="text-sm text-zinc-500">Carregando gráfico...</p>
-      </div>
-    );
-  }
-
-  if (!hasData) {
-    return (
-      <div className="flex h-56 items-center justify-center rounded-2xl border border-dashed border-zinc-700">
-        <p className="text-sm text-zinc-500">
-          Gráfico será exibido quando houver lançamentos.
-        </p>
+      <div className="flex min-h-64 items-center justify-center rounded-3xl border border-slate-100 bg-white text-sm font-semibold text-slate-500 shadow-sm">
+        Carregando gráfico...
       </div>
     );
   }
 
   return (
-    <div className="h-56 rounded-2xl border border-zinc-800 bg-zinc-950/70 p-4">
-      <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={chartData}>
+    <div className="min-h-64 rounded-3xl border border-slate-100 bg-white p-4 shadow-sm">
+      <ResponsiveContainer width="100%" height={260}>
+        <BarChart data={data} barSize={72}>
+          <CartesianGrid stroke="#e2e8f0" vertical={false} />
+
           <XAxis
             dataKey="name"
             axisLine={false}
             tickLine={false}
-            tick={{ fill: "#a1a1aa", fontSize: 12 }}
+            tick={{ fill: "#64748b", fontSize: 12, fontWeight: 600 }}
           />
 
           <YAxis
             axisLine={false}
             tickLine={false}
-            tick={{ fill: "#a1a1aa", fontSize: 12 }}
+            tick={{ fill: "#64748b", fontSize: 12 }}
             tickFormatter={(value) => formatCurrency(Number(value))}
           />
 
           <Tooltip
-            cursor={{ fill: "rgba(255, 255, 255, 0.04)" }}
+            cursor={{ fill: "#f1f5f9" }}
             contentStyle={{
-              backgroundColor: "#09090b",
-              border: "1px solid #27272a",
-              borderRadius: "12px",
-              color: "#ffffff",
+              background: "#ffffff",
+              border: "1px solid #e2e8f0",
+              borderRadius: "16px",
+              boxShadow: "0 8px 24px rgba(15, 23, 42, 0.08)",
+              color: "#0f172a",
+            }}
+            labelStyle={{
+              color: "#0f172a",
+              fontWeight: 800,
             }}
             formatter={(value) => [formatCurrency(Number(value)), "Valor"]}
           />
 
-          <Bar dataKey="value" radius={[12, 12, 4, 4]}>
-            {chartData.map((item) => (
-              <Cell key={item.name} fill={item.fill} />
-            ))}
-          </Bar>
+          <Bar dataKey="value" radius={[16, 16, 8, 8]} />
         </BarChart>
       </ResponsiveContainer>
     </div>

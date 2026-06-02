@@ -1,14 +1,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import {
+  ArrowDownRight,
+  ArrowUpRight,
+  CalendarClock,
+  Plus,
+  ReceiptText,
+  Wallet,
+} from "lucide-react";
 
-import { AppEmptyState } from "@/components/ui/app-empty-state";
-import { AppFeedback } from "@/components/ui/app-feedback";
-import { AppLoadingState } from "@/components/ui/app-loading-state";
 import { IncomeExpenseChart } from "@/components/dashboard/income-expense-chart";
 import { AppLinkButton } from "@/components/ui/app-button";
-import { SummaryCard } from "@/components/dashboard/summary-card";
-import { AppSection } from "@/components/ui/app-section";
 import { getUserFinancialSpaceId } from "@/lib/auth/financial-space";
 import { getCurrentUser } from "@/lib/auth/session";
 import {
@@ -71,6 +74,113 @@ const statusLabels: Record<Transaction["status"], string> = {
   overdue: "Atrasado",
   cancelled: "Cancelado",
 };
+
+type MetricCardProps = {
+  title: string;
+  value: string | number;
+  description: string;
+  tone: "blue" | "red" | "yellow" | "green";
+  icon: React.ComponentType<{ className?: string }>;
+};
+
+const metricStyles = {
+  blue: {
+    card: "border-blue-100 bg-blue-50 shadow-sm",
+    icon: "bg-blue-600 text-white",
+    title: "text-blue-700",
+    value: "text-blue-700",
+  },
+  red: {
+    card: "border-red-100 bg-red-50 shadow-sm",
+    icon: "bg-red-500 text-white",
+    title: "text-red-600",
+    value: "text-red-600",
+  },
+  yellow: {
+    card: "border-yellow-100 bg-yellow-50 shadow-sm",
+    icon: "bg-yellow-400 text-white",
+    title: "text-yellow-700",
+    value: "text-yellow-700",
+  },
+  green: {
+    card: "border-emerald-100 bg-emerald-50 shadow-sm",
+    icon: "bg-emerald-500 text-white",
+    title: "text-emerald-700",
+    value: "text-emerald-700",
+  },
+};
+
+function MetricCard({
+  title,
+  value,
+  description,
+  tone,
+  icon: Icon,
+}: MetricCardProps) {
+  const styles = metricStyles[tone];
+
+  return (
+    <div className={`rounded-3xl border p-6 ${styles.card}`}>
+      <div className="mb-6 flex items-start justify-between gap-4">
+        <div>
+          <p className={`text-sm font-bold ${styles.title}`}>{title}</p>
+          <strong className={`mt-4 block text-2xl font-black ${styles.value}`}>
+            {value}
+          </strong>
+        </div>
+
+        <div
+          className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl ${styles.icon}`}
+        >
+          <Icon className="h-5 w-5" />
+        </div>
+      </div>
+
+      <p className="text-sm leading-6 text-slate-600">{description}</p>
+    </div>
+  );
+}
+
+function DashboardPanel({
+  title,
+  description,
+  children,
+}: {
+  title: string;
+  description?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="rounded-3xl border border-slate-200 bg-slate-50 p-6 shadow-sm">
+      <div className="mb-6">
+        <h2 className="text-xl font-black tracking-tight text-slate-950">
+          {title}
+        </h2>
+
+        {description && (
+          <p className="mt-2 text-sm leading-6 text-slate-500">{description}</p>
+        )}
+      </div>
+
+      {children}
+    </section>
+  );
+}
+
+function EmptyState({
+  title,
+  description,
+}: {
+  title: string;
+  description: string;
+}) {
+  return (
+    <div className="rounded-3xl border border-dashed border-slate-200 bg-white p-6 text-center shadow-sm">
+      <p className="font-black text-slate-800">{title}</p>
+      <p className="mt-2 text-sm leading-6 text-slate-500">{description}</p>
+    </div>
+  );
+}
 
 export default function DashboardPage() {
   const [latestTransactions, setLatestTransactions] = useState<Transaction[]>(
@@ -143,32 +253,49 @@ export default function DashboardPage() {
     };
   }, []);
 
+  const monthStatus =
+    monthlyTransactions.length > 0
+      ? monthlySummary.predictedBalance >= 0
+        ? "Em equilíbrio"
+        : "Atenção"
+      : "Acompanhando";
+
   return (
-    <main>
-      <header className="mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+    <main className="space-y-8">
+      <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <p className="mb-2 text-sm font-medium tracking-[0.3em] text-emerald-400 uppercase">
+          <p className="text-sm font-black tracking-[0.25em] text-blue-700 uppercase">
             Conta Clara
           </p>
 
-          <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
+          <h1 className="mt-3 text-3xl font-black tracking-tight text-slate-950">
             Dashboard do mês
           </h1>
 
-          <p className="mt-2 text-sm text-zinc-400">
-            Acompanhe suas contas, gastos e saldo previsto de forma simples.
+          <p className="mt-2 text-sm leading-6 text-slate-500">
+            Acompanhe suas receitas, despesas, contas pendentes e saldo previsto
+            de forma simples.
           </p>
         </div>
 
-        <AppLinkButton href="/lancamentos/novo">Novo lançamento</AppLinkButton>
+        <AppLinkButton href="/lancamentos/novo">
+          <Plus className="h-4 w-4" />
+          Novo lançamento
+        </AppLinkButton>
       </header>
 
-      <section className="mb-8 rounded-3xl border border-emerald-400/20 bg-emerald-400/10 p-4 shadow-xl sm:p-6">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="text-sm font-medium text-emerald-300">Saúde do mês</p>
+      {errorMessage && (
+        <div className="rounded-3xl border border-red-100 bg-red-50 px-5 py-4 text-sm font-semibold text-red-600">
+          {errorMessage}
+        </div>
+      )}
 
-            <h2 className="mt-2 text-xl font-bold sm:text-2xl">
+      <section className="rounded-3xl border border-blue-100 bg-blue-50 p-6 shadow-sm">
+        <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+          <div>
+            <p className="text-sm font-bold text-blue-700">Saúde do mês</p>
+
+            <h2 className="mt-2 text-2xl font-black tracking-tight text-slate-950">
               {monthlyTransactions.length > 0
                 ? monthlySummary.predictedBalance >= 0
                   ? "Seu mês está positivo"
@@ -176,210 +303,218 @@ export default function DashboardPage() {
                 : "Seu mês ainda está em análise"}
             </h2>
 
-            <p className="mt-2 text-sm text-emerald-100/80">
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
               {monthlyTransactions.length > 0
                 ? "Resumo calculado com base nos lançamentos cadastrados para o mês atual."
                 : "Conforme você cadastra receitas e despesas, o Conta Clara mostra como está sua situação financeira."}
             </p>
           </div>
 
-          <div className="rounded-2xl bg-zinc-950/50 px-5 py-4 text-center">
-            <p className="text-xs tracking-[0.2em] text-zinc-400 uppercase">
+          <div className="rounded-3xl bg-white px-6 py-4 text-center">
+            <p className="text-xs font-black tracking-[0.2em] text-slate-400 uppercase">
               Status
             </p>
-            <p className="mt-1 text-lg font-semibold text-emerald-300">
-              {monthlyTransactions.length > 0
-                ? monthlySummary.predictedBalance >= 0
-                  ? "Em equilíbrio"
-                  : "Atenção"
-                : "Acompanhando"}
+            <p className="mt-1 text-lg font-black text-blue-700">
+              {monthStatus}
             </p>
           </div>
         </div>
       </section>
 
-      <section className="mb-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <SummaryCard
-          title="Receitas do mês"
+      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <MetricCard
+          title="Receitas"
           value={isLoading ? "..." : formatCurrency(monthlySummary.incomeTotal)}
           description="Entradas cadastradas para o mês atual."
-          tone="emerald"
+          tone="green"
+          icon={ArrowUpRight}
         />
 
-        <SummaryCard
-          title="Despesas do mês"
+        <MetricCard
+          title="Despesas"
           value={
             isLoading ? "..." : formatCurrency(monthlySummary.expenseTotal)
           }
           description="Gastos e contas cadastrados no período."
           tone="red"
+          icon={ArrowDownRight}
         />
 
-        <SummaryCard
-          title="Saldo previsto"
+        <MetricCard
+          title="Saldo do mês"
           value={
             isLoading ? "..." : formatCurrency(monthlySummary.predictedBalance)
           }
-          description="Diferença entre receitas e despesas do mês."
-          tone={monthlySummary.predictedBalance >= 0 ? "emerald" : "red"}
+          description="Diferença entre receitas e despesas."
+          tone={monthlySummary.predictedBalance >= 0 ? "blue" : "red"}
+          icon={Wallet}
         />
 
-        <SummaryCard
-          title="Contas pendentes"
+        <MetricCard
+          title="A vencer"
           value={isLoading ? "..." : monthlySummary.pendingCount}
           description="Lançamentos ainda não marcados como pagos."
           tone="yellow"
+          icon={CalendarClock}
         />
       </section>
 
-      {errorMessage && (
-        <AppFeedback type="error" message={errorMessage} className="mb-8" />
-      )}
+      <section className="grid gap-6 xl:grid-cols-2">
+        <DashboardPanel
+          title="Receitas x despesas"
+          description="Compare suas receitas e despesas cadastradas no mês atual."
+        >
+          <IncomeExpenseChart
+            incomeTotal={monthlySummary.incomeTotal}
+            expenseTotal={monthlySummary.expenseTotal}
+            isLoading={isLoading}
+          />
+        </DashboardPanel>
 
-      <section className="grid gap-6 xl:grid-cols-3">
-        <div className="space-y-6 xl:col-span-2">
-          <AppSection
-            title="Últimos lançamentos"
-            description="Os lançamentos mais recentes aparecem aqui."
-          >
-            {isLoading && (
-              <AppLoadingState message="Carregando lançamentos..." />
-            )}
+        <DashboardPanel
+          title="Resumo rápido"
+          description="Informações principais do período atual."
+        >
+          <div className="space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+              <span className="text-sm font-medium text-slate-500">
+                Mês atual
+              </span>
+              <strong className="text-sm font-black text-slate-800 capitalize">
+                {getCurrentMonthLabel()}
+              </strong>
+            </div>
 
-            {!isLoading && !errorMessage && latestTransactions.length === 0 && (
-              <AppEmptyState
-                title="Nenhum lançamento cadastrado ainda"
-                description="Comece adicionando sua primeira receita ou despesa para visualizar o resumo do seu mês."
-              />
-            )}
+            <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+              <span className="text-sm font-medium text-slate-500">Status</span>
+              <strong className="text-sm font-black text-blue-700">
+                {monthStatus}
+              </strong>
+            </div>
 
-            {!isLoading && !errorMessage && latestTransactions.length > 0 && (
-              <div className="space-y-3">
-                {latestTransactions.map((transaction) => {
-                  const isIncome = transaction.type === "income";
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium text-slate-500">Plano</span>
+              <strong className="text-sm font-black text-blue-700">
+                Teste grátis
+              </strong>
+            </div>
+          </div>
+        </DashboardPanel>
+      </section>
 
-                  return (
-                    <div
-                      key={transaction.id}
-                      className="flex flex-col gap-3 rounded-2xl border border-zinc-800 bg-zinc-950/70 p-4 sm:flex-row sm:items-center sm:justify-between"
-                    >
+      <section className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
+        <DashboardPanel
+          title="Últimos lançamentos"
+          description="Os lançamentos mais recentes aparecem aqui."
+        >
+          {isLoading && (
+            <div className="rounded-3xl bg-slate-50 p-6 text-center text-sm font-semibold text-slate-500">
+              Carregando lançamentos...
+            </div>
+          )}
+
+          {!isLoading && !errorMessage && latestTransactions.length === 0 && (
+            <EmptyState
+              title="Nenhum lançamento cadastrado ainda"
+              description="Comece adicionando sua primeira receita ou despesa para visualizar o resumo do seu mês."
+            />
+          )}
+
+          {!isLoading && !errorMessage && latestTransactions.length > 0 && (
+            <div className="space-y-3">
+              {latestTransactions.map((transaction) => {
+                const isIncome = transaction.type === "income";
+
+                return (
+                  <div
+                    key={transaction.id}
+                    className="flex flex-col gap-3 rounded-2xl border border-slate-100 bg-white px-4 py-4 shadow-sm sm:flex-row sm:items-center sm:justify-between"
+                  >
+                    <div className="flex items-start gap-3">
+                      <div
+                        className={`mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl ${
+                          isIncome
+                            ? "bg-emerald-100 text-emerald-700"
+                            : "bg-red-100 text-red-700"
+                        }`}
+                      >
+                        <ReceiptText className="h-4 w-4" />
+                      </div>
+
                       <div>
-                        <p className="font-medium text-white">
+                        <p className="font-black text-slate-950">
                           {transaction.description}
                         </p>
 
-                        <p className="mt-1 text-sm text-zinc-500">
+                        <p className="mt-1 text-sm text-slate-500">
                           Vencimento: {formatDate(transaction.due_date)} •{" "}
                           {statusLabels[transaction.status]}
                         </p>
                       </div>
-
-                      <strong
-                        className={`text-lg ${
-                          isIncome ? "text-emerald-300" : "text-red-300"
-                        }`}
-                      >
-                        {isIncome ? "+" : "-"}{" "}
-                        {formatCurrency(Number(transaction.amount))}
-                      </strong>
                     </div>
-                  );
-                })}
-              </div>
-            )}
-          </AppSection>
 
-          <AppSection
-            title="Receitas x despesas"
-            description="Compare suas receitas e despesas cadastradas no mês atual."
-          >
-            <IncomeExpenseChart
-              incomeTotal={monthlySummary.incomeTotal}
-              expenseTotal={monthlySummary.expenseTotal}
-              isLoading={isLoading}
+                    <strong
+                      className={`text-base font-black ${
+                        isIncome ? "text-emerald-600" : "text-red-500"
+                      }`}
+                    >
+                      {isIncome ? "+" : "-"}{" "}
+                      {formatCurrency(Number(transaction.amount))}
+                    </strong>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </DashboardPanel>
+
+        <DashboardPanel title="Próximas contas">
+          {isLoading && (
+            <div className="rounded-3xl bg-slate-50 p-6 text-center text-sm font-semibold text-slate-500">
+              Carregando próximas contas...
+            </div>
+          )}
+
+          {!isLoading && upcomingPendingTransactions.length === 0 && (
+            <EmptyState
+              title="Nenhuma conta pendente"
+              description="Quando houver despesas pendentes no mês atual, elas aparecerão aqui."
             />
-          </AppSection>
-        </div>
+          )}
 
-        <aside className="space-y-6">
-          <AppSection title="Próximas contas">
-            {isLoading && (
-              <AppLoadingState message="Carregando próximas contas..." />
-            )}
+          {!isLoading && upcomingPendingTransactions.length > 0 && (
+            <div className="space-y-3">
+              {upcomingPendingTransactions.map((transaction) => (
+                <div
+                  key={transaction.id}
+                  className="rounded-2xl border border-slate-100 bg-white px-4 py-4 shadow-sm"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-start gap-3">
+                      <div className="mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-blue-100 text-blue-700">
+                        <CalendarClock className="h-4 w-4" />
+                      </div>
 
-            {!isLoading && upcomingPendingTransactions.length === 0 && (
-              <AppEmptyState
-                title="Nenhuma conta pendente"
-                description="Quando houver despesas pendentes no mês atual, elas aparecerão aqui."
-              />
-            )}
-
-            {!isLoading && upcomingPendingTransactions.length > 0 && (
-              <div className="space-y-3">
-                {upcomingPendingTransactions.map((transaction) => (
-                  <div
-                    key={transaction.id}
-                    className="rounded-2xl border border-zinc-800 bg-zinc-950/70 p-4"
-                  >
-                    <div className="flex items-start justify-between gap-3">
                       <div>
-                        <p className="font-medium text-white">
+                        <p className="font-black text-slate-950">
                           {transaction.description}
                         </p>
 
-                        <p className="mt-1 text-sm text-zinc-500">
+                        <p className="mt-1 text-sm text-slate-500">
                           Vence em {formatDate(transaction.due_date)}
                         </p>
                       </div>
-
-                      <strong className="text-sm text-red-300">
-                        {formatCurrency(Number(transaction.amount))}
-                      </strong>
                     </div>
+
+                    <strong className="text-sm font-black text-red-500">
+                      {formatCurrency(Number(transaction.amount))}
+                    </strong>
                   </div>
-                ))}
-              </div>
-            )}
-          </AppSection>
-
-          <AppSection title="Resumo rápido">
-            <div className="space-y-4">
-              <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
-                <span className="text-sm text-zinc-400">Mês atual</span>
-                <strong className="text-sm capitalize">
-                  {getCurrentMonthLabel()}
-                </strong>
-              </div>
-
-              <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
-                <span className="text-sm text-zinc-400">Status</span>
-                <strong className="text-sm text-emerald-300">
-                  {monthlyTransactions.length > 0
-                    ? monthlySummary.predictedBalance >= 0
-                      ? "Em equilíbrio"
-                      : "Atenção"
-                    : "Acompanhando"}
-                </strong>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-zinc-400">Plano</span>
-                <strong className="text-sm text-emerald-300">
-                  Teste grátis
-                </strong>
-              </div>
+                </div>
+              ))}
             </div>
-          </AppSection>
-
-          <AppSection title="Próximos passos">
-            <ul className="space-y-3 text-sm text-zinc-400">
-              <li>• Cadastrar primeira receita</li>
-              <li>• Cadastrar primeira despesa</li>
-              <li>• Organizar categorias</li>
-              <li>• Acompanhar saldo do mês</li>
-            </ul>
-          </AppSection>
-        </aside>
+          )}
+        </DashboardPanel>
       </section>
     </main>
   );

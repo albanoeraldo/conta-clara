@@ -119,21 +119,21 @@ export default function AppLayout({ children }: AppLayoutProps) {
 
   if (isCheckingSession) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-zinc-950 px-4 text-white sm:px-6">
-        <section className="w-full max-w-md rounded-3xl border border-zinc-800 bg-zinc-900/80 p-6 text-center shadow-2xl sm:p-8">
-          <div className="mx-auto mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-400 text-lg font-black text-zinc-950">
-            CC
+      <main className="flex min-h-screen items-center justify-center bg-slate-50 px-4 text-slate-950 sm:px-6">
+        <section className="w-full max-w-md rounded-4xl border border-slate-100 bg-white p-6 text-center shadow-sm sm:p-8">
+          <div className="mb-6 flex justify-center">
+            <Logo href="/" variant="symbol" size="lg" />
           </div>
 
-          <p className="mb-3 text-sm font-medium tracking-[0.3em] text-emerald-400 uppercase">
+          <p className="mb-3 text-sm font-black tracking-[0.3em] text-blue-700 uppercase">
             Conta Clara
           </p>
 
-          <h1 className="text-2xl font-bold tracking-tight">
+          <h1 className="text-2xl font-black tracking-tight">
             Verificando acesso...
           </h1>
 
-          <p className="mt-3 text-sm text-zinc-400">
+          <p className="mt-3 text-sm text-slate-500">
             Aguarde enquanto confirmamos sua sessão.
           </p>
         </section>
@@ -142,49 +142,59 @@ export default function AppLayout({ children }: AppLayoutProps) {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-white">
-      <header className="sticky top-0 z-40 border-b border-zinc-800 bg-zinc-950/95 px-4 py-4 backdrop-blur sm:px-6">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4">
+    <div className="min-h-screen bg-slate-100 text-slate-950">
+      <aside className="fixed inset-y-0 left-0 z-40 hidden w-72 border-r border-slate-200 bg-white lg:flex lg:flex-col">
+        <div className="border-b border-slate-100 px-6 py-6">
           <Logo />
+        </div>
 
-          <div className="hidden items-center gap-3 lg:flex">
-            <nav className="flex flex-wrap gap-2 rounded-2xl border border-zinc-800 bg-zinc-900/70 p-1">
-              {navigationItems.map((item) => {
-                const isActive = isNavigationItemActive(item.href);
-                const Icon = item.icon;
+        <nav className="flex-1 space-y-1 px-4 py-6">
+          {navigationItems.map((item) => {
+            const isActive = isNavigationItemActive(item.href);
+            const Icon = item.icon;
 
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition ${
-                      isActive
-                        ? "bg-emerald-400 text-zinc-950 shadow-sm shadow-emerald-950/30"
-                        : "text-zinc-400 hover:bg-zinc-800 hover:text-white"
-                    }`}
-                  >
-                    <Icon className="h-4 w-4" />
-                    {item.label}
-                  </Link>
-                );
-              })}
-            </nav>
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold transition ${
+                  isActive
+                    ? "bg-blue-50 text-blue-700"
+                    : "text-slate-500 hover:bg-slate-50 hover:text-slate-950"
+                }`}
+              >
+                <Icon
+                  className={`h-5 w-5 ${
+                    isActive ? "text-blue-600" : "text-slate-400"
+                  }`}
+                />
+                {item.label}
+              </Link>
+            );
+          })}
+        </nav>
 
-            <button
-              type="button"
-              onClick={handleLogout}
-              disabled={isLoggingOut}
-              className="flex items-center gap-2 rounded-xl border border-zinc-800 bg-zinc-900/70 px-4 py-2 text-sm font-medium text-zinc-300 transition hover:border-red-400/40 hover:bg-red-400/10 hover:text-red-300 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              <LogOut className="h-4 w-4" />
-              {isLoggingOut ? "Saindo..." : "Sair"}
-            </button>
-          </div>
+        <div className="border-t border-slate-100 p-4">
+          <button
+            type="button"
+            onClick={handleLogout}
+            disabled={isLoggingOut}
+            className="flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold text-slate-500 transition hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            <LogOut className="h-5 w-5" />
+            {isLoggingOut ? "Saindo..." : "Sair"}
+          </button>
+        </div>
+      </aside>
+
+      <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/95 px-4 py-4 backdrop-blur lg:hidden">
+        <div className="flex items-center justify-between gap-4">
+          <Logo />
 
           <button
             type="button"
             onClick={() => setIsMobileMenuOpen((current) => !current)}
-            className="flex items-center gap-2 rounded-xl border border-zinc-800 bg-zinc-900/70 px-4 py-2 text-sm font-semibold text-zinc-200 transition hover:bg-zinc-800 lg:hidden"
+            className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-50"
           >
             {isMobileMenuOpen ? (
               <>
@@ -201,44 +211,46 @@ export default function AppLayout({ children }: AppLayoutProps) {
         </div>
 
         {isMobileMenuOpen && (
-          <div className="mx-auto mt-4 max-w-7xl lg:hidden">
-            <nav className="grid gap-2 rounded-2xl border border-zinc-800 bg-zinc-900/95 p-3 shadow-xl">
-              {navigationItems.map((item) => {
-                const isActive = isNavigationItemActive(item.href);
-                const Icon = item.icon;
+          <nav className="mt-4 grid gap-2 rounded-3xl border border-slate-200 bg-white p-3 shadow-sm">
+            {navigationItems.map((item) => {
+              const isActive = isNavigationItemActive(item.href);
+              const Icon = item.icon;
 
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition ${
-                      isActive
-                        ? "bg-emerald-400 text-zinc-950"
-                        : "text-zinc-300 hover:bg-zinc-800 hover:text-white"
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold transition ${
+                    isActive
+                      ? "bg-blue-50 text-blue-700"
+                      : "text-slate-500 hover:bg-slate-50 hover:text-slate-950"
+                  }`}
+                >
+                  <Icon
+                    className={`h-5 w-5 ${
+                      isActive ? "text-blue-600" : "text-slate-400"
                     }`}
-                  >
-                    <Icon className="h-4 w-4" />
-                    {item.label}
-                  </Link>
-                );
-              })}
+                  />
+                  {item.label}
+                </Link>
+              );
+            })}
 
-              <button
-                type="button"
-                onClick={handleLogout}
-                disabled={isLoggingOut}
-                className="mt-2 flex items-center gap-3 rounded-xl border border-red-400/30 bg-red-400/10 px-4 py-3 text-left text-sm font-medium text-red-300 transition hover:bg-red-400/20 disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                <LogOut className="h-4 w-4" />
-                {isLoggingOut ? "Saindo..." : "Sair"}
-              </button>
-            </nav>
-          </div>
+            <button
+              type="button"
+              onClick={handleLogout}
+              disabled={isLoggingOut}
+              className="mt-2 flex items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-bold text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              <LogOut className="h-5 w-5" />
+              {isLoggingOut ? "Saindo..." : "Sair"}
+            </button>
+          </nav>
         )}
       </header>
 
-      <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8">
-        {children}
+      <main className="min-h-screen bg-slate-100 px-4 py-6 sm:px-6 sm:py-8 lg:pr-8 lg:pl-80">
+        <div className="mx-auto max-w-7xl">{children}</div>
       </main>
     </div>
   );
