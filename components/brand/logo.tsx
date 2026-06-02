@@ -1,30 +1,81 @@
+import Image from "next/image";
 import Link from "next/link";
+
+type LogoVariant = "internal" | "full" | "symbol";
 
 type LogoProps = {
   href?: string;
-  showSubtitle?: boolean;
+  variant?: LogoVariant;
+  className?: string;
 };
 
-export function Logo({ href = "/dashboard", showSubtitle = true }: LogoProps) {
-  const content = (
-    <div className="group flex items-center gap-3">
-      <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-400 text-sm font-black text-zinc-950 shadow-lg shadow-emerald-950/30 transition group-hover:bg-emerald-300">
-        CC
-      </div>
+export function Logo({
+  href = "/dashboard",
+  variant = "internal",
+  className = "",
+}: LogoProps) {
+  if (variant === "full") {
+    return (
+      <Link
+        href={href}
+        aria-label="Ir para o Conta Clara"
+        className={`inline-flex items-center ${className}`}
+      >
+        <Image
+          src="/brand/conta-clara-logo.png"
+          alt="Conta Clara"
+          width={220}
+          height={120}
+          priority
+          className="h-16 w-auto object-contain"
+        />
+      </Link>
+    );
+  }
 
-      <div>
-        <p className="text-sm font-semibold tracking-[0.28em] text-emerald-400 uppercase">
+  if (variant === "symbol") {
+    return (
+      <Link
+        href={href}
+        aria-label="Ir para o Conta Clara"
+        className={`inline-flex items-center ${className}`}
+      >
+        <Image
+          src="/brand/conta-clara-symbol.png"
+          alt="Conta Clara"
+          width={52}
+          height={52}
+          priority
+          className="h-11 w-11 object-contain"
+        />
+      </Link>
+    );
+  }
+
+  return (
+    <Link
+      href={href}
+      aria-label="Ir para o Conta Clara"
+      className={`inline-flex items-center gap-3 ${className}`}
+    >
+      <Image
+        src="/brand/conta-clara-symbol.png"
+        alt="Conta Clara"
+        width={52}
+        height={52}
+        priority
+        className="h-11 w-11 object-contain"
+      />
+
+      <div className="leading-none">
+        <p className="text-sm font-black tracking-[0.22em] text-blue-700 uppercase">
           Conta Clara
         </p>
 
-        {showSubtitle && (
-          <p className="mt-1 text-xs text-zinc-500 transition group-hover:text-zinc-400">
-            Simples, limpo e confiável
-          </p>
-        )}
+        <p className="mt-1 text-xs font-medium text-slate-500">
+          Controle financeiro simples
+        </p>
       </div>
-    </div>
+    </Link>
   );
-
-  return <Link href={href}>{content}</Link>;
 }

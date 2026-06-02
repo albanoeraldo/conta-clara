@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { Logo } from "@/components/brand/logo";
 import {
   ArrowRight,
   BarChart3,
@@ -76,20 +77,7 @@ export default function HomePage() {
 
         <div className="relative z-10 mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
           <header className="flex items-center justify-between gap-4">
-            <Link href="/" className="flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-sm font-black text-blue-700">
-                CC
-              </div>
-
-              <div>
-                <p className="text-sm font-black tracking-[0.28em] text-white uppercase">
-                  Conta Clara
-                </p>
-                <p className="mt-1 hidden text-xs text-blue-100 sm:block">
-                  Controle financeiro simples
-                </p>
-              </div>
-            </Link>
+            <Logo href="/" variant="full" />
 
             <nav className="flex items-center gap-2">
               <Link
