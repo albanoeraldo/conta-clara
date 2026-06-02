@@ -143,9 +143,11 @@ export default function AppLayout({ children }: AppLayoutProps) {
 
   return (
     <div className="min-h-screen bg-slate-100 text-slate-950">
-      <aside className="fixed inset-y-0 left-0 z-40 hidden w-72 border-r border-slate-200 bg-white lg:flex lg:flex-col">
-        <div className="border-b border-slate-100 px-6 py-6">
-          <Logo />
+      <aside className="fixed inset-y-0 left-0 z-40 hidden w-72 bg-[#0F2A5F] text-white lg:flex lg:flex-col">
+        <div className="border-b border-white/10 px-6 py-6">
+          <div className="rounded-3xl bg-white p-4 shadow-sm">
+            <Logo />
+          </div>
         </div>
 
         <nav className="flex-1 space-y-1 px-4 py-6">
@@ -159,13 +161,13 @@ export default function AppLayout({ children }: AppLayoutProps) {
                 href={item.href}
                 className={`group flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold transition-all duration-200 ease-out hover:-translate-y-0.5 ${
                   isActive
-                    ? "bg-blue-50 text-blue-700"
-                    : "text-slate-500 hover:bg-slate-50 hover:text-slate-950"
+                    ? "bg-white text-blue-700 shadow-sm"
+                    : "text-blue-100 hover:bg-white/10 hover:text-white"
                 }`}
               >
                 <Icon
                   className={`h-5 w-5 transition-transform duration-200 group-hover:scale-110 ${
-                    isActive ? "text-blue-600" : "text-slate-400"
+                    isActive ? "text-blue-600" : "text-blue-100"
                   }`}
                 />
                 {item.label}
@@ -174,12 +176,12 @@ export default function AppLayout({ children }: AppLayoutProps) {
           })}
         </nav>
 
-        <div className="border-t border-slate-100 p-4">
+        <div className="border-t border-white/10 p-4">
           <button
             type="button"
             onClick={handleLogout}
             disabled={isLoggingOut}
-            className="group flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold text-slate-500 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
+            className="group flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold text-blue-100 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-white/10 hover:text-white disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
           >
             <LogOut className="h-5 w-5 transition-transform duration-200 group-hover:scale-110" />
             {isLoggingOut ? "Saindo..." : "Sair"}
@@ -220,15 +222,15 @@ export default function AppLayout({ children }: AppLayoutProps) {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`group flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold transition-all duration-200 ease-out active:scale-[0.99] ${
+                  className={`group flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold transition-all duration-200 ease-out hover:-translate-y-0.5 ${
                     isActive
-                      ? "bg-blue-50 text-blue-700"
-                      : "text-slate-500 hover:bg-slate-50 hover:text-slate-950"
+                      ? "bg-white text-blue-700 shadow-sm"
+                      : "text-blue-100 hover:bg-white/10 hover:text-white"
                   }`}
                 >
                   <Icon
                     className={`h-5 w-5 transition-transform duration-200 group-hover:scale-110 ${
-                      isActive ? "text-blue-600" : "text-slate-400"
+                      isActive ? "text-blue-600" : "text-blue-100"
                     }`}
                   />
                   {item.label}
@@ -240,7 +242,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
               type="button"
               onClick={handleLogout}
               disabled={isLoggingOut}
-              className="group flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold text-slate-500 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
+              className="group flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold text-blue-100 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-white/10 hover:text-white disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
             >
               <LogOut className="h-5 w-5 transition-transform duration-200 group-hover:scale-110" />
               {isLoggingOut ? "Saindo..." : "Sair"}

@@ -2,10 +2,13 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Save } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { useForm, useWatch } from "react-hook-form";
 
 import { AppButton, AppLinkButton } from "@/components/ui/app-button";
+import { AppFeedback } from "@/components/ui/app-feedback";
+import { AppLoadingState } from "@/components/ui/app-loading-state";
 import { AppSection } from "@/components/ui/app-section";
 import { getUserFinancialSpaceId } from "@/lib/auth/financial-space";
 import { getCurrentUser } from "@/lib/auth/session";
@@ -164,24 +167,24 @@ export default function EditarLancamentoPage() {
     return (
       <main>
         <AppSection>
-          <p className="text-center text-sm text-zinc-400">
-            Carregando lançamento...
-          </p>
+          <AppLoadingState message="Carregando lançamento..." />
         </AppSection>
       </main>
     );
   }
 
   return (
-    <main>
-      <div className="mb-8">
-        <p className="mb-2 text-sm font-medium tracking-[0.3em] text-emerald-400 uppercase">
+    <main className="space-y-6">
+      <div>
+        <p className="text-sm font-black tracking-[0.25em] text-blue-700 uppercase">
           Lançamentos
         </p>
 
-        <h1 className="text-3xl font-bold tracking-tight">Editar lançamento</h1>
+        <h1 className="mt-3 text-3xl font-black tracking-tight text-slate-950">
+          Editar lançamento
+        </h1>
 
-        <p className="mt-2 text-sm text-zinc-400">
+        <p className="mt-2 text-sm leading-6 text-slate-500">
           Atualize os dados da receita ou despesa selecionada.
         </p>
       </div>
@@ -194,7 +197,7 @@ export default function EditarLancamentoPage() {
           <div>
             <label
               htmlFor="description"
-              className="mb-2 block text-sm font-medium text-zinc-200"
+              className="mb-2 block text-sm font-bold text-slate-700"
             >
               Descrição
             </label>
@@ -204,11 +207,11 @@ export default function EditarLancamentoPage() {
               type="text"
               placeholder="Ex: Salário, Mercado, Internet"
               {...register("description")}
-              className="w-full rounded-xl border border-zinc-700 bg-zinc-950 px-4 py-3 text-sm text-white transition outline-none placeholder:text-zinc-500 focus:border-emerald-400"
+              className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-950 transition outline-none placeholder:text-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
             />
 
             {errors.description && (
-              <p className="mt-2 text-sm text-red-400">
+              <p className="mt-2 text-sm font-semibold text-red-500">
                 {errors.description.message}
               </p>
             )}
@@ -218,7 +221,7 @@ export default function EditarLancamentoPage() {
             <div>
               <label
                 htmlFor="amount"
-                className="mb-2 block text-sm font-medium text-zinc-200"
+                className="mb-2 block text-sm font-bold text-slate-700"
               >
                 Valor
               </label>
@@ -229,11 +232,11 @@ export default function EditarLancamentoPage() {
                 step="0.01"
                 placeholder="Ex: 150.00"
                 {...register("amount")}
-                className="w-full rounded-xl border border-zinc-700 bg-zinc-950 px-4 py-3 text-sm text-white transition outline-none placeholder:text-zinc-500 focus:border-emerald-400"
+                className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-950 transition outline-none placeholder:text-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
               />
 
               {errors.amount && (
-                <p className="mt-2 text-sm text-red-400">
+                <p className="mt-2 text-sm font-semibold text-red-500">
                   {errors.amount.message}
                 </p>
               )}
@@ -242,7 +245,7 @@ export default function EditarLancamentoPage() {
             <div>
               <label
                 htmlFor="type"
-                className="mb-2 block text-sm font-medium text-zinc-200"
+                className="mb-2 block text-sm font-bold text-slate-700"
               >
                 Tipo
               </label>
@@ -250,14 +253,14 @@ export default function EditarLancamentoPage() {
               <select
                 id="type"
                 {...register("type")}
-                className="w-full rounded-xl border border-zinc-700 bg-zinc-950 px-4 py-3 text-sm text-white transition outline-none focus:border-emerald-400"
+                className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-950 transition outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
               >
                 <option value="income">Receita</option>
                 <option value="expense">Despesa</option>
               </select>
 
               {errors.type && (
-                <p className="mt-2 text-sm text-red-400">
+                <p className="mt-2 text-sm font-semibold text-red-500">
                   {errors.type.message}
                 </p>
               )}
@@ -267,7 +270,7 @@ export default function EditarLancamentoPage() {
           <div>
             <label
               htmlFor="categoryId"
-              className="mb-2 block text-sm font-medium text-zinc-200"
+              className="mb-2 block text-sm font-bold text-slate-700"
             >
               Categoria
             </label>
@@ -275,7 +278,7 @@ export default function EditarLancamentoPage() {
             <select
               id="categoryId"
               {...register("categoryId")}
-              className="w-full rounded-xl border border-zinc-700 bg-zinc-950 px-4 py-3 text-sm text-white transition outline-none focus:border-emerald-400"
+              className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-950 transition outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
             >
               <option value="">Sem categoria</option>
 
@@ -291,7 +294,7 @@ export default function EditarLancamentoPage() {
             <div>
               <label
                 htmlFor="dueDate"
-                className="mb-2 block text-sm font-medium text-zinc-200"
+                className="mb-2 block text-sm font-bold text-slate-700"
               >
                 Data de vencimento
               </label>
@@ -300,11 +303,11 @@ export default function EditarLancamentoPage() {
                 id="dueDate"
                 type="date"
                 {...register("dueDate")}
-                className="w-full rounded-xl border border-zinc-700 bg-zinc-950 px-4 py-3 text-sm text-white transition outline-none focus:border-emerald-400"
+                className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-950 transition outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
               />
 
               {errors.dueDate && (
-                <p className="mt-2 text-sm text-red-400">
+                <p className="mt-2 text-sm font-semibold text-red-500">
                   {errors.dueDate.message}
                 </p>
               )}
@@ -313,7 +316,7 @@ export default function EditarLancamentoPage() {
             <div>
               <label
                 htmlFor="status"
-                className="mb-2 block text-sm font-medium text-zinc-200"
+                className="mb-2 block text-sm font-bold text-slate-700"
               >
                 Status
               </label>
@@ -321,14 +324,14 @@ export default function EditarLancamentoPage() {
               <select
                 id="status"
                 {...register("status")}
-                className="w-full rounded-xl border border-zinc-700 bg-zinc-950 px-4 py-3 text-sm text-white transition outline-none focus:border-emerald-400"
+                className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-950 transition outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
               >
                 <option value="pending">Pendente</option>
                 <option value="paid">Pago</option>
               </select>
 
               {errors.status && (
-                <p className="mt-2 text-sm text-red-400">
+                <p className="mt-2 text-sm font-semibold text-red-500">
                   {errors.status.message}
                 </p>
               )}
@@ -338,7 +341,7 @@ export default function EditarLancamentoPage() {
           <div>
             <label
               htmlFor="paymentMethod"
-              className="mb-2 block text-sm font-medium text-zinc-200"
+              className="mb-2 block text-sm font-bold text-slate-700"
             >
               Forma de pagamento
             </label>
@@ -346,7 +349,7 @@ export default function EditarLancamentoPage() {
             <select
               id="paymentMethod"
               {...register("paymentMethod")}
-              className="w-full rounded-xl border border-zinc-700 bg-zinc-950 px-4 py-3 text-sm text-white transition outline-none focus:border-emerald-400"
+              className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-950 transition outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
             >
               <option value="pix">Pix</option>
               <option value="money">Dinheiro</option>
@@ -358,7 +361,7 @@ export default function EditarLancamentoPage() {
             </select>
 
             {errors.paymentMethod && (
-              <p className="mt-2 text-sm text-red-400">
+              <p className="mt-2 text-sm font-semibold text-red-500">
                 {errors.paymentMethod.message}
               </p>
             )}
@@ -367,21 +370,20 @@ export default function EditarLancamentoPage() {
           <div>
             <label
               htmlFor="notes"
-              className="mb-2 block text-sm font-medium text-zinc-200"
+              className="mb-2 block text-sm font-bold text-slate-700"
             >
               Observações
             </label>
 
             <textarea
               id="notes"
-              rows={4}
               placeholder="Adicione alguma observação, se necessário"
               {...register("notes")}
-              className="w-full resize-none rounded-xl border border-zinc-700 bg-zinc-950 px-4 py-3 text-sm text-white transition outline-none placeholder:text-zinc-500 focus:border-emerald-400"
+              className="min-h-28 w-full resize-none rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-950 transition outline-none placeholder:text-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
             />
 
             {errors.notes && (
-              <p className="mt-2 text-sm text-red-400">
+              <p className="mt-2 text-sm font-semibold text-red-500">
                 {errors.notes.message}
               </p>
             )}
@@ -393,20 +395,13 @@ export default function EditarLancamentoPage() {
             </AppLinkButton>
 
             <AppButton type="submit" disabled={isSubmitting}>
+              <Save className="h-4 w-4" />
               {isSubmitting ? "Salvando..." : "Salvar alterações"}
             </AppButton>
           </div>
 
-          {statusMessage && (
-            <p
-              className={`rounded-xl px-4 py-3 text-center text-sm ${
-                statusType === "success"
-                  ? "bg-emerald-400/10 text-emerald-300"
-                  : "bg-red-400/10 text-red-300"
-              }`}
-            >
-              {statusMessage}
-            </p>
+          {statusMessage && statusType && (
+            <AppFeedback type={statusType} message={statusMessage} />
           )}
         </form>
       </AppSection>
