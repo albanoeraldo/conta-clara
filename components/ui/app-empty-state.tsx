@@ -3,28 +3,41 @@ import { Inbox } from "lucide-react";
 
 type AppEmptyStateProps = {
   title: string;
-  description: string;
+  description?: string;
   action?: ReactNode;
+  className?: string;
 };
+
+function cn(...classes: Array<string | undefined | false>) {
+  return classes.filter(Boolean).join(" ");
+}
 
 export function AppEmptyState({
   title,
   description,
   action,
+  className,
 }: AppEmptyStateProps) {
   return (
-    <div className="rounded-2xl border border-dashed border-zinc-700 p-6 text-center sm:p-8">
-      <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-zinc-800 text-zinc-400">
+    <div
+      className={cn(
+        "flex flex-col items-center justify-center rounded-3xl border border-dashed border-slate-200 bg-white px-6 py-10 text-center shadow-sm",
+        className,
+      )}
+    >
+      <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 text-blue-600">
         <Inbox className="h-6 w-6" />
       </div>
 
-      <h2 className="text-lg font-semibold text-white">{title}</h2>
+      <h3 className="text-lg font-black text-slate-950">{title}</h3>
 
-      <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-zinc-400">
-        {description}
-      </p>
+      {description && (
+        <p className="mt-2 max-w-md text-sm leading-6 text-slate-500">
+          {description}
+        </p>
+      )}
 
-      {action && <div className="mt-6">{action}</div>}
+      {action && <div className="mt-5">{action}</div>}
     </div>
   );
 }

@@ -1,64 +1,65 @@
+import Link from "next/link";
 import type {
   AnchorHTMLAttributes,
   ButtonHTMLAttributes,
   ReactNode,
 } from "react";
-import Link from "next/link";
 
 type ButtonVariant = "primary" | "secondary" | "danger" | "ghost";
-type ButtonSize = "sm" | "md";
+type ButtonSize = "sm" | "md" | "lg";
 
-type BaseProps = {
+type BaseButtonProps = {
   children: ReactNode;
   variant?: ButtonVariant;
   size?: ButtonSize;
   className?: string;
 };
 
-type AppButtonProps = BaseProps & ButtonHTMLAttributes<HTMLButtonElement>;
+type AppButtonProps = BaseButtonProps & ButtonHTMLAttributes<HTMLButtonElement>;
 
-type AppLinkButtonProps = BaseProps &
+type AppLinkButtonProps = BaseButtonProps &
   AnchorHTMLAttributes<HTMLAnchorElement> & {
     href: string;
   };
 
-const variantStyles: Record<ButtonVariant, string> = {
+const variantClasses: Record<ButtonVariant, string> = {
   primary:
-    "bg-emerald-400 text-zinc-950 hover:bg-emerald-300 shadow-lg shadow-emerald-950/20",
+    "bg-blue-600 text-white hover:bg-blue-500 focus-visible:ring-blue-200",
   secondary:
-    "border border-zinc-700 bg-zinc-900/70 text-zinc-300 hover:bg-zinc-800 hover:text-white",
-  danger:
-    "border border-red-400/30 bg-red-400/10 text-red-300 hover:bg-red-400/20",
-  ghost: "text-zinc-400 hover:bg-zinc-900 hover:text-white",
+    "border border-slate-200 bg-white text-slate-700 hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700 focus-visible:ring-blue-100",
+  danger: "bg-red-50 text-red-600 hover:bg-red-100 focus-visible:ring-red-100",
+  ghost:
+    "text-slate-600 hover:bg-slate-100 hover:text-slate-950 focus-visible:ring-slate-100",
 };
 
-const sizeStyles: Record<ButtonSize, string> = {
-  sm: "rounded-full px-3 py-1 text-xs",
-  md: "rounded-xl px-5 py-3 text-sm",
+const sizeClasses: Record<ButtonSize, string> = {
+  sm: "px-3 py-2 text-xs",
+  md: "px-4 py-2.5 text-sm",
+  lg: "px-6 py-4 text-sm",
 };
 
-function getButtonClassName({
-  variant = "primary",
-  size = "md",
-  className = "",
-}: {
-  variant?: ButtonVariant;
-  size?: ButtonSize;
-  className?: string;
-}) {
-  return `inline-flex cursor-pointer items-center justify-center gap-2 font-semibold transition disabled:cursor-not-allowed disabled:opacity-70 ${variantStyles[variant]} ${sizeStyles[size]} ${className}`;
+const baseClasses =
+  "inline-flex items-center justify-center gap-2 rounded-2xl font-black transition focus:outline-none focus-visible:ring-4 disabled:cursor-not-allowed disabled:opacity-70";
+
+function cn(...classes: Array<string | undefined | false>) {
+  return classes.filter(Boolean).join(" ");
 }
 
 export function AppButton({
   children,
   variant = "primary",
   size = "md",
-  className = "",
+  className,
   ...props
 }: AppButtonProps) {
   return (
     <button
-      className={getButtonClassName({ variant, size, className })}
+      className={cn(
+        baseClasses,
+        variantClasses[variant],
+        sizeClasses[size],
+        className,
+      )}
       {...props}
     >
       {children}
@@ -71,13 +72,18 @@ export function AppLinkButton({
   href,
   variant = "primary",
   size = "md",
-  className = "",
+  className,
   ...props
 }: AppLinkButtonProps) {
   return (
     <Link
       href={href}
-      className={getButtonClassName({ variant, size, className })}
+      className={cn(
+        baseClasses,
+        variantClasses[variant],
+        sizeClasses[size],
+        className,
+      )}
       {...props}
     >
       {children}

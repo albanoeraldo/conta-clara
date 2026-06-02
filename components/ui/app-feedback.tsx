@@ -1,45 +1,61 @@
-import { AlertCircle, CheckCircle2 } from "lucide-react";
+import { AlertCircle, CheckCircle2, Info, TriangleAlert } from "lucide-react";
 
-type AppFeedbackType = "success" | "error";
+type FeedbackType = "success" | "error" | "warning" | "info";
 
 type AppFeedbackProps = {
-  type: AppFeedbackType;
+  type: FeedbackType;
   message: string;
   className?: string;
 };
 
 const feedbackStyles: Record<
-  AppFeedbackType,
+  FeedbackType,
   {
-    wrapper: string;
+    container: string;
     icon: string;
+    Icon: typeof CheckCircle2;
   }
 > = {
   success: {
-    wrapper: "bg-emerald-400/10 text-emerald-300",
-    icon: "text-emerald-300",
+    container: "border-blue-100 bg-blue-50 text-blue-700",
+    icon: "text-blue-600",
+    Icon: CheckCircle2,
   },
   error: {
-    wrapper: "bg-red-400/10 text-red-300",
-    icon: "text-red-300",
+    container: "border-red-100 bg-red-50 text-red-600",
+    icon: "text-red-500",
+    Icon: AlertCircle,
+  },
+  warning: {
+    container: "border-yellow-100 bg-yellow-50 text-yellow-700",
+    icon: "text-yellow-500",
+    Icon: TriangleAlert,
+  },
+  info: {
+    container: "border-slate-200 bg-white text-slate-600",
+    icon: "text-blue-600",
+    Icon: Info,
   },
 };
 
-export function AppFeedback({
-  type,
-  message,
-  className = "",
-}: AppFeedbackProps) {
+function cn(...classes: Array<string | undefined | false>) {
+  return classes.filter(Boolean).join(" ");
+}
+
+export function AppFeedback({ type, message, className }: AppFeedbackProps) {
   const styles = feedbackStyles[type];
-  const Icon = type === "success" ? CheckCircle2 : AlertCircle;
+  const Icon = styles.Icon;
 
   return (
     <div
-      className={`flex items-start gap-3 rounded-2xl px-4 py-3 text-sm ${styles.wrapper} ${className}`}
+      className={cn(
+        "flex items-start gap-3 rounded-2xl border px-4 py-3 text-sm font-semibold shadow-sm",
+        styles.container,
+        className,
+      )}
     >
-      <Icon className={`mt-0.5 h-4 w-4 shrink-0 ${styles.icon}`} />
-
-      <p className="leading-6">{message}</p>
+      <Icon className={cn("mt-0.5 h-5 w-5 shrink-0", styles.icon)} />
+      <span>{message}</span>
     </div>
   );
 }

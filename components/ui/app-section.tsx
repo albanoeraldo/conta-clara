@@ -4,36 +4,39 @@ type AppSectionProps = {
   title?: string;
   description?: string;
   children: ReactNode;
-  action?: ReactNode;
   className?: string;
 };
+
+function cn(...classes: Array<string | undefined | false>) {
+  return classes.filter(Boolean).join(" ");
+}
 
 export function AppSection({
   title,
   description,
   children,
-  action,
-  className = "",
+  className,
 }: AppSectionProps) {
   return (
     <section
-      className={`rounded-3xl border border-zinc-800 bg-zinc-900/70 p-4 shadow-xl sm:p-6 ${className}`}
+      className={cn(
+        "rounded-3xl border border-slate-200 bg-slate-50 p-6 shadow-sm",
+        className,
+      )}
     >
-      {(title || description || action) && (
-        <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-          <div>
-            {title && (
-              <h2 className="text-lg font-semibold sm:text-xl">{title}</h2>
-            )}
+      {(title || description) && (
+        <div className="mb-6">
+          {title && (
+            <h2 className="text-xl font-black tracking-tight text-slate-950">
+              {title}
+            </h2>
+          )}
 
-            {description && (
-              <p className="mt-1 text-sm leading-6 text-zinc-400">
-                {description}
-              </p>
-            )}
-          </div>
-
-          {action && <div className="shrink-0">{action}</div>}
+          {description && (
+            <p className="mt-2 text-sm leading-6 text-slate-500">
+              {description}
+            </p>
+          )}
         </div>
       )}
 
