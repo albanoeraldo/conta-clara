@@ -2,13 +2,40 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Ban, Check, RotateCcw, SquarePen, X } from "lucide-react";
 import { useForm } from "react-hook-form";
 
+import type { LucideIcon } from "lucide-react";
+import {
+  Ban,
+  BriefcaseBusiness,
+  Car,
+  Check,
+  CircleDollarSign,
+  Clapperboard,
+  CreditCard,
+  Gift,
+  GraduationCap,
+  HeartPulse,
+  Home,
+  Landmark,
+  Lightbulb,
+  PawPrint,
+  PiggyBank,
+  Plus,
+  Receipt,
+  RotateCcw,
+  ShoppingCart,
+  Smartphone,
+  SquarePen,
+  Utensils,
+  Wifi,
+  X,
+} from "lucide-react";
+
+import { AppButton } from "@/components/ui/app-button";
 import { AppEmptyState } from "@/components/ui/app-empty-state";
 import { AppFeedback } from "@/components/ui/app-feedback";
 import { AppLoadingState } from "@/components/ui/app-loading-state";
-import { AppButton } from "@/components/ui/app-button";
 import { AppSection } from "@/components/ui/app-section";
 import { getUserFinancialSpaceId } from "@/lib/auth/financial-space";
 import { getCurrentUser } from "@/lib/auth/session";
@@ -23,6 +50,133 @@ import {
   updateCategoryActiveStatus,
   updateCategoryName,
 } from "@/services/categories";
+
+function normalizeCategoryName(value: string) {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+}
+
+function getCategoryIcon(category: Category): LucideIcon {
+  const name = normalizeCategoryName(category.name);
+
+  if (category.type === "income") {
+    if (
+      name.includes("salario") ||
+      name.includes("comissao") ||
+      name.includes("trabalho")
+    ) {
+      return BriefcaseBusiness;
+    }
+
+    if (
+      name.includes("invest") ||
+      name.includes("rendimento") ||
+      name.includes("dividendo")
+    ) {
+      return PiggyBank;
+    }
+
+    return CircleDollarSign;
+  }
+
+  if (
+    name.includes("mercado") ||
+    name.includes("supermercado") ||
+    name.includes("compras")
+  ) {
+    return ShoppingCart;
+  }
+
+  if (
+    name.includes("alimentacao") ||
+    name.includes("restaurante") ||
+    name.includes("ifood") ||
+    name.includes("lanche")
+  ) {
+    return Utensils;
+  }
+
+  if (
+    name.includes("casa") ||
+    name.includes("aluguel") ||
+    name.includes("condominio")
+  ) {
+    return Home;
+  }
+
+  if (
+    name.includes("internet") ||
+    name.includes("wifi") ||
+    name.includes("telefone")
+  ) {
+    return Wifi;
+  }
+
+  if (name.includes("celular")) {
+    return Smartphone;
+  }
+
+  if (name.includes("energia") || name.includes("luz")) {
+    return Lightbulb;
+  }
+
+  if (
+    name.includes("transporte") ||
+    name.includes("combustivel") ||
+    name.includes("uber") ||
+    name.includes("carro")
+  ) {
+    return Car;
+  }
+
+  if (name.includes("cartao") || name.includes("credito")) {
+    return CreditCard;
+  }
+
+  if (name.includes("pet") || name.includes("animal")) {
+    return PawPrint;
+  }
+
+  if (
+    name.includes("saude") ||
+    name.includes("farmacia") ||
+    name.includes("medico")
+  ) {
+    return HeartPulse;
+  }
+
+  if (
+    name.includes("curso") ||
+    name.includes("faculdade") ||
+    name.includes("estudo")
+  ) {
+    return GraduationCap;
+  }
+
+  if (
+    name.includes("lazer") ||
+    name.includes("netflix") ||
+    name.includes("streaming")
+  ) {
+    return Clapperboard;
+  }
+
+  if (name.includes("presente")) {
+    return Gift;
+  }
+
+  if (
+    name.includes("banco") ||
+    name.includes("taxa") ||
+    name.includes("tarifa")
+  ) {
+    return Landmark;
+  }
+
+  return Receipt;
+}
 
 export default function CategoriasPage() {
   const [financialSpaceId, setFinancialSpaceId] = useState<string | null>(null);
@@ -226,15 +380,17 @@ export default function CategoriasPage() {
   }
 
   return (
-    <main>
-      <div className="mb-8">
-        <p className="mb-2 text-sm font-medium tracking-[0.3em] text-emerald-400 uppercase">
+    <main className="space-y-6">
+      <div>
+        <p className="text-sm font-black tracking-[0.25em] text-blue-700 uppercase">
           Categorias
         </p>
 
-        <h1 className="text-3xl font-bold tracking-tight">Minhas categorias</h1>
+        <h1 className="mt-3 text-3xl font-black tracking-tight text-slate-950">
+          Minhas categorias
+        </h1>
 
-        <p className="mt-2 text-sm text-zinc-400">
+        <p className="mt-2 text-sm leading-6 text-slate-500">
           Organize suas receitas e despesas para entender melhor para onde seu
           dinheiro está indo.
         </p>
@@ -243,7 +399,6 @@ export default function CategoriasPage() {
       <AppSection
         title="Nova categoria"
         description="Crie categorias personalizadas para deixar seus lançamentos mais organizados."
-        className="mb-8"
       >
         <form
           onSubmit={handleSubmit(onSubmit)}
@@ -252,7 +407,7 @@ export default function CategoriasPage() {
           <div>
             <label
               htmlFor="name"
-              className="mb-2 block text-sm font-medium text-zinc-200"
+              className="mb-2 block text-sm font-bold text-slate-700"
             >
               Nome da categoria
             </label>
@@ -262,18 +417,20 @@ export default function CategoriasPage() {
               type="text"
               placeholder="Ex: Investimentos, Pet, Lazer"
               {...register("name")}
-              className="w-full rounded-xl border border-zinc-700 bg-zinc-950 px-4 py-3 text-sm text-white transition outline-none placeholder:text-zinc-500 focus:border-emerald-400"
+              className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-950 transition outline-none placeholder:text-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
             />
 
             {errors.name && (
-              <p className="mt-2 text-sm text-red-400">{errors.name.message}</p>
+              <p className="mt-2 text-sm font-semibold text-red-500">
+                {errors.name.message}
+              </p>
             )}
           </div>
 
           <div>
             <label
               htmlFor="type"
-              className="mb-2 block text-sm font-medium text-zinc-200"
+              className="mb-2 block text-sm font-bold text-slate-700"
             >
               Tipo
             </label>
@@ -281,18 +438,21 @@ export default function CategoriasPage() {
             <select
               id="type"
               {...register("type")}
-              className="w-full rounded-xl border border-zinc-700 bg-zinc-950 px-4 py-3 text-sm text-white transition outline-none focus:border-emerald-400"
+              className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-950 transition outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
             >
               <option value="income">Receita</option>
               <option value="expense">Despesa</option>
             </select>
 
             {errors.type && (
-              <p className="mt-2 text-sm text-red-400">{errors.type.message}</p>
+              <p className="mt-2 text-sm font-semibold text-red-500">
+                {errors.type.message}
+              </p>
             )}
           </div>
 
           <AppButton type="submit" disabled={isSubmitting} className="mt-7">
+            <Plus className="h-4 w-4" />
             {isSubmitting ? "Criando..." : "Criar categoria"}
           </AppButton>
         </form>
@@ -402,18 +562,24 @@ function CategoryGroup({
           {categories.map((category) => {
             const isEditing = editingCategoryId === category.id;
             const isUpdating = updatingCategoryId === category.id;
+            const Icon = getCategoryIcon(category);
 
             return (
               <div
                 key={category.id}
-                className="rounded-2xl border border-zinc-800 bg-zinc-950/70 p-4"
+                className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-blue-100 hover:shadow-md"
               >
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                   <div className="flex flex-1 items-center gap-3">
-                    <span
-                      className="h-3 w-3 rounded-full"
-                      style={{ backgroundColor: category.color ?? "#71717a" }}
-                    />
+                    <div
+                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border bg-white shadow-sm"
+                      style={{ borderColor: category.color ?? "#dbeafe" }}
+                    >
+                      <Icon
+                        className="h-5 w-5"
+                        style={{ color: category.color ?? "#2563eb" }}
+                      />
+                    </div>
 
                     <div className="flex-1">
                       {isEditing ? (
@@ -423,15 +589,27 @@ function CategoryGroup({
                           onChange={(event) =>
                             onChangeEditingName(event.target.value)
                           }
-                          className="w-full rounded-xl border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-white transition outline-none focus:border-emerald-400"
+                          className="w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-950 transition outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
                         />
                       ) : (
-                        <p className="font-medium text-white">
-                          {category.name}
-                        </p>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <p className="font-black text-slate-950">
+                            {category.name}
+                          </p>
+
+                          <span
+                            className={`rounded-full border px-3 py-1 text-xs font-black ${
+                              category.active
+                                ? "border-blue-100 bg-blue-50 text-blue-700"
+                                : "border-slate-200 bg-slate-100 text-slate-500"
+                            }`}
+                          >
+                            {category.active ? "Ativa" : "Inativa"}
+                          </span>
+                        </div>
                       )}
 
-                      <p className="mt-1 text-xs text-zinc-500">
+                      <p className="mt-1 text-xs font-semibold text-slate-500">
                         {category.is_default
                           ? "Categoria padrão"
                           : "Categoria criada"}
@@ -439,17 +617,7 @@ function CategoryGroup({
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-4 sm:justify-end">
-                    <span
-                      className={`rounded-full px-3 py-1 text-xs font-medium ${
-                        category.active
-                          ? "bg-emerald-400/10 text-emerald-300"
-                          : "bg-zinc-800 text-zinc-400"
-                      }`}
-                    >
-                      {category.active ? "Ativa" : "Inativa"}
-                    </span>
-
+                  <div className="flex items-center gap-3 sm:justify-end">
                     {isEditing ? (
                       <>
                         <button
@@ -458,13 +626,13 @@ function CategoryGroup({
                           aria-label="Salvar categoria"
                           onClick={() => void onSaveEditing(category.id)}
                           disabled={isUpdating}
-                          className="inline-flex cursor-pointer items-center justify-center p-1.5 text-emerald-400 transition hover:text-emerald-300 disabled:cursor-not-allowed disabled:opacity-50"
+                          className="inline-flex items-center justify-center rounded-2xl bg-blue-50 p-2 text-blue-600 transition-all duration-200 hover:-translate-y-0.5 hover:bg-blue-100 hover:text-blue-700 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
                         >
                           {isUpdating ? (
                             <span className="text-xs">...</span>
                           ) : (
                             <>
-                              <Check className="h-6 w-6" />
+                              <Check className="h-5 w-5" />
                               <span className="sr-only">Salvar</span>
                             </>
                           )}
@@ -476,9 +644,9 @@ function CategoryGroup({
                           aria-label="Cancelar edição"
                           onClick={onCancelEditing}
                           disabled={isUpdating}
-                          className="inline-flex cursor-pointer items-center justify-center p-1.5 text-zinc-400 transition hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+                          className="inline-flex items-center justify-center rounded-2xl bg-slate-50 p-2 text-slate-500 transition-all duration-200 hover:-translate-y-0.5 hover:bg-slate-100 hover:text-slate-700 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
                         >
-                          <X className="h-6 w-6" />
+                          <X className="h-5 w-5" />
                           <span className="sr-only">Cancelar</span>
                         </button>
                       </>
@@ -490,9 +658,9 @@ function CategoryGroup({
                           aria-label="Editar categoria"
                           onClick={() => onStartEditing(category)}
                           disabled={isUpdating}
-                          className="inline-flex cursor-pointer items-center justify-center p-1.5 text-zinc-400 transition hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+                          className="inline-flex items-center justify-center rounded-2xl bg-slate-50 p-2 text-slate-500 transition-all duration-200 hover:-translate-y-0.5 hover:bg-blue-50 hover:text-blue-700 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
                         >
-                          <SquarePen className="h-6 w-6" />
+                          <SquarePen className="h-5 w-5" />
                           <span className="sr-only">Editar</span>
                         </button>
 
@@ -510,22 +678,22 @@ function CategoryGroup({
                           }
                           onClick={() => void onToggleStatus(category)}
                           disabled={isUpdating}
-                          className={`inline-flex cursor-pointer items-center justify-center p-1.5 transition disabled:cursor-not-allowed disabled:opacity-50 ${
+                          className={`inline-flex items-center justify-center rounded-2xl p-2 transition-all duration-200 hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 ${
                             category.active
-                              ? "text-red-400 hover:text-red-300"
-                              : "text-emerald-400 hover:text-emerald-300"
+                              ? "bg-red-50 text-red-500 hover:bg-red-100 hover:text-red-600"
+                              : "bg-blue-50 text-blue-600 hover:bg-blue-100 hover:text-blue-700"
                           }`}
                         >
                           {isUpdating ? (
                             <span className="text-xs">...</span>
                           ) : category.active ? (
                             <>
-                              <Ban className="h-6 w-6" />
+                              <Ban className="h-5 w-5" />
                               <span className="sr-only">Desativar</span>
                             </>
                           ) : (
                             <>
-                              <RotateCcw className="h-6 w-6" />
+                              <RotateCcw className="h-5 w-5" />
                               <span className="sr-only">Reativar</span>
                             </>
                           )}

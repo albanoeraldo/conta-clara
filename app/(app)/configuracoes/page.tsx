@@ -2,12 +2,13 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { CircleDollarSign, Home, Save, UsersRound } from "lucide-react";
 import { useForm } from "react-hook-form";
+
 import { AppButton } from "@/components/ui/app-button";
-import { AppSection } from "@/components/ui/app-section";
 import { AppFeedback } from "@/components/ui/app-feedback";
 import { AppLoadingState } from "@/components/ui/app-loading-state";
-
+import { AppSection } from "@/components/ui/app-section";
 import { getCurrentUser } from "@/lib/auth/session";
 import {
   financialSpaceSchema,
@@ -136,15 +137,17 @@ export default function ConfiguracoesPage() {
   }
 
   return (
-    <main>
-      <div className="mb-8">
-        <p className="mb-2 text-sm font-medium tracking-[0.3em] text-emerald-400 uppercase">
+    <main className="space-y-6">
+      <div>
+        <p className="text-sm font-black tracking-[0.25em] text-blue-700 uppercase">
           Configurações
         </p>
 
-        <h1 className="text-3xl font-bold tracking-tight">Espaço financeiro</h1>
+        <h1 className="mt-3 text-3xl font-black tracking-tight text-slate-950">
+          Espaço financeiro
+        </h1>
 
-        <p className="mt-2 text-sm text-zinc-400">
+        <p className="mt-2 text-sm leading-6 text-slate-500">
           Gerencie as configurações principais da sua Conta Clara.
         </p>
       </div>
@@ -157,72 +160,88 @@ export default function ConfiguracoesPage() {
           <div>
             <label
               htmlFor="name"
-              className="mb-2 block text-sm font-medium text-zinc-200"
+              className="mb-2 block text-sm font-bold text-slate-700"
             >
               Nome do controle financeiro
             </label>
 
-            <input
-              id="name"
-              type="text"
-              placeholder="Ex: Minha Casa, Finanças do Casal"
-              {...register("name")}
-              className="w-full rounded-xl border border-zinc-700 bg-zinc-950 px-4 py-3 text-sm text-white transition outline-none placeholder:text-zinc-500 focus:border-emerald-400"
-            />
+            <div className="relative">
+              <Home className="pointer-events-none absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2 text-slate-400" />
+
+              <input
+                id="name"
+                type="text"
+                placeholder="Ex: Minha Casa, Finanças do Casal"
+                {...register("name")}
+                className="w-full rounded-2xl border border-slate-200 bg-white py-3 pr-4 pl-12 text-sm text-slate-950 transition outline-none placeholder:text-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+              />
+            </div>
 
             {errors.name && (
-              <p className="mt-2 text-sm text-red-400">{errors.name.message}</p>
+              <p className="mt-2 text-sm font-semibold text-red-500">
+                {errors.name.message}
+              </p>
             )}
           </div>
 
           <div>
             <label
               htmlFor="type"
-              className="mb-2 block text-sm font-medium text-zinc-200"
+              className="mb-2 block text-sm font-bold text-slate-700"
             >
               Tipo de uso
             </label>
 
-            <select
-              id="type"
-              {...register("type")}
-              className="w-full rounded-xl border border-zinc-700 bg-zinc-950 px-4 py-3 text-sm text-white transition outline-none focus:border-emerald-400"
-            >
-              <option value="personal">Pessoal</option>
-              <option value="couple">Casal</option>
-              <option value="family">Família</option>
-              <option value="business">Negócio</option>
-            </select>
+            <div className="relative">
+              <UsersRound className="pointer-events-none absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2 text-slate-400" />
+
+              <select
+                id="type"
+                {...register("type")}
+                className="w-full appearance-none rounded-2xl border border-slate-200 bg-white py-3 pr-4 pl-12 text-sm text-slate-950 transition outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+              >
+                <option value="personal">Pessoal</option>
+                <option value="couple">Casal</option>
+                <option value="family">Família</option>
+                <option value="business">Negócio</option>
+              </select>
+            </div>
 
             {errors.type && (
-              <p className="mt-2 text-sm text-red-400">{errors.type.message}</p>
+              <p className="mt-2 text-sm font-semibold text-red-500">
+                {errors.type.message}
+              </p>
             )}
           </div>
 
           <div>
             <label
               htmlFor="monthlyIncome"
-              className="mb-2 block text-sm font-medium text-zinc-200"
+              className="mb-2 block text-sm font-bold text-slate-700"
             >
               Renda mensal aproximada
             </label>
 
-            <input
-              id="monthlyIncome"
-              type="number"
-              step="0.01"
-              placeholder="Ex: 3500"
-              {...register("monthlyIncome")}
-              className="w-full rounded-xl border border-zinc-700 bg-zinc-950 px-4 py-3 text-sm text-white transition outline-none placeholder:text-zinc-500 focus:border-emerald-400"
-            />
+            <div className="relative">
+              <CircleDollarSign className="pointer-events-none absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2 text-slate-400" />
+
+              <input
+                id="monthlyIncome"
+                type="number"
+                step="0.01"
+                placeholder="Ex: 3500"
+                {...register("monthlyIncome")}
+                className="w-full rounded-2xl border border-slate-200 bg-white py-3 pr-4 pl-12 text-sm text-slate-950 transition outline-none placeholder:text-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+              />
+            </div>
 
             {errors.monthlyIncome && (
-              <p className="mt-2 text-sm text-red-400">
+              <p className="mt-2 text-sm font-semibold text-red-500">
                 {errors.monthlyIncome.message}
               </p>
             )}
 
-            <p className="mt-2 text-xs text-zinc-500">
+            <p className="mt-2 text-xs leading-5 text-slate-500">
               Essa informação ajuda o Conta Clara a contextualizar seus resumos.
             </p>
           </div>
@@ -233,6 +252,7 @@ export default function ConfiguracoesPage() {
               disabled={isSubmitting}
               className="w-full sm:w-auto"
             >
+              <Save className="h-4 w-4" />
               {isSubmitting ? "Salvando..." : "Salvar configurações"}
             </AppButton>
           </div>

@@ -1,13 +1,31 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ComponentType, type ReactNode } from "react";
+import type { LucideIcon } from "lucide-react";
 import {
   ArrowDownRight,
   ArrowUpRight,
+  BriefcaseBusiness,
   CalendarClock,
+  Car,
+  CircleDollarSign,
+  Clapperboard,
+  CreditCard,
+  Gift,
+  GraduationCap,
+  HeartPulse,
+  Home,
+  Landmark,
+  Lightbulb,
+  PawPrint,
+  PiggyBank,
   Plus,
-  ReceiptText,
+  Receipt,
+  ShoppingCart,
+  Smartphone,
+  Utensils,
   Wallet,
+  Wifi,
 } from "lucide-react";
 
 import { IncomeExpenseChart } from "@/components/dashboard/income-expense-chart";
@@ -15,6 +33,7 @@ import { AppLinkButton } from "@/components/ui/app-button";
 import { AppEmptyState } from "@/components/ui/app-empty-state";
 import { getUserFinancialSpaceId } from "@/lib/auth/financial-space";
 import { getCurrentUser } from "@/lib/auth/session";
+import { getCategories, type Category } from "@/services/categories";
 import {
   getCurrentMonthTransactions,
   getLatestTransactions,
@@ -76,12 +95,146 @@ const statusLabels: Record<Transaction["status"], string> = {
   cancelled: "Cancelado",
 };
 
+function normalizeCategoryName(value: string) {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+}
+
+function getCategoryIcon(
+  category: Category | undefined,
+  transactionType: Transaction["type"],
+): LucideIcon {
+  if (!category) {
+    return transactionType === "income" ? CircleDollarSign : Receipt;
+  }
+
+  const name = normalizeCategoryName(category.name);
+
+  if (category.type === "income") {
+    if (
+      name.includes("salario") ||
+      name.includes("comissao") ||
+      name.includes("trabalho")
+    ) {
+      return BriefcaseBusiness;
+    }
+
+    if (
+      name.includes("invest") ||
+      name.includes("rendimento") ||
+      name.includes("dividendo")
+    ) {
+      return PiggyBank;
+    }
+
+    return CircleDollarSign;
+  }
+
+  if (
+    name.includes("mercado") ||
+    name.includes("supermercado") ||
+    name.includes("compras")
+  ) {
+    return ShoppingCart;
+  }
+
+  if (
+    name.includes("alimentacao") ||
+    name.includes("restaurante") ||
+    name.includes("ifood") ||
+    name.includes("lanche")
+  ) {
+    return Utensils;
+  }
+
+  if (
+    name.includes("casa") ||
+    name.includes("aluguel") ||
+    name.includes("condominio")
+  ) {
+    return Home;
+  }
+
+  if (
+    name.includes("internet") ||
+    name.includes("wifi") ||
+    name.includes("telefone")
+  ) {
+    return Wifi;
+  }
+
+  if (name.includes("celular")) {
+    return Smartphone;
+  }
+
+  if (name.includes("energia") || name.includes("luz")) {
+    return Lightbulb;
+  }
+
+  if (
+    name.includes("transporte") ||
+    name.includes("combustivel") ||
+    name.includes("uber") ||
+    name.includes("carro")
+  ) {
+    return Car;
+  }
+
+  if (name.includes("cartao") || name.includes("credito")) {
+    return CreditCard;
+  }
+
+  if (name.includes("pet") || name.includes("animal")) {
+    return PawPrint;
+  }
+
+  if (
+    name.includes("saude") ||
+    name.includes("farmacia") ||
+    name.includes("medico")
+  ) {
+    return HeartPulse;
+  }
+
+  if (
+    name.includes("curso") ||
+    name.includes("faculdade") ||
+    name.includes("estudo")
+  ) {
+    return GraduationCap;
+  }
+
+  if (
+    name.includes("lazer") ||
+    name.includes("netflix") ||
+    name.includes("streaming")
+  ) {
+    return Clapperboard;
+  }
+
+  if (name.includes("presente")) {
+    return Gift;
+  }
+
+  if (
+    name.includes("banco") ||
+    name.includes("taxa") ||
+    name.includes("tarifa")
+  ) {
+    return Landmark;
+  }
+
+  return Receipt;
+}
+
 type MetricCardProps = {
   title: string;
   value: string | number;
   description: string;
   tone: "blue" | "red" | "yellow" | "green";
-  icon: React.ComponentType<{ className?: string }>;
+  icon: ComponentType<{ className?: string }>;
 };
 
 const metricStyles = {
@@ -125,6 +278,7 @@ function MetricCard({
       <div className="mb-6 flex items-start justify-between gap-4">
         <div>
           <p className={`text-sm font-bold ${styles.title}`}>{title}</p>
+
           <strong className={`mt-4 block text-2xl font-black ${styles.value}`}>
             {value}
           </strong>
@@ -149,7 +303,7 @@ function DashboardPanel({
 }: {
   title: string;
   description?: string;
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   return (
     <section className="rounded-3xl border border-slate-200 bg-slate-50 p-6 shadow-sm">
@@ -177,6 +331,7 @@ export default function DashboardPage() {
   );
   const [upcomingPendingTransactions, setUpcomingPendingTransactions] =
     useState<Transaction[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -199,11 +354,13 @@ export default function DashboardPage() {
           return;
         }
 
-        const [latest, currentMonth, upcomingPending] = await Promise.all([
-          getLatestTransactions(financialSpaceId),
-          getCurrentMonthTransactions(financialSpaceId),
-          getUpcomingPendingTransactions(financialSpaceId),
-        ]);
+        const [latest, currentMonth, upcomingPending, userCategories] =
+          await Promise.all([
+            getLatestTransactions(financialSpaceId),
+            getCurrentMonthTransactions(financialSpaceId),
+            getUpcomingPendingTransactions(financialSpaceId),
+            getCategories(financialSpaceId),
+          ]);
 
         if (!isMounted) {
           return;
@@ -212,6 +369,7 @@ export default function DashboardPage() {
         setLatestTransactions(latest);
         setMonthlyTransactions(currentMonth);
         setUpcomingPendingTransactions(upcomingPending);
+        setCategories(userCategories);
       } catch (error) {
         if (!isMounted) {
           return;
@@ -300,6 +458,7 @@ export default function DashboardPage() {
             <p className="text-xs font-black tracking-[0.2em] text-slate-400 uppercase">
               Status
             </p>
+
             <p className="mt-1 text-lg font-black text-blue-700">
               {monthStatus}
             </p>
@@ -366,6 +525,7 @@ export default function DashboardPage() {
               <span className="text-sm font-medium text-slate-500">
                 Mês atual
               </span>
+
               <strong className="text-sm font-black text-slate-800 capitalize">
                 {getCurrentMonthLabel()}
               </strong>
@@ -373,6 +533,7 @@ export default function DashboardPage() {
 
             <div className="flex items-center justify-between border-b border-slate-100 pb-4">
               <span className="text-sm font-medium text-slate-500">Status</span>
+
               <strong className="text-sm font-black text-blue-700">
                 {monthStatus}
               </strong>
@@ -380,6 +541,7 @@ export default function DashboardPage() {
 
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium text-slate-500">Plano</span>
+
               <strong className="text-sm font-black text-blue-700">
                 Teste grátis
               </strong>
@@ -416,6 +578,11 @@ export default function DashboardPage() {
             <div className="space-y-3">
               {latestTransactions.map((transaction) => {
                 const isIncome = transaction.type === "income";
+                const category = categories.find(
+                  (currentCategory) =>
+                    currentCategory.id === transaction.category_id,
+                );
+                const Icon = getCategoryIcon(category, transaction.type);
 
                 return (
                   <div
@@ -426,11 +593,11 @@ export default function DashboardPage() {
                       <div
                         className={`mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl ${
                           isIncome
-                            ? "bg-emerald-100 text-emerald-700"
+                            ? "bg-blue-100 text-blue-700"
                             : "bg-red-100 text-red-700"
                         }`}
                       >
-                        <ReceiptText className="h-4 w-4" />
+                        <Icon className="h-4 w-4" />
                       </div>
 
                       <div>
@@ -442,12 +609,16 @@ export default function DashboardPage() {
                           Vencimento: {formatDate(transaction.due_date)} •{" "}
                           {statusLabels[transaction.status]}
                         </p>
+
+                        <p className="mt-1 text-xs font-semibold text-slate-400">
+                          {category?.name ?? "Sem categoria"}
+                        </p>
                       </div>
                     </div>
 
                     <strong
                       className={`text-base font-black ${
-                        isIncome ? "text-emerald-600" : "text-red-500"
+                        isIncome ? "text-blue-700" : "text-red-500"
                       }`}
                     >
                       {isIncome ? "+" : "-"}{" "}
@@ -478,34 +649,46 @@ export default function DashboardPage() {
 
           {!isLoading && upcomingPendingTransactions.length > 0 && (
             <div className="space-y-3">
-              {upcomingPendingTransactions.map((transaction) => (
-                <div
-                  key={transaction.id}
-                  className="rounded-2xl border border-slate-100 bg-white px-4 py-4 shadow-sm transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-blue-100 hover:shadow-md"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex items-start gap-3">
-                      <div className="mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-blue-100 text-blue-700">
-                        <CalendarClock className="h-4 w-4" />
+              {upcomingPendingTransactions.map((transaction) => {
+                const category = categories.find(
+                  (currentCategory) =>
+                    currentCategory.id === transaction.category_id,
+                );
+                const Icon = getCategoryIcon(category, transaction.type);
+
+                return (
+                  <div
+                    key={transaction.id}
+                    className="rounded-2xl border border-slate-100 bg-white px-4 py-4 shadow-sm transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-blue-100 hover:shadow-md"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-start gap-3">
+                        <div className="mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-red-100 text-red-700">
+                          <Icon className="h-4 w-4" />
+                        </div>
+
+                        <div>
+                          <p className="font-black text-slate-950">
+                            {transaction.description}
+                          </p>
+
+                          <p className="mt-1 text-sm text-slate-500">
+                            Vence em {formatDate(transaction.due_date)}
+                          </p>
+
+                          <p className="mt-1 text-xs font-semibold text-slate-400">
+                            {category?.name ?? "Sem categoria"}
+                          </p>
+                        </div>
                       </div>
 
-                      <div>
-                        <p className="font-black text-slate-950">
-                          {transaction.description}
-                        </p>
-
-                        <p className="mt-1 text-sm text-slate-500">
-                          Vence em {formatDate(transaction.due_date)}
-                        </p>
-                      </div>
+                      <strong className="text-sm font-black text-red-500">
+                        {formatCurrency(Number(transaction.amount))}
+                      </strong>
                     </div>
-
-                    <strong className="text-sm font-black text-red-500">
-                      {formatCurrency(Number(transaction.amount))}
-                    </strong>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </DashboardPanel>

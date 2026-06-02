@@ -2,12 +2,13 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Mail, Phone, Save, UserRound } from "lucide-react";
 import { useForm } from "react-hook-form";
 
+import { AppButton } from "@/components/ui/app-button";
 import { AppFeedback } from "@/components/ui/app-feedback";
 import { AppLoadingState } from "@/components/ui/app-loading-state";
 import { AppSection } from "@/components/ui/app-section";
-import { AppButton } from "@/components/ui/app-button";
 import { getCurrentUser } from "@/lib/auth/session";
 import { profileSchema, type ProfileFormData } from "@/lib/validations/profile";
 import { getProfile, saveProfile } from "@/services/profile";
@@ -114,15 +115,17 @@ export default function PerfilPage() {
   }
 
   return (
-    <main>
-      <div className="mb-8">
-        <p className="mb-2 text-sm font-medium tracking-[0.3em] text-emerald-400 uppercase">
+    <main className="space-y-6">
+      <div>
+        <p className="text-sm font-black tracking-[0.25em] text-blue-700 uppercase">
           Perfil
         </p>
 
-        <h1 className="text-3xl font-bold tracking-tight">Meu perfil</h1>
+        <h1 className="mt-3 text-3xl font-black tracking-tight text-slate-950">
+          Meu perfil
+        </h1>
 
-        <p className="mt-2 text-sm text-zinc-400">
+        <p className="mt-2 text-sm leading-6 text-slate-500">
           Gerencie seus dados básicos da Conta Clara.
         </p>
       </div>
@@ -135,21 +138,25 @@ export default function PerfilPage() {
           <div>
             <label
               htmlFor="fullName"
-              className="mb-2 block text-sm font-medium text-zinc-200"
+              className="mb-2 block text-sm font-bold text-slate-700"
             >
               Nome completo
             </label>
 
-            <input
-              id="fullName"
-              type="text"
-              placeholder="Digite seu nome completo"
-              {...register("fullName")}
-              className="w-full rounded-xl border border-zinc-700 bg-zinc-950 px-4 py-3 text-sm text-white transition outline-none placeholder:text-zinc-500 focus:border-emerald-400"
-            />
+            <div className="relative">
+              <UserRound className="pointer-events-none absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2 text-slate-400" />
+
+              <input
+                id="fullName"
+                type="text"
+                placeholder="Digite seu nome completo"
+                {...register("fullName")}
+                className="w-full rounded-2xl border border-slate-200 bg-white py-3 pr-4 pl-12 text-sm text-slate-950 transition outline-none placeholder:text-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+              />
+            </div>
 
             {errors.fullName && (
-              <p className="mt-2 text-sm text-red-400">
+              <p className="mt-2 text-sm font-semibold text-red-500">
                 {errors.fullName.message}
               </p>
             )}
@@ -158,20 +165,24 @@ export default function PerfilPage() {
           <div>
             <label
               htmlFor="email"
-              className="mb-2 block text-sm font-medium text-zinc-200"
+              className="mb-2 block text-sm font-bold text-slate-700"
             >
               E-mail
             </label>
 
-            <input
-              id="email"
-              type="email"
-              value={email}
-              readOnly
-              className="w-full cursor-not-allowed rounded-xl border border-zinc-700 bg-zinc-950/70 px-4 py-3 text-sm text-zinc-400 outline-none"
-            />
+            <div className="relative">
+              <Mail className="pointer-events-none absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2 text-slate-400" />
 
-            <p className="mt-2 text-xs text-zinc-500">
+              <input
+                id="email"
+                type="email"
+                value={email}
+                readOnly
+                className="w-full cursor-not-allowed rounded-2xl border border-slate-200 bg-slate-100 py-3 pr-4 pl-12 text-sm text-slate-500 outline-none"
+              />
+            </div>
+
+            <p className="mt-2 text-xs leading-5 text-slate-500">
               O e-mail fica somente leitura nesta fase.
             </p>
           </div>
@@ -179,21 +190,25 @@ export default function PerfilPage() {
           <div>
             <label
               htmlFor="phone"
-              className="mb-2 block text-sm font-medium text-zinc-200"
+              className="mb-2 block text-sm font-bold text-slate-700"
             >
               Telefone
             </label>
 
-            <input
-              id="phone"
-              type="text"
-              placeholder="Ex: (47) 99999-9999"
-              {...register("phone")}
-              className="w-full rounded-xl border border-zinc-700 bg-zinc-950 px-4 py-3 text-sm text-white transition outline-none placeholder:text-zinc-500 focus:border-emerald-400"
-            />
+            <div className="relative">
+              <Phone className="pointer-events-none absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2 text-slate-400" />
+
+              <input
+                id="phone"
+                type="text"
+                placeholder="Ex: (47) 99999-9999"
+                {...register("phone")}
+                className="w-full rounded-2xl border border-slate-200 bg-white py-3 pr-4 pl-12 text-sm text-slate-950 transition outline-none placeholder:text-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+              />
+            </div>
 
             {errors.phone && (
-              <p className="mt-2 text-sm text-red-400">
+              <p className="mt-2 text-sm font-semibold text-red-500">
                 {errors.phone.message}
               </p>
             )}
@@ -205,6 +220,7 @@ export default function PerfilPage() {
               disabled={isSubmitting}
               className="w-full sm:w-auto"
             >
+              <Save className="h-4 w-4" />
               {isSubmitting ? "Salvando..." : "Salvar perfil"}
             </AppButton>
           </div>
