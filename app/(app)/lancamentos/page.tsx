@@ -399,10 +399,32 @@ export default function LancamentosPage() {
       {!isLoading && !errorMessage && filteredTransactions.length === 0 && (
         <AppSection>
           <AppEmptyState
-            title="Nenhum lançamento encontrado"
-            description="Ajuste a busca, categoria ou filtros aplicados. Se preferir, cadastre uma nova receita ou despesa para acompanhar seu mês."
+            variant={
+              searchTerm ||
+              typeFilter !== "all" ||
+              statusFilter !== "all" ||
+              categoryFilter !== "all"
+                ? "search"
+                : "transactions"
+            }
+            title={
+              searchTerm ||
+              typeFilter !== "all" ||
+              statusFilter !== "all" ||
+              categoryFilter !== "all"
+                ? "Nenhum lançamento encontrado"
+                : "Nenhum lançamento cadastrado ainda"
+            }
+            description={
+              searchTerm ||
+              typeFilter !== "all" ||
+              statusFilter !== "all" ||
+              categoryFilter !== "all"
+                ? "Ajuste a busca ou os filtros aplicados para encontrar o lançamento que você procura."
+                : "Cadastre sua primeira receita ou despesa para começar a acompanhar seu mês com mais clareza."
+            }
             action={
-              <AppLinkButton href="/lancamentos/novo">
+              <AppLinkButton href="/lancamentos/novo" size="sm">
                 Cadastrar lançamento
               </AppLinkButton>
             }

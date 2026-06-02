@@ -319,8 +319,9 @@ export default function CategoriasPage() {
       {!isLoading && !errorMessage && categories.length === 0 && (
         <AppSection>
           <AppEmptyState
+            variant="categories"
             title="Nenhuma categoria encontrada"
-            description="As categorias padrão serão criadas no onboarding. Você também pode criar categorias personalizadas para organizar melhor seus lançamentos."
+            description="As categorias ajudam você a entender melhor para onde o dinheiro vai. Crie categorias para organizar receitas e despesas do seu jeito."
           />
         </AppSection>
       )}
@@ -391,8 +392,10 @@ function CategoryGroup({
     <AppSection title={title} description={description}>
       {categories.length === 0 ? (
         <AppEmptyState
+          variant="categories"
+          eyebrow="Categorias"
           title="Nenhuma categoria neste tipo"
-          description="Quando houver categorias cadastradas para este tipo, elas aparecerão aqui."
+          description="Quando você criar categorias para este tipo, elas aparecerão aqui para facilitar a organização dos seus lançamentos."
         />
       ) : (
         <div className="space-y-3">

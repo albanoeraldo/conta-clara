@@ -12,6 +12,7 @@ import {
 
 import { IncomeExpenseChart } from "@/components/dashboard/income-expense-chart";
 import { AppLinkButton } from "@/components/ui/app-button";
+import { AppEmptyState } from "@/components/ui/app-empty-state";
 import { getUserFinancialSpaceId } from "@/lib/auth/financial-space";
 import { getCurrentUser } from "@/lib/auth/session";
 import {
@@ -164,21 +165,6 @@ function DashboardPanel({
 
       {children}
     </section>
-  );
-}
-
-function EmptyState({
-  title,
-  description,
-}: {
-  title: string;
-  description: string;
-}) {
-  return (
-    <div className="rounded-3xl border border-dashed border-slate-200 bg-white p-6 text-center shadow-sm">
-      <p className="font-black text-slate-800">{title}</p>
-      <p className="mt-2 text-sm leading-6 text-slate-500">{description}</p>
-    </div>
   );
 }
 
@@ -414,9 +400,15 @@ export default function DashboardPage() {
           )}
 
           {!isLoading && !errorMessage && latestTransactions.length === 0 && (
-            <EmptyState
+            <AppEmptyState
+              variant="transactions"
               title="Nenhum lançamento cadastrado ainda"
-              description="Comece adicionando sua primeira receita ou despesa para visualizar o resumo do seu mês."
+              description="Comece adicionando sua primeira receita ou despesa para visualizar seu mês ganhar forma."
+              action={
+                <AppLinkButton href="/lancamentos/novo" size="sm">
+                  Adicionar lançamento
+                </AppLinkButton>
+              }
             />
           )}
 
@@ -476,9 +468,11 @@ export default function DashboardPage() {
           )}
 
           {!isLoading && upcomingPendingTransactions.length === 0 && (
-            <EmptyState
+            <AppEmptyState
+              variant="dashboard"
+              eyebrow="Tudo em dia"
               title="Nenhuma conta pendente"
-              description="Quando houver despesas pendentes no mês atual, elas aparecerão aqui."
+              description="Quando houver despesas pendentes no mês atual, elas aparecerão aqui para você acompanhar com calma."
             />
           )}
 
