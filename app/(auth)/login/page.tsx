@@ -1,162 +1,158 @@
 "use client";
 
-import { useState } from "react";
-import { zodResolver } from "@hookform/resolvers/zod";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
+import { FormEvent, useEffect, useState } from "react";
+import { LockKeyhole, Mail } from "lucide-react";
 
+import { AuthShell } from "@/components/auth/auth-shell";
 import { getUserFinancialSpaceId } from "@/lib/auth/financial-space";
+import { getCurrentUser } from "@/lib/auth/session";
 import { supabase } from "@/lib/supabase/client";
-import { loginSchema, type LoginFormData } from "@/lib/validations/auth";
 
 export default function LoginPage() {
   const router = useRouter();
 
-  const [statusMessage, setStatusMessage] = useState("");
-  const [statusType, setStatusType] = useState<"success" | "error" | "">("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-  } = useForm<LoginFormData>({
-    resolver: zodResolver(loginSchema),
-  });
+  useEffect(() => {
+    async function redirectAuthenticatedUser() {
+      const user = await getCurrentUser();
 
-  async function onSubmit(data: LoginFormData) {
-    setStatusMessage("");
-    setStatusType("");
+      if (!user) {
+        return;
+      }
 
-    const { data: loginData, error } = await supabase.auth.signInWithPassword({
-      email: data.email,
-      password: data.password,
-    });
+      const financialSpaceId = await getUserFinancialSpaceId(user.id);
 
-    if (error || !loginData.user) {
-      setStatusType("error");
-      setStatusMessage("E-mail ou senha inválidos.");
+      router.replace(financialSpaceId ? "/dashboard" : "/onboarding");
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      void redirectAuthenticatedUser();
+    }, 0);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [router]);
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    setErrorMessage("");
+
+    if (!email || !password) {
+      setErrorMessage("Informe seu e-mail e sua senha para entrar.");
       return;
     }
 
-    const financialSpaceId = await getUserFinancialSpaceId(loginData.user.id);
+    try {
+      setIsSubmitting(true);
 
-    setStatusType("success");
-    setStatusMessage("Login realizado com sucesso!");
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-    if (financialSpaceId) {
-      router.replace("/dashboard");
-      return;
+      if (error) {
+        throw error;
+      }
+
+      if (!data.user) {
+        throw new Error("Não foi possível validar o usuário.");
+      }
+
+      const financialSpaceId = await getUserFinancialSpaceId(data.user.id);
+
+      router.replace(financialSpaceId ? "/dashboard" : "/onboarding");
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error ? error.message : "Erro ao entrar na sua conta.",
+      );
+    } finally {
+      setIsSubmitting(false);
     }
-
-    router.replace("/onboarding");
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-zinc-950 px-6 py-12 text-white">
-      <section className="w-full max-w-md rounded-3xl border border-zinc-800 bg-zinc-900/70 p-8 shadow-2xl">
-        <div className="mb-8 text-center">
-          <p className="mb-3 text-sm font-medium tracking-[0.3em] text-emerald-400 uppercase">
-            Conta Clara
-          </p>
+    <AuthShell
+      title="Bem-vindo de volta!"
+      description="Entre na sua conta para continuar acompanhando suas receitas, despesas e contas do mês."
+      footer={
+        <p className="text-center text-sm text-slate-600">
+          Ainda não tem uma conta?{" "}
+          <Link
+            href="/cadastro"
+            className="font-bold text-blue-700 transition hover:text-blue-600"
+          >
+            Cadastre-se
+          </Link>
+        </p>
+      }
+    >
+      <form onSubmit={handleSubmit} className="space-y-5">
+        <div>
+          <label
+            htmlFor="email"
+            className="mb-2 block text-sm font-bold text-slate-700"
+          >
+            E-mail
+          </label>
 
-          <h1 className="text-3xl font-bold tracking-tight">Entrar na conta</h1>
-
-          <p className="mt-3 text-sm text-zinc-400">
-            Acesse seu painel para acompanhar suas contas, cartão e gastos do
-            mês.
-          </p>
-        </div>
-
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-          <div>
-            <label
-              htmlFor="email"
-              className="mb-2 block text-sm font-medium text-zinc-200"
-            >
-              E-mail
-            </label>
+          <div className="relative">
+            <Mail className="pointer-events-none absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2 text-slate-400" />
 
             <input
               id="email"
               type="email"
-              placeholder="seuemail@exemplo.com"
-              {...register("email")}
-              className="w-full rounded-xl border border-zinc-700 bg-zinc-950 px-4 py-3 text-sm text-white transition outline-none placeholder:text-zinc-500 focus:border-emerald-400"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              placeholder="seu@email.com"
+              className="w-full rounded-2xl border border-slate-200 bg-white py-4 pr-4 pl-12 text-sm text-slate-950 transition outline-none placeholder:text-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
             />
-
-            {errors.email && (
-              <p className="mt-2 text-sm text-red-400">
-                {errors.email.message}
-              </p>
-            )}
           </div>
+        </div>
 
-          <div>
-            <label
-              htmlFor="password"
-              className="mb-2 block text-sm font-medium text-zinc-200"
-            >
-              Senha
-            </label>
+        <div>
+          <label
+            htmlFor="password"
+            className="mb-2 block text-sm font-bold text-slate-700"
+          >
+            Senha
+          </label>
+
+          <div className="relative">
+            <LockKeyhole className="pointer-events-none absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2 text-slate-400" />
 
             <input
               id="password"
               type="password"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
               placeholder="Digite sua senha"
-              {...register("password")}
-              className="w-full rounded-xl border border-zinc-700 bg-zinc-950 px-4 py-3 text-sm text-white transition outline-none placeholder:text-zinc-500 focus:border-emerald-400"
+              className="w-full rounded-2xl border border-slate-200 bg-white py-4 pr-4 pl-12 text-sm text-slate-950 transition outline-none placeholder:text-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
             />
-
-            {errors.password && (
-              <p className="mt-2 text-sm text-red-400">
-                {errors.password.message}
-              </p>
-            )}
           </div>
-
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="w-full rounded-xl bg-emerald-400 px-4 py-3 text-sm font-semibold text-zinc-950 transition hover:bg-emerald-300 disabled:cursor-not-allowed disabled:opacity-70"
-          >
-            {isSubmitting ? "Entrando..." : "Entrar"}
-          </button>
-
-          {statusMessage && (
-            <p
-              className={`rounded-xl px-4 py-3 text-center text-sm ${
-                statusType === "success"
-                  ? "bg-emerald-400/10 text-emerald-300"
-                  : "bg-red-400/10 text-red-300"
-              }`}
-            >
-              {statusMessage}
-            </p>
-          )}
-        </form>
-
-        <div className="mt-6 space-y-3 text-center text-sm text-zinc-400">
-          <p>
-            Esqueceu sua senha?{" "}
-            <a
-              href="#"
-              className="font-medium text-emerald-400 hover:underline"
-            >
-              Recuperar acesso
-            </a>
-          </p>
-
-          <p>
-            Ainda não tem conta?{" "}
-            <a
-              href="/cadastro"
-              className="font-medium text-emerald-400 hover:underline"
-            >
-              Criar conta grátis
-            </a>
-          </p>
         </div>
-      </section>
-    </main>
+
+        {errorMessage && (
+          <div className="rounded-2xl bg-red-50 px-4 py-3 text-sm font-semibold text-red-600">
+            {errorMessage}
+          </div>
+        )}
+
+        <button
+          type="submit"
+          disabled={isSubmitting}
+          className="w-full rounded-2xl bg-blue-600 px-6 py-4 text-sm font-black text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-70"
+        >
+          {isSubmitting ? "Entrando..." : "Entrar"}
+        </button>
+      </form>
+    </AuthShell>
   );
 }
