@@ -420,7 +420,7 @@ export default function DashboardPage() {
                 return (
                   <div
                     key={transaction.id}
-                    className="flex flex-col gap-3 rounded-2xl border border-slate-100 bg-white px-4 py-4 shadow-sm sm:flex-row sm:items-center sm:justify-between"
+                    className="flex flex-col gap-3 rounded-2xl border border-slate-100 bg-white px-4 py-4 shadow-sm transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-blue-100 hover:shadow-md sm:flex-row sm:items-center sm:justify-between"
                   >
                     <div className="flex items-start gap-3">
                       <div
@@ -481,7 +481,7 @@ export default function DashboardPage() {
               {upcomingPendingTransactions.map((transaction) => (
                 <div
                   key={transaction.id}
-                  className="rounded-2xl border border-slate-100 bg-white px-4 py-4 shadow-sm"
+                  className="rounded-2xl border border-slate-100 bg-white px-4 py-4 shadow-sm transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-blue-100 hover:shadow-md"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-start gap-3">

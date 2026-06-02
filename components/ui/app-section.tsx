@@ -20,7 +20,7 @@ export function AppSection({
   return (
     <section
       className={cn(
-        "rounded-3xl border border-slate-200 bg-slate-50 p-6 shadow-sm",
+        "rounded-3xl border border-slate-200 bg-slate-50 p-6 shadow-sm transition-all duration-200 ease-out hover:border-blue-100 hover:shadow-md",
         className,
       )}
     >

@@ -84,7 +84,7 @@ export function AppEmptyState({
   return (
     <div
       className={cn(
-        "flex flex-col items-center justify-center rounded-3xl border border-dashed border-slate-200 bg-white px-6 py-10 text-center shadow-sm",
+        "flex flex-col items-center justify-center rounded-3xl border border-dashed border-slate-200 bg-white px-6 py-10 text-center shadow-sm transition-all duration-200 ease-out hover:border-blue-100 hover:shadow-md",
         className,
       )}
     >

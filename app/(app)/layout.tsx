@@ -157,14 +157,14 @@ export default function AppLayout({ children }: AppLayoutProps) {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold transition ${
+                className={`group flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold transition-all duration-200 ease-out hover:-translate-y-0.5 ${
                   isActive
                     ? "bg-blue-50 text-blue-700"
                     : "text-slate-500 hover:bg-slate-50 hover:text-slate-950"
                 }`}
               >
                 <Icon
-                  className={`h-5 w-5 ${
+                  className={`h-5 w-5 transition-transform duration-200 group-hover:scale-110 ${
                     isActive ? "text-blue-600" : "text-slate-400"
                   }`}
                 />
@@ -179,9 +179,9 @@ export default function AppLayout({ children }: AppLayoutProps) {
             type="button"
             onClick={handleLogout}
             disabled={isLoggingOut}
-            className="flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold text-slate-500 transition hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-60"
+            className="group flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold text-slate-500 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
           >
-            <LogOut className="h-5 w-5" />
+            <LogOut className="h-5 w-5 transition-transform duration-200 group-hover:scale-110" />
             {isLoggingOut ? "Saindo..." : "Sair"}
           </button>
         </div>
@@ -220,14 +220,14 @@ export default function AppLayout({ children }: AppLayoutProps) {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold transition ${
+                  className={`group flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold transition-all duration-200 ease-out active:scale-[0.99] ${
                     isActive
                       ? "bg-blue-50 text-blue-700"
                       : "text-slate-500 hover:bg-slate-50 hover:text-slate-950"
                   }`}
                 >
                   <Icon
-                    className={`h-5 w-5 ${
+                    className={`h-5 w-5 transition-transform duration-200 group-hover:scale-110 ${
                       isActive ? "text-blue-600" : "text-slate-400"
                     }`}
                   />
@@ -240,9 +240,9 @@ export default function AppLayout({ children }: AppLayoutProps) {
               type="button"
               onClick={handleLogout}
               disabled={isLoggingOut}
-              className="mt-2 flex items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-bold text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+              className="group flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold text-slate-500 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
             >
-              <LogOut className="h-5 w-5" />
+              <LogOut className="h-5 w-5 transition-transform duration-200 group-hover:scale-110" />
               {isLoggingOut ? "Saindo..." : "Sair"}
             </button>
           </nav>

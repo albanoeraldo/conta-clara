@@ -24,12 +24,13 @@ type AppLinkButtonProps = BaseButtonProps &
 
 const variantClasses: Record<ButtonVariant, string> = {
   primary:
-    "bg-blue-600 text-white hover:bg-blue-500 focus-visible:ring-blue-200",
+    "bg-blue-600 text-white shadow-sm hover:-translate-y-0.5 hover:bg-blue-500 hover:shadow-md focus-visible:ring-blue-200 active:translate-y-0 active:scale-[0.99]",
   secondary:
-    "border border-slate-200 bg-white text-slate-700 hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700 focus-visible:ring-blue-100",
-  danger: "bg-red-50 text-red-600 hover:bg-red-100 focus-visible:ring-red-100",
+    "border border-slate-200 bg-white text-slate-700 shadow-sm hover:-translate-y-0.5 hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700 hover:shadow-md focus-visible:ring-blue-100 active:translate-y-0 active:scale-[0.99]",
+  danger:
+    "bg-red-50 text-red-600 hover:-translate-y-0.5 hover:bg-red-100 focus-visible:ring-red-100 active:translate-y-0 active:scale-[0.99]",
   ghost:
-    "text-slate-600 hover:bg-slate-100 hover:text-slate-950 focus-visible:ring-slate-100",
+    "text-slate-600 hover:bg-slate-100 hover:text-slate-950 focus-visible:ring-slate-100 active:scale-[0.99]",
 };
 
 const sizeClasses: Record<ButtonSize, string> = {
@@ -39,7 +40,7 @@ const sizeClasses: Record<ButtonSize, string> = {
 };
 
 const baseClasses =
-  "inline-flex items-center justify-center gap-2 rounded-2xl font-black transition focus:outline-none focus-visible:ring-4 disabled:cursor-not-allowed disabled:opacity-70";
+  "inline-flex items-center justify-center gap-2 rounded-2xl font-black transition-all duration-200 ease-out focus:outline-none focus-visible:ring-4 disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:translate-y-0 disabled:hover:shadow-none";
 
 function cn(...classes: Array<string | undefined | false>) {
   return classes.filter(Boolean).join(" ");
