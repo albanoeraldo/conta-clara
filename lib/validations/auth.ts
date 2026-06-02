@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { moneyInputToNumber } from "@/lib/utils/money";
 
 export const cadastroSchema = z
   .object({
@@ -29,9 +30,10 @@ export const onboardingSchema = z.object({
   monthlyIncome: z
     .string()
     .optional()
-    .refine((value) => !value || Number(value) >= 0, {
-      message: "A renda mensal não pode ser negativa.",
-    }),
+    .refine(
+      (value) => !value || moneyInputToNumber(value) >= 0,
+      "A renda mensal não pode ser negativa.",
+    ),
 });
 
 export type OnboardingFormData = z.infer<typeof onboardingSchema>;
@@ -40,10 +42,11 @@ export const transactionSchema = z.object({
   description: z.string().min(3, "Digite uma descrição para o lançamento."),
   amount: z
     .string()
-    .min(1, "Digite o valor do lançamento.")
-    .refine((value) => Number(value) > 0, {
-      message: "O valor precisa ser maior que zero.",
-    }),
+    .min(1, "Informe o valor.")
+    .refine(
+      (value) => moneyInputToNumber(value) > 0,
+      "O valor precisa ser maior que zero.",
+    ),
   type: z.enum(["income", "expense"], {
     message: "Selecione o tipo do lançamento.",
   }),

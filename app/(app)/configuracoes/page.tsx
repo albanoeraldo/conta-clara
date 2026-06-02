@@ -3,7 +3,12 @@
 import { useCallback, useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CircleDollarSign, Home, Save, UsersRound } from "lucide-react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
+import {
+  formatMoneyInput,
+  moneyInputToNumber,
+  numberToMoneyInput,
+} from "@/lib/utils/money";
 
 import { AppButton } from "@/components/ui/app-button";
 import { AppFeedback } from "@/components/ui/app-feedback";
@@ -30,6 +35,7 @@ export default function ConfiguracoesPage() {
     register,
     handleSubmit,
     reset,
+    control,
     formState: { errors, isSubmitting },
   } = useForm<FinancialSpaceFormData>({
     resolver: zodResolver(financialSpaceSchema),
@@ -70,7 +76,7 @@ export default function ConfiguracoesPage() {
         type: financialSpace.type,
         monthlyIncome:
           financialSpace.monthly_income !== null
-            ? String(financialSpace.monthly_income)
+            ? numberToMoneyInput(financialSpace.monthly_income)
             : "",
       });
     } catch (error) {
@@ -111,7 +117,9 @@ export default function ConfiguracoesPage() {
         ownerId,
         name: data.name,
         type: data.type,
-        monthlyIncome: data.monthlyIncome,
+        monthlyIncome: data.monthlyIncome
+          ? String(moneyInputToNumber(data.monthlyIncome))
+          : "",
       });
 
       setStatusType("success");
@@ -225,13 +233,24 @@ export default function ConfiguracoesPage() {
             <div className="relative">
               <CircleDollarSign className="pointer-events-none absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2 text-slate-400" />
 
-              <input
-                id="monthlyIncome"
-                type="number"
-                step="0.01"
-                placeholder="Ex: 3500"
-                {...register("monthlyIncome")}
-                className="w-full rounded-2xl border border-slate-200 bg-white py-3 pr-4 pl-12 text-sm text-slate-950 transition outline-none placeholder:text-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+              <Controller
+                control={control}
+                name="monthlyIncome"
+                render={({ field }) => (
+                  <input
+                    id="monthlyIncome"
+                    type="text"
+                    inputMode="numeric"
+                    placeholder="0,00"
+                    value={field.value ?? ""}
+                    onChange={(event) =>
+                      field.onChange(formatMoneyInput(event.target.value))
+                    }
+                    onBlur={field.onBlur}
+                    ref={field.ref}
+                    className="w-full rounded-2xl border border-slate-200 bg-white py-3 pr-4 pl-12 text-sm text-slate-950 transition outline-none placeholder:text-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                  />
+                )}
               />
             </div>
 

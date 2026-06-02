@@ -4,9 +4,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowRight, CircleDollarSign, Home, UsersRound } from "lucide-react";
+import { ArrowRight, Home, UsersRound } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
+import { formatMoneyInput, moneyInputToNumber } from "@/lib/utils/money";
 
 import { supabase } from "@/lib/supabase/client";
 import {
@@ -24,6 +25,7 @@ export default function OnboardingPage() {
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors, isSubmitting },
   } = useForm<OnboardingFormData>({
     resolver: zodResolver(onboardingSchema),
@@ -69,7 +71,7 @@ export default function OnboardingPage() {
           name: data.spaceName,
           type: data.spaceType,
           monthly_income: data.monthlyIncome
-            ? Number(data.monthlyIncome)
+            ? moneyInputToNumber(data.monthlyIncome)
             : null,
           updated_at: new Date().toISOString(),
         })
@@ -88,7 +90,7 @@ export default function OnboardingPage() {
           name: data.spaceName,
           type: data.spaceType,
           monthly_income: data.monthlyIncome
-            ? Number(data.monthlyIncome)
+            ? moneyInputToNumber(data.monthlyIncome)
             : null,
         })
         .select("id")
@@ -248,14 +250,28 @@ export default function OnboardingPage() {
                 </label>
 
                 <div className="relative">
-                  <CircleDollarSign className="pointer-events-none absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2 text-slate-400" />
+                  <span className="pointer-events-none absolute top-1/2 left-4 -translate-y-1/2 text-sm font-bold text-slate-400">
+                    R$
+                  </span>
 
-                  <input
-                    id="monthlyIncome"
-                    type="number"
-                    placeholder="Ex: 3500"
-                    {...register("monthlyIncome")}
-                    className="w-full rounded-2xl border border-slate-200 bg-blue-50/70 py-4 pr-4 pl-12 text-sm text-slate-950 transition outline-none placeholder:text-slate-400 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-100"
+                  <Controller
+                    control={control}
+                    name="monthlyIncome"
+                    render={({ field }) => (
+                      <input
+                        id="monthlyIncome"
+                        type="text"
+                        inputMode="numeric"
+                        placeholder="0,00"
+                        value={field.value ?? ""}
+                        onChange={(event) =>
+                          field.onChange(formatMoneyInput(event.target.value))
+                        }
+                        onBlur={field.onBlur}
+                        ref={field.ref}
+                        className="w-full rounded-2xl border border-slate-200 bg-blue-50/70 py-4 pr-4 pl-12 text-sm text-slate-950 transition outline-none placeholder:text-slate-400 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-100"
+                      />
+                    )}
                   />
                 </div>
 

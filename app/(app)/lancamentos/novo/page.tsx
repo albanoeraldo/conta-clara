@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Save } from "lucide-react";
-import { useForm, useWatch } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
+import { formatMoneyInput, moneyInputToNumber } from "@/lib/utils/money";
 
 import { AppButton, AppLinkButton } from "@/components/ui/app-button";
 import { AppFeedback } from "@/components/ui/app-feedback";
@@ -120,7 +121,7 @@ export default function NovoLancamentoPage() {
       category_id: data.categoryId || null,
       type: data.type,
       description: data.description,
-      amount: Number(data.amount),
+      amount: moneyInputToNumber(data.amount),
       due_date: data.dueDate,
       paid_date: data.status === "paid" ? data.dueDate : null,
       status: data.status,
@@ -202,14 +203,31 @@ export default function NovoLancamentoPage() {
                 Valor
               </label>
 
-              <input
-                id="amount"
-                type="number"
-                step="0.01"
-                placeholder="Ex: 150.00"
-                {...register("amount")}
-                className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-950 transition outline-none placeholder:text-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
-              />
+              <div className="relative">
+                <span className="pointer-events-none absolute top-1/2 left-4 -translate-y-1/2 text-sm font-bold text-slate-400">
+                  R$
+                </span>
+
+                <Controller
+                  control={control}
+                  name="amount"
+                  render={({ field }) => (
+                    <input
+                      id="amount"
+                      type="text"
+                      inputMode="numeric"
+                      placeholder="0,00"
+                      value={field.value ?? ""}
+                      onChange={(event) =>
+                        field.onChange(formatMoneyInput(event.target.value))
+                      }
+                      onBlur={field.onBlur}
+                      ref={field.ref}
+                      className="w-full rounded-2xl border border-slate-200 bg-white py-3 pr-4 pl-11 text-sm text-slate-950 transition outline-none placeholder:text-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                    />
+                  )}
+                />
+              </div>
 
               {errors.amount && (
                 <p className="mt-2 text-sm font-semibold text-red-500">
