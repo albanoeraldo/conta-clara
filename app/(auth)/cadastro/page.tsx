@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LockKeyhole, Mail, UserRound } from "lucide-react";
@@ -11,6 +12,8 @@ import { supabase } from "@/lib/supabase/client";
 import { cadastroSchema, type CadastroFormData } from "@/lib/validations/auth";
 
 export default function CadastroPage() {
+  const router = useRouter();
+
   const [statusMessage, setStatusMessage] = useState("");
   const [statusType, setStatusType] = useState<"success" | "error" | "">("");
 
@@ -45,10 +48,14 @@ export default function CadastroPage() {
 
     setStatusType("success");
     setStatusMessage(
-      "Cadastro realizado com sucesso! Verifique seu e-mail para confirmar sua conta.",
+      "Cadastro realizado com sucesso! Redirecionando para o login...",
     );
 
     reset();
+
+    window.setTimeout(() => {
+      router.replace("/login?created=1");
+    }, 800);
   }
 
   return (

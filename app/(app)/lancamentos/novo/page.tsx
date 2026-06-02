@@ -138,8 +138,11 @@ export default function NovoLancamentoPage() {
     setStatusMessage("Lançamento criado com sucesso!");
 
     reset({
+      description: "",
+      amount: "",
       type: "expense",
       categoryId: "",
+      dueDate: "",
       status: "pending",
       paymentMethod: "pix",
       notes: "",
