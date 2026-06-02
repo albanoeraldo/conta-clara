@@ -198,3 +198,30 @@ A próxima fase pode focar em:
 ## Observação
 
 Este projeto está sendo desenvolvido com foco em aprendizado prático, construção de portfólio e possível evolução futura para um produto real/SaaS.
+
+## Status atual - v0.2.0
+
+A versão visual v0.2.0 foi concluída.
+
+O Conta Clara agora possui uma identidade visual clara, com sidebar azul-marinho, telas internas padronizadas, componentes base refinados, formulários claros, microinterações leves e ícones automáticos por categoria.
+
+### Telas validadas
+
+- Página pública
+- Login
+- Cadastro
+- Onboarding
+- Dashboard
+- Lançamentos
+- Novo lançamento
+- Editar lançamento
+- Categorias
+- Perfil
+- Configurações
+
+### Próximos focos possíveis
+
+- Ajustes finos de responsividade mobile
+- Melhorias futuras em categorias com escolha manual de ícone e cor
+- Testes com dados reais
+- Preparação para validação com usuários

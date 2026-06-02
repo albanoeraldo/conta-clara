@@ -1,3 +1,36 @@
+## v0.2.0 - Versão visual
+
+### Adicionado
+
+- Nova direção visual clara para o Conta Clara
+- Sidebar lateral azul-marinho
+- Ícones automáticos em categorias, lançamentos e dashboard
+- Estados vazios com variações visuais e textos mais humanos
+- Microinterações leves em botões, cards, listas e menu
+- Documento de release em `docs/releases/v0.2.0.md`
+
+### Alterado
+
+- Página pública inicial repaginada
+- Telas de login e cadastro repaginadas
+- Onboarding movido para fluxo visual próprio
+- Dashboard principal repaginado
+- Tela de lançamentos revisada
+- Tela de novo lançamento revisada
+- Tela de editar lançamento revisada
+- Tela de categorias revisada
+- Tela de perfil revisada
+- Tela de configurações revisada
+- Componentes base ajustados para a nova identidade clara
+- Inputs, selects, textareas, botões e cards padronizados
+
+### Corrigido
+
+- Blocos escuros remanescentes removidos das telas principais
+- Layout do onboarding corrigido para não herdar o layout interno
+- Inconsistências visuais entre telas internas corrigidas
+- Cursor pointer aplicado globalmente em elementos clicáveis
+
 # Changelog — Conta Clara
 
 Todas as mudanças relevantes do Conta Clara serão documentadas neste arquivo.
