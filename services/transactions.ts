@@ -21,6 +21,11 @@ export type Transaction = {
   created_at: string;
 };
 
+export type DeleteTransactionData = {
+  transactionId: string;
+  financialSpaceId: string;
+};
+
 function formatDateToDatabase(date: Date) {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -227,4 +232,19 @@ export async function getUpcomingPendingTransactions(financialSpaceId: string) {
   }
 
   return data as Transaction[];
+}
+
+export async function deleteTransaction({
+  transactionId,
+  financialSpaceId,
+}: DeleteTransactionData) {
+  const { error } = await supabase
+    .from("transactions")
+    .delete()
+    .eq("id", transactionId)
+    .eq("financial_space_id", financialSpaceId);
+
+  if (error) {
+    throw new Error(error.message);
+  }
 }

@@ -25,6 +25,7 @@ import {
   ShoppingCart,
   Smartphone,
   SquarePen,
+  Trash2,
   Utensils,
   Wifi,
 } from "lucide-react";
@@ -39,6 +40,7 @@ import { getCurrentUser } from "@/lib/auth/session";
 import { getActiveCategories, type Category } from "@/services/categories";
 import {
   cancelTransaction,
+  deleteTransaction,
   getTransactions,
   markTransactionAsPaid,
   type Transaction,
@@ -235,6 +237,8 @@ export default function LancamentosPage() {
 
   const [financialSpaceId, setFinancialSpaceId] = useState<string | null>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [transactionToDelete, setTransactionToDelete] =
+    useState<Transaction | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
@@ -401,6 +405,50 @@ export default function LancamentosPage() {
       setStatusType("error");
       setStatusMessage(
         error instanceof Error ? error.message : "Erro ao cancelar lançamento.",
+      );
+    } finally {
+      setUpdatingTransactionId(null);
+    }
+  }
+
+  function openDeleteTransactionModal(transaction: Transaction) {
+    setStatusMessage("");
+    setStatusType("");
+    setTransactionToDelete(transaction);
+  }
+
+  async function confirmDeleteTransaction() {
+    if (!transactionToDelete) {
+      return;
+    }
+
+    setStatusMessage("");
+    setStatusType("");
+
+    if (!financialSpaceId) {
+      setStatusType("error");
+      setStatusMessage("Não foi possível identificar sua Conta Clara.");
+      return;
+    }
+
+    try {
+      setUpdatingTransactionId(transactionToDelete.id);
+
+      await deleteTransaction({
+        transactionId: transactionToDelete.id,
+        financialSpaceId,
+      });
+
+      setStatusType("success");
+      setStatusMessage("Lançamento excluído com sucesso!");
+
+      setTransactionToDelete(null);
+
+      await loadTransactions();
+    } catch (error) {
+      setStatusType("error");
+      setStatusMessage(
+        error instanceof Error ? error.message : "Erro ao excluir lançamento.",
       );
     } finally {
       setUpdatingTransactionId(null);
@@ -705,6 +753,18 @@ export default function LancamentosPage() {
                         <span className="sr-only">Editar</span>
                       </Link>
 
+                      <button
+                        type="button"
+                        title="Excluir lançamento"
+                        aria-label="Excluir lançamento"
+                        onClick={() => openDeleteTransactionModal(transaction)}
+                        disabled={isUpdating}
+                        className="inline-flex cursor-pointer items-center justify-center p-1.5 text-slate-400 transition hover:text-red-500 disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        <Trash2 className="h-6 w-6" />
+                        <span className="sr-only">Excluir</span>
+                      </button>
+
                       {transaction.status !== "cancelled" && (
                         <button
                           type="button"
@@ -753,6 +813,70 @@ export default function LancamentosPage() {
             })}
           </div>
         </AppSection>
+      )}
+      {transactionToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 px-4 backdrop-blur-sm">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="delete-transaction-title"
+            className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-6 shadow-xl"
+          >
+            <div className="mb-5 flex items-start gap-4">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-red-50 text-red-600">
+                <Trash2 className="h-6 w-6" />
+              </div>
+
+              <div>
+                <h2
+                  id="delete-transaction-title"
+                  className="text-xl font-black tracking-tight text-slate-950"
+                >
+                  Excluir lançamento?
+                </h2>
+
+                <p className="mt-2 text-sm leading-6 text-slate-600">
+                  Você está prestes a excluir{" "}
+                  <strong className="font-black text-slate-950">
+                    {transactionToDelete.description}
+                  </strong>
+                  . Essa ação remove o lançamento da lista, do dashboard e dos
+                  cálculos do mês.
+                </p>
+              </div>
+            </div>
+
+            <div className="rounded-2xl bg-slate-50 px-4 py-3">
+              <p className="text-sm font-semibold text-slate-600">
+                Use essa opção apenas para lançamentos cadastrados por engano.
+                Para manter histórico, prefira cancelar.
+              </p>
+            </div>
+
+            <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+              <button
+                type="button"
+                onClick={() => setTransactionToDelete(null)}
+                disabled={updatingTransactionId === transactionToDelete.id}
+                className="inline-flex items-center justify-center rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-black text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                Cancelar
+              </button>
+
+              <button
+                type="button"
+                onClick={() => void confirmDeleteTransaction()}
+                disabled={updatingTransactionId === transactionToDelete.id}
+                className="inline-flex items-center justify-center gap-2 rounded-2xl bg-red-600 px-5 py-3 text-sm font-black text-white transition hover:bg-red-500 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                <Trash2 className="h-4 w-4" />
+                {updatingTransactionId === transactionToDelete.id
+                  ? "Excluindo..."
+                  : "Excluir lançamento"}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </main>
   );
