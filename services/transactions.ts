@@ -248,3 +248,32 @@ export async function deleteTransaction({
     throw new Error(error.message);
   }
 }
+
+export async function getTransactionsByMonth(
+  financialSpaceId: string,
+  referenceMonth: string,
+) {
+  const startDate = `${referenceMonth}-01`;
+
+  const [yearValue, monthValue] = referenceMonth.split("-");
+  const year = Number(yearValue);
+  const month = Number(monthValue);
+
+  const lastDayOfMonth = new Date(year, month, 0).getDate();
+  const endDate = `${referenceMonth}-${String(lastDayOfMonth).padStart(2, "0")}`;
+
+  const { data, error } = await supabase
+    .from("transactions")
+    .select("*")
+    .eq("financial_space_id", financialSpaceId)
+    .gte("due_date", startDate)
+    .lte("due_date", endDate)
+    .order("due_date", { ascending: true })
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return (data ?? []) as Transaction[];
+}

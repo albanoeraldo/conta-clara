@@ -30,14 +30,13 @@ import {
 
 import { IncomeExpenseChart } from "@/components/dashboard/income-expense-chart";
 import { AppLinkButton } from "@/components/ui/app-button";
+import { useReferenceMonth } from "@/hooks/use-reference-month";
 import { AppEmptyState } from "@/components/ui/app-empty-state";
 import { getUserFinancialSpaceId } from "@/lib/auth/financial-space";
 import { getCurrentUser } from "@/lib/auth/session";
 import { getCategories, type Category } from "@/services/categories";
 import {
-  getCurrentMonthTransactions,
-  getLatestTransactions,
-  getUpcomingPendingTransactions,
+  getTransactionsByMonth,
   type Transaction,
 } from "@/services/transactions";
 
@@ -54,13 +53,6 @@ function formatDate(date: string) {
     month: "2-digit",
     year: "numeric",
   }).format(new Date(`${date}T00:00:00`));
-}
-
-function getCurrentMonthLabel() {
-  return new Intl.DateTimeFormat("pt-BR", {
-    month: "long",
-    year: "numeric",
-  }).format(new Date());
 }
 
 function calculateMonthlySummary(transactions: Transaction[]) {
@@ -323,19 +315,40 @@ function DashboardPanel({
 }
 
 export default function DashboardPage() {
-  const [latestTransactions, setLatestTransactions] = useState<Transaction[]>(
-    [],
-  );
+  const {
+    referenceMonth,
+    setReferenceMonth,
+    resetReferenceMonth,
+    referenceMonthLabel,
+  } = useReferenceMonth();
   const [monthlyTransactions, setMonthlyTransactions] = useState<Transaction[]>(
     [],
   );
-  const [upcomingPendingTransactions, setUpcomingPendingTransactions] =
-    useState<Transaction[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
 
   const monthlySummary = calculateMonthlySummary(monthlyTransactions);
+
+  const latestMonthTransactions = [...monthlyTransactions]
+    .sort(
+      (firstTransaction, secondTransaction) =>
+        new Date(`${secondTransaction.due_date}T00:00:00`).getTime() -
+        new Date(`${firstTransaction.due_date}T00:00:00`).getTime(),
+    )
+    .slice(0, 5);
+
+  const pendingMonthTransactions = monthlyTransactions
+    .filter(
+      (transaction) =>
+        transaction.type === "expense" && transaction.status === "pending",
+    )
+    .sort(
+      (firstTransaction, secondTransaction) =>
+        new Date(`${firstTransaction.due_date}T00:00:00`).getTime() -
+        new Date(`${secondTransaction.due_date}T00:00:00`).getTime(),
+    )
+    .slice(0, 5);
 
   useEffect(() => {
     let isMounted = true;
@@ -354,21 +367,16 @@ export default function DashboardPage() {
           return;
         }
 
-        const [latest, currentMonth, upcomingPending, userCategories] =
-          await Promise.all([
-            getLatestTransactions(financialSpaceId),
-            getCurrentMonthTransactions(financialSpaceId),
-            getUpcomingPendingTransactions(financialSpaceId),
-            getCategories(financialSpaceId),
-          ]);
+        const [selectedMonthTransactions, userCategories] = await Promise.all([
+          getTransactionsByMonth(financialSpaceId, referenceMonth),
+          getCategories(financialSpaceId),
+        ]);
 
         if (!isMounted) {
           return;
         }
 
-        setLatestTransactions(latest);
-        setMonthlyTransactions(currentMonth);
-        setUpcomingPendingTransactions(upcomingPending);
+        setMonthlyTransactions(selectedMonthTransactions);
         setCategories(userCategories);
       } catch (error) {
         if (!isMounted) {
@@ -395,7 +403,7 @@ export default function DashboardPage() {
       isMounted = false;
       window.clearTimeout(timeoutId);
     };
-  }, []);
+  }, [referenceMonth]);
 
   const monthStatus =
     monthlyTransactions.length > 0
@@ -413,7 +421,7 @@ export default function DashboardPage() {
           </p>
 
           <h1 className="mt-3 text-3xl font-black tracking-tight text-slate-950">
-            Dashboard do mês
+            Dashboard de {referenceMonthLabel}
           </h1>
 
           <p className="mt-2 text-sm leading-6 text-slate-500">
@@ -422,10 +430,34 @@ export default function DashboardPage() {
           </p>
         </div>
 
-        <AppLinkButton href="/lancamentos/novo">
-          <Plus className="h-4 w-4" />
-          Novo lançamento
-        </AppLinkButton>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <div className="rounded-3xl border border-slate-200 bg-white p-2 shadow-sm">
+            <label htmlFor="dashboardReferenceMonth" className="sr-only">
+              Mês de referência
+            </label>
+
+            <input
+              id="dashboardReferenceMonth"
+              type="month"
+              value={referenceMonth}
+              onChange={(event) => setReferenceMonth(event.target.value)}
+              className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-bold text-slate-700 transition outline-none focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-100"
+            />
+          </div>
+
+          <button
+            type="button"
+            onClick={resetReferenceMonth}
+            className="inline-flex items-center justify-center rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-black text-slate-700 transition hover:bg-slate-50"
+          >
+            Mês selecionado
+          </button>
+
+          <AppLinkButton href="/lancamentos/novo">
+            <Plus className="h-4 w-4" />
+            Novo lançamento
+          </AppLinkButton>
+        </div>
       </header>
 
       {errorMessage && (
@@ -449,7 +481,7 @@ export default function DashboardPage() {
 
             <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
               {monthlyTransactions.length > 0
-                ? "Resumo calculado com base nos lançamentos cadastrados para o mês atual."
+                ? "Resumo calculado com base nos lançamentos cadastrados para o mês selecionado."
                 : "Conforme você cadastra receitas e despesas, o Conta Clara mostra como está sua situação financeira."}
             </p>
           </div>
@@ -470,7 +502,7 @@ export default function DashboardPage() {
         <MetricCard
           title="Receitas"
           value={isLoading ? "..." : formatCurrency(monthlySummary.incomeTotal)}
-          description="Entradas cadastradas para o mês atual."
+          description="Entradas cadastradas para o mês selecionado."
           tone="green"
           icon={ArrowUpRight}
         />
@@ -498,7 +530,7 @@ export default function DashboardPage() {
         <MetricCard
           title="A vencer"
           value={isLoading ? "..." : monthlySummary.pendingCount}
-          description="Lançamentos ainda não marcados como pagos."
+          description="Lançamentos pendentes no mês selecionado."
           tone="yellow"
           icon={CalendarClock}
         />
@@ -507,7 +539,7 @@ export default function DashboardPage() {
       <section className="grid gap-6 xl:grid-cols-2">
         <DashboardPanel
           title="Receitas x despesas"
-          description="Compare suas receitas e despesas cadastradas no mês atual."
+          description="Compare suas receitas e despesas cadastradas no mês selecionado."
         >
           <IncomeExpenseChart
             incomeTotal={monthlySummary.incomeTotal}
@@ -523,11 +555,11 @@ export default function DashboardPage() {
           <div className="space-y-4">
             <div className="flex items-center justify-between border-b border-slate-100 pb-4">
               <span className="text-sm font-medium text-slate-500">
-                Mês atual
+                Mês selecionado
               </span>
 
               <strong className="text-sm font-black text-slate-800 capitalize">
-                {getCurrentMonthLabel()}
+                {referenceMonthLabel}
               </strong>
             </div>
 
@@ -552,8 +584,8 @@ export default function DashboardPage() {
 
       <section className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
         <DashboardPanel
-          title="Últimos lançamentos"
-          description="Os lançamentos mais recentes aparecem aqui."
+          title="Lançamentos do mês"
+          description={`Lançamentos mais recentes de ${referenceMonthLabel}.`}
         >
           {isLoading && (
             <div className="rounded-3xl bg-slate-50 p-6 text-center text-sm font-semibold text-slate-500">
@@ -561,95 +593,102 @@ export default function DashboardPage() {
             </div>
           )}
 
-          {!isLoading && !errorMessage && latestTransactions.length === 0 && (
-            <AppEmptyState
-              variant="transactions"
-              title="Nenhum lançamento cadastrado ainda"
-              description="Comece adicionando sua primeira receita ou despesa para visualizar seu mês ganhar forma."
-              action={
-                <AppLinkButton href="/lancamentos/novo" size="sm">
-                  Adicionar lançamento
-                </AppLinkButton>
-              }
-            />
-          )}
+          {!isLoading &&
+            !errorMessage &&
+            latestMonthTransactions.length === 0 && (
+              <AppEmptyState
+                variant="transactions"
+                title="Nenhum lançamento cadastrado ainda"
+                description="Comece adicionando sua primeira receita ou despesa para visualizar seu mês ganhar forma."
+                action={
+                  <AppLinkButton href="/lancamentos/novo" size="sm">
+                    Adicionar lançamento
+                  </AppLinkButton>
+                }
+              />
+            )}
 
-          {!isLoading && !errorMessage && latestTransactions.length > 0 && (
-            <div className="space-y-3">
-              {latestTransactions.map((transaction) => {
-                const isIncome = transaction.type === "income";
-                const category = categories.find(
-                  (currentCategory) =>
-                    currentCategory.id === transaction.category_id,
-                );
-                const Icon = getCategoryIcon(category, transaction.type);
+          {!isLoading &&
+            !errorMessage &&
+            latestMonthTransactions.length > 0 && (
+              <div className="space-y-3">
+                {latestMonthTransactions.map((transaction) => {
+                  const isIncome = transaction.type === "income";
+                  const category = categories.find(
+                    (currentCategory) =>
+                      currentCategory.id === transaction.category_id,
+                  );
+                  const Icon = getCategoryIcon(category, transaction.type);
 
-                return (
-                  <div
-                    key={transaction.id}
-                    className="flex flex-col gap-3 rounded-2xl border border-slate-100 bg-white px-4 py-4 shadow-sm transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-blue-100 hover:shadow-md sm:flex-row sm:items-center sm:justify-between"
-                  >
-                    <div className="flex items-start gap-3">
-                      <div
-                        className={`mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl ${
-                          isIncome
-                            ? "bg-blue-100 text-blue-700"
-                            : "bg-red-100 text-red-700"
+                  return (
+                    <div
+                      key={transaction.id}
+                      className="flex flex-col gap-3 rounded-2xl border border-slate-100 bg-white px-4 py-4 shadow-sm transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-blue-100 hover:shadow-md sm:flex-row sm:items-center sm:justify-between"
+                    >
+                      <div className="flex items-start gap-3">
+                        <div
+                          className={`mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl ${
+                            isIncome
+                              ? "bg-blue-100 text-blue-700"
+                              : "bg-red-100 text-red-700"
+                          }`}
+                        >
+                          <Icon className="h-4 w-4" />
+                        </div>
+
+                        <div>
+                          <p className="font-black text-slate-950">
+                            {transaction.description}
+                          </p>
+
+                          <p className="mt-1 text-sm text-slate-500">
+                            Vencimento: {formatDate(transaction.due_date)} •{" "}
+                            {statusLabels[transaction.status]}
+                          </p>
+
+                          <p className="mt-1 text-xs font-semibold text-slate-400">
+                            {category?.name ?? "Sem categoria"}
+                          </p>
+                        </div>
+                      </div>
+
+                      <strong
+                        className={`text-base font-black ${
+                          isIncome ? "text-blue-700" : "text-red-500"
                         }`}
                       >
-                        <Icon className="h-4 w-4" />
-                      </div>
-
-                      <div>
-                        <p className="font-black text-slate-950">
-                          {transaction.description}
-                        </p>
-
-                        <p className="mt-1 text-sm text-slate-500">
-                          Vencimento: {formatDate(transaction.due_date)} •{" "}
-                          {statusLabels[transaction.status]}
-                        </p>
-
-                        <p className="mt-1 text-xs font-semibold text-slate-400">
-                          {category?.name ?? "Sem categoria"}
-                        </p>
-                      </div>
+                        {isIncome ? "+" : "-"}{" "}
+                        {formatCurrency(Number(transaction.amount))}
+                      </strong>
                     </div>
-
-                    <strong
-                      className={`text-base font-black ${
-                        isIncome ? "text-blue-700" : "text-red-500"
-                      }`}
-                    >
-                      {isIncome ? "+" : "-"}{" "}
-                      {formatCurrency(Number(transaction.amount))}
-                    </strong>
-                  </div>
-                );
-              })}
-            </div>
-          )}
+                  );
+                })}
+              </div>
+            )}
         </DashboardPanel>
 
-        <DashboardPanel title="Próximas contas">
+        <DashboardPanel
+          title="Pendências do mês"
+          description={`Despesas pendentes de ${referenceMonthLabel}.`}
+        >
           {isLoading && (
             <div className="rounded-3xl bg-slate-50 p-6 text-center text-sm font-semibold text-slate-500">
               Carregando próximas contas...
             </div>
           )}
 
-          {!isLoading && upcomingPendingTransactions.length === 0 && (
+          {!isLoading && pendingMonthTransactions.length === 0 && (
             <AppEmptyState
               variant="dashboard"
               eyebrow="Tudo em dia"
-              title="Nenhuma conta pendente"
-              description="Quando houver despesas pendentes no mês atual, elas aparecerão aqui para você acompanhar com calma."
+              title="Nenhuma pendência neste mês"
+              description="Quando houver despesas pendentes no mês selecionado, elas aparecerão aqui para você acompanhar com calma."
             />
           )}
 
-          {!isLoading && upcomingPendingTransactions.length > 0 && (
+          {!isLoading && pendingMonthTransactions.length > 0 && (
             <div className="space-y-3">
-              {upcomingPendingTransactions.map((transaction) => {
+              {pendingMonthTransactions.map((transaction) => {
                 const category = categories.find(
                   (currentCategory) =>
                     currentCategory.id === transaction.category_id,

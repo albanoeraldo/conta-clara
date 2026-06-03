@@ -4,12 +4,10 @@ import { useCallback, useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Ban,
-  CalendarClock,
   Check,
   CreditCard as CreditCardIcon,
   FileText,
   Plus,
-  Receipt,
   RotateCcw,
   Save,
   ShoppingBag,
@@ -20,6 +18,7 @@ import {
 import { Controller, useForm } from "react-hook-form";
 
 import { AppButton } from "@/components/ui/app-button";
+import { useReferenceMonth } from "@/hooks/use-reference-month";
 import { AppEmptyState } from "@/components/ui/app-empty-state";
 import { AppFeedback } from "@/components/ui/app-feedback";
 import { AppLoadingState } from "@/components/ui/app-loading-state";
@@ -73,14 +72,6 @@ function formatDate(date: string) {
   }).format(new Date(`${date}T00:00:00`));
 }
 
-function getCurrentMonthValue() {
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = String(today.getMonth() + 1).padStart(2, "0");
-
-  return `${year}-${month}`;
-}
-
 function getSafeDate(referenceMonth: string, day: number) {
   const [yearValue, monthValue] = referenceMonth.split("-");
   const year = Number(yearValue);
@@ -102,7 +93,12 @@ export default function CartoesPage() {
   const [purchases, setPurchases] = useState<CreditCardPurchase[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCreditCardId, setSelectedCreditCardId] = useState("");
-  const [referenceMonth, setReferenceMonth] = useState(getCurrentMonthValue());
+  const {
+    referenceMonth,
+    setReferenceMonth,
+    resetReferenceMonth,
+    referenceMonthLabel,
+  } = useReferenceMonth();
   const [isLoading, setIsLoading] = useState(true);
   const [isGeneratingStatement, setIsGeneratingStatement] = useState(false);
   const [statusMessage, setStatusMessage] = useState("");
@@ -735,8 +731,11 @@ export default function CartoesPage() {
         </h1>
 
         <p className="mt-2 text-sm leading-6 text-slate-500">
-          Cadastre cartões, registre compras e gere o lançamento da fatura para
-          o mês.
+          Cadastre cartões, registre compras e gere o lançamento da fatura para{" "}
+          <strong className="font-black text-slate-700">
+            {referenceMonthLabel}
+          </strong>
+          .
         </p>
       </div>
 
@@ -759,7 +758,7 @@ export default function CartoesPage() {
             {formatCurrency(statementTotal)}
           </strong>
           <p className="mt-2 text-sm leading-6 text-slate-600">
-            Total previsto para o cartão e mês selecionados.
+            Total previsto para {referenceMonthLabel}.
           </p>
         </div>
 
@@ -779,6 +778,14 @@ export default function CartoesPage() {
               onChange={(event) => setReferenceMonth(event.target.value)}
               className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-950 transition outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
             />
+
+            <button
+              type="button"
+              onClick={resetReferenceMonth}
+              className="inline-flex items-center justify-center rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-black text-slate-700 transition hover:bg-slate-50"
+            >
+              Atual
+            </button>
 
             <button
               type="button"
@@ -1270,7 +1277,7 @@ export default function CartoesPage() {
       <section className="grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
         <AppSection
           title="Fatura do mês"
-          description="Veja as compras que entram na fatura selecionada antes de gerar o lançamento."
+          description={`Veja as compras que entram na fatura de ${referenceMonthLabel} antes de gerar o lançamento.`}
         >
           {selectedCreditCard ? (
             <div className="space-y-4">
@@ -1325,7 +1332,7 @@ export default function CartoesPage() {
                   variant="dashboard"
                   eyebrow="Fatura"
                   title="Nenhuma compra nesta fatura"
-                  description="Cadastre compras no cartão ou selecione outro mês para visualizar a fatura."
+                  description="Cadastre compras no cartão ou altere o mês de referência para visualizar outra fatura."
                 />
               ) : (
                 <div className="space-y-3">

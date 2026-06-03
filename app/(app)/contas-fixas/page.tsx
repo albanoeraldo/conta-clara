@@ -17,6 +17,7 @@ import {
 import { Controller, useForm } from "react-hook-form";
 
 import { AppButton } from "@/components/ui/app-button";
+import { useReferenceMonth } from "@/hooks/use-reference-month";
 import { AppEmptyState } from "@/components/ui/app-empty-state";
 import { AppFeedback } from "@/components/ui/app-feedback";
 import { AppLoadingState } from "@/components/ui/app-loading-state";
@@ -60,14 +61,6 @@ function formatCurrency(value: number) {
   }).format(value);
 }
 
-function getCurrentMonthValue() {
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = String(today.getMonth() + 1).padStart(2, "0");
-
-  return `${year}-${month}`;
-}
-
 export default function ContasFixasPage() {
   const [financialSpaceId, setFinancialSpaceId] = useState<string | null>(null);
   const [fixedExpenseToDelete, setFixedExpenseToDelete] =
@@ -83,7 +76,12 @@ export default function ContasFixasPage() {
   const [updatingFixedExpenseId, setUpdatingFixedExpenseId] = useState<
     string | null
   >(null);
-  const [referenceMonth, setReferenceMonth] = useState(getCurrentMonthValue());
+  const {
+    referenceMonth,
+    setReferenceMonth,
+    resetReferenceMonth,
+    referenceMonthLabel,
+  } = useReferenceMonth();
   const [isGenerating, setIsGenerating] = useState(false);
 
   const {
@@ -391,11 +389,11 @@ export default function ContasFixasPage() {
 
       if (result.createdCount === 0 && result.skippedCount > 0) {
         setStatusMessage(
-          "Nenhum lançamento novo foi gerado. As contas fixas deste mês já tinham sido criadas.",
+          `Nenhum lançamento novo foi gerado. As contas fixas de ${referenceMonthLabel} já tinham sido criadas.`,
         );
       } else {
         setStatusMessage(
-          `${result.createdCount} lançamento(s) gerado(s) para o mês selecionado. ${result.skippedCount} já existia(m).`,
+          `${result.createdCount} lançamento(s) gerado(s) para ${referenceMonthLabel}. ${result.skippedCount} já existia(m).`,
         );
       }
     } catch (error) {
@@ -444,7 +442,7 @@ export default function ContasFixasPage() {
             {activeFixedExpensesCount}
           </strong>
           <p className="mt-2 text-sm leading-6 text-slate-600">
-            Modelos ativos para gerar lançamentos mensais.
+            Modelos ativos para gerar lançamentos em {referenceMonthLabel}.
           </p>
         </div>
 
@@ -454,7 +452,7 @@ export default function ContasFixasPage() {
             {formatCurrency(fixedExpensesTotal)}
           </strong>
           <p className="mt-2 text-sm leading-6 text-slate-600">
-            Soma das contas fixas ativas cadastradas.
+            Soma das contas fixas ativas para {referenceMonthLabel}.
           </p>
         </div>
 
@@ -474,6 +472,14 @@ export default function ContasFixasPage() {
               onChange={(event) => setReferenceMonth(event.target.value)}
               className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-950 transition outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
             />
+
+            <button
+              type="button"
+              onClick={resetReferenceMonth}
+              className="inline-flex items-center justify-center rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-black text-slate-700 transition hover:bg-slate-50"
+            >
+              Atual
+            </button>
 
             <button
               type="button"

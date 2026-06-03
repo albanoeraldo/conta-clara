@@ -35,6 +35,10 @@ import { AppFeedback } from "@/components/ui/app-feedback";
 import { AppLinkButton } from "@/components/ui/app-button";
 import { AppLoadingState } from "@/components/ui/app-loading-state";
 import { AppSection } from "@/components/ui/app-section";
+import {
+  getCurrentMonthValue,
+  useReferenceMonth,
+} from "@/hooks/use-reference-month";
 import { getUserFinancialSpaceId } from "@/lib/auth/financial-space";
 import { getCurrentUser } from "@/lib/auth/session";
 import { getActiveCategories, type Category } from "@/services/categories";
@@ -59,14 +63,6 @@ function formatDate(date: string) {
     month: "2-digit",
     year: "numeric",
   }).format(new Date(`${date}T00:00:00`));
-}
-
-function getCurrentMonthValue() {
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = String(today.getMonth() + 1).padStart(2, "0");
-
-  return `${year}-${month}`;
 }
 
 const typeLabels: Record<Transaction["type"], string> = {
@@ -233,6 +229,13 @@ const statusBadgeClasses: Record<Transaction["status"], string> = {
 };
 
 export default function LancamentosPage() {
+  const {
+    referenceMonth,
+    setReferenceMonth,
+    resetReferenceMonth,
+    referenceMonthLabel,
+  } = useReferenceMonth();
+
   const currentMonthValue = getCurrentMonthValue();
 
   const [financialSpaceId, setFinancialSpaceId] = useState<string | null>(null);
@@ -248,7 +251,6 @@ export default function LancamentosPage() {
   const [statusFilter, setStatusFilter] = useState<
     "all" | "pending" | "paid" | "overdue" | "cancelled"
   >("all");
-  const [monthFilter, setMonthFilter] = useState(currentMonthValue);
   const [isLoading, setIsLoading] = useState(true);
   const [updatingTransactionId, setUpdatingTransactionId] = useState<
     string | null
@@ -262,7 +264,7 @@ export default function LancamentosPage() {
     typeFilter !== "all" ||
     statusFilter !== "all" ||
     categoryFilter !== "all" ||
-    monthFilter !== currentMonthValue;
+    referenceMonth !== currentMonthValue;
 
   const filteredTransactions = transactions.filter((transaction) => {
     const normalizedSearchTerm = searchTerm.trim().toLowerCase();
@@ -276,7 +278,7 @@ export default function LancamentosPage() {
     const matchesStatus =
       statusFilter === "all" || transaction.status === statusFilter;
 
-    const matchesMonth = transaction.due_date.startsWith(monthFilter);
+    const matchesMonth = transaction.due_date.startsWith(referenceMonth);
 
     const matchesCategory =
       categoryFilter === "all" ||
@@ -468,7 +470,11 @@ export default function LancamentosPage() {
           </h1>
 
           <p className="mt-2 text-sm leading-6 text-slate-500">
-            Visualize, filtre e gerencie suas receitas e despesas cadastradas.
+            Visualize, filtre e gerencie suas receitas e despesas de{" "}
+            <strong className="font-black text-slate-700">
+              {referenceMonthLabel}
+            </strong>
+            .
           </p>
         </div>
 
@@ -593,13 +599,23 @@ export default function LancamentosPage() {
               Mês
             </label>
 
-            <input
-              id="monthFilter"
-              type="month"
-              value={monthFilter}
-              onChange={(event) => setMonthFilter(event.target.value)}
-              className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-950 transition outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
-            />
+            <div className="flex gap-2">
+              <input
+                id="monthFilter"
+                type="month"
+                value={referenceMonth}
+                onChange={(event) => setReferenceMonth(event.target.value)}
+                className="min-w-0 flex-1 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-950 transition outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+              />
+
+              <button
+                type="button"
+                onClick={resetReferenceMonth}
+                className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-black text-slate-700 transition hover:bg-slate-50"
+              >
+                Atual
+              </button>
+            </div>
           </div>
         </div>
       </AppSection>
@@ -629,12 +645,12 @@ export default function LancamentosPage() {
             title={
               hasActiveFilters
                 ? "Nenhum lançamento encontrado"
-                : "Nenhum lançamento cadastrado ainda"
+                : "Nenhum lançamento cadastrado neste mês"
             }
             description={
               hasActiveFilters
                 ? "Ajuste a busca ou os filtros aplicados para encontrar o lançamento que você procura."
-                : "Cadastre sua primeira receita ou despesa para começar a acompanhar seu mês com mais clareza."
+                : "Cadastre uma receita ou despesa para este mês e acompanhe tudo com mais clareza."
             }
             action={
               <AppLinkButton href="/lancamentos/novo" size="sm">
@@ -648,7 +664,7 @@ export default function LancamentosPage() {
       {!isLoading && !errorMessage && filteredTransactions.length > 0 && (
         <AppSection
           title="Lista de lançamentos"
-          description={`${filteredTransactions.length} lançamento(s) encontrado(s).`}
+          description={`${filteredTransactions.length} lançamento(s) encontrado(s) em ${referenceMonthLabel}.`}
         >
           <div className="space-y-3">
             {filteredTransactions.map((transaction) => {
@@ -759,9 +775,9 @@ export default function LancamentosPage() {
                         aria-label="Excluir lançamento"
                         onClick={() => openDeleteTransactionModal(transaction)}
                         disabled={isUpdating}
-                        className="inline-flex cursor-pointer items-center justify-center p-1.5 text-slate-400 transition hover:text-red-500 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="inline-flex cursor-pointer items-center justify-center rounded-2xl bg-slate-50 p-2 text-slate-500 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-50"
                       >
-                        <Trash2 className="h-6 w-6" />
+                        <Trash2 className="h-5 w-5" />
                         <span className="sr-only">Excluir</span>
                       </button>
 
@@ -814,6 +830,7 @@ export default function LancamentosPage() {
           </div>
         </AppSection>
       )}
+
       {transactionToDelete && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 px-4 backdrop-blur-sm">
           <div
