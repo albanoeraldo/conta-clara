@@ -1,3 +1,75 @@
+# Changelog
+
+## v0.3.0 - Versão financeira
+
+Esta versão consolida a primeira fase financeira mais completa do Conta Clara, adicionando controle por mês, contas fixas, parcelamentos, cartões de crédito e melhorias importantes nos lançamentos.
+
+### Adicionado
+
+- Controle de contas fixas
+- Cadastro, edição, ativação, desativação e exclusão de contas fixas
+- Geração mensal de lançamentos a partir das contas fixas
+- Proteção contra duplicar contas fixas iguais
+- Proteção contra gerar a mesma conta fixa duas vezes no mesmo mês
+- Controle de parcelamentos e financiamentos
+- Cadastro, edição, ativação, desativação e exclusão de parcelamentos
+- Cálculo automático de parcela atual
+- Cálculo de parcelas restantes
+- Cálculo da data final prevista
+- Geração mensal de lançamentos a partir de parcelamentos
+- Proteção contra duplicar parcelas no mesmo mês
+- Controle de cartões de crédito
+- Cadastro, edição, ativação, desativação e exclusão de cartões
+- Cadastro, edição, cancelamento, reativação e exclusão de compras no cartão
+- Suporte para compras à vista e parceladas no cartão
+- Cálculo de fatura com base no dia de fechamento e vencimento
+- Preview da fatura antes da geração do lançamento
+- Geração de lançamento da fatura em lançamentos
+- Proteção contra duplicar fatura no mesmo mês
+- Mês de referência global entre telas
+- Seletor de mês no dashboard
+- Filtro de mês integrado em lançamentos
+- Integração do mês global com contas fixas, parcelamentos e cartões
+- Exclusão de lançamentos com modal de confirmação
+- Máscara de dinheiro nos campos financeiros
+
+### Alterado
+
+- Dashboard passou a respeitar o mês selecionado
+- Cards financeiros do dashboard agora mostram dados do mês de referência
+- “Últimos lançamentos” foi ajustado para lançamentos do mês selecionado
+- “Próximas contas” foi ajustado para pendências do mês selecionado
+- Tela de lançamentos passou a usar o mês global
+- Contas fixas passaram a gerar lançamentos no mês selecionado
+- Parcelamentos passaram a gerar parcelas no mês selecionado
+- Cartões passaram a visualizar e gerar faturas no mês selecionado
+- Textos e mensagens foram ajustados para explicar melhor os fluxos financeiros
+
+### Corrigido
+
+- Corrigida permissão de exclusão de lançamentos no Supabase
+- Corrigidas permissões de contas fixas no Supabase
+- Corrigida duplicidade de contas fixas
+- Corrigida mensagem técnica ao tentar cadastrar conta fixa duplicada
+- Corrigido erro de hidratação causado por tag `<p>` dentro de outra tag `<p>`
+- Ajustado cálculo de centavos em compras parceladas no cartão, jogando diferença para a última parcela
+
+### Validação
+
+- Login validado
+- Dashboard validado
+- Lançamentos validados
+- Novo lançamento validado
+- Editar lançamento validado
+- Excluir lançamento validado
+- Contas fixas validadas
+- Parcelamentos validados
+- Cartões de crédito validados
+- Geração de faturas validada
+- Mês de referência global validado
+- `npm run format` executado com sucesso
+- `npm run build` executado com sucesso
+
 ## v0.2.0 - Versão visual
 
 ### Adicionado
@@ -35,7 +107,7 @@
 
 Todas as mudanças relevantes do Conta Clara serão documentadas neste arquivo.
 
-## [v0.1.0] — Primeira versão funcional
+## v0.1.0 — Primeira versão funcional
 
 Primeira versão funcional do Conta Clara.
 

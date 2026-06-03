@@ -1,227 +1,109 @@
-# Status do Projeto — Conta Clara
+# Status do projeto - Conta Clara
 
 ## Versão atual
 
-Versão funcional atual: **v0.1.0**
+**v0.3.0 - Versão financeira**
 
-Esta versão representa a primeira versão funcional validada do Conta Clara, com autenticação, onboarding, dashboard, lançamentos, categorias, perfil, configurações, gráfico, identidade visual inicial e documentação.
+O Conta Clara está em uma fase funcional mais completa, com controle financeiro mensal, lançamentos, categorias, contas fixas, parcelamentos, cartões de crédito e mês de referência global.
 
-Este documento registra o status atual do desenvolvimento do Conta Clara.
+## Estado geral
 
-## Visão geral
+O sistema já permite que o usuário organize receitas, despesas, vencimentos, contas recorrentes, financiamentos, compras parceladas e faturas de cartão de crédito.
 
-O Conta Clara é uma aplicação web de controle financeiro simples, voltada para pessoas comuns e casais que desejam organizar receitas, despesas, contas pendentes e categorias sem depender de planilhas complexas.
-
-O projeto já possui uma primeira fase funcional validada, com autenticação, banco de dados, dashboard, lançamentos, categorias, perfil, configurações e melhorias iniciais de identidade visual.
-
-## Status geral
-
-Status atual: **primeira versão funcional em desenvolvimento**
-
-O projeto já permite que um usuário:
-
-- crie uma conta;
-- faça login;
-- conclua o onboarding;
-- acesse uma área interna protegida;
-- cadastre lançamentos financeiros;
-- categorize receitas e despesas;
-- acompanhe resumo mensal;
-- visualize gráfico de receitas x despesas;
-- gerencie categorias;
-- edite perfil;
-- edite configurações do espaço financeiro.
+A aplicação está validada para uso em ambiente de desenvolvimento, com foco em simplicidade, clareza e controle financeiro para pessoas comuns e casais.
 
 ## Funcionalidades concluídas
 
-### Autenticação e acesso
+### Autenticação e onboarding
 
 - Cadastro de usuário
 - Login
-- Logout
-- Proteção de rotas privadas
-- Redirecionamento automático conforme sessão
-- Bloqueio de login/cadastro para usuário já autenticado
-- Fluxo de acesso validado
-
-### Banco de dados e segurança
-
-- Tabela `profiles`
-- Tabela `financial_spaces`
-- Tabela `categories`
-- Tabela `transactions`
-- RLS configurado no Supabase
-- Políticas de acesso por usuário
-- Consultas filtradas por `financial_space`
-- Atualizações protegidas por vínculo com o espaço financeiro
-
-### Onboarding
-
-- Tela de onboarding criada
-- Criação/configuração do espaço financeiro
-- Definição de tipo de uso
-- Definição de renda mensal aproximada
-- Redirecionamento para o dashboard após conclusão
-- Criação automática de categorias padrão
-
-### Dashboard
-
-- Dashboard protegido
-- Resumo mensal calculado
-- Total de receitas
-- Total de despesas
-- Saldo previsto
-- Contas pendentes
-- Últimos lançamentos
-- Próximas contas pendentes
-- Gráfico de receitas x despesas
-- Cards visuais padronizados
-
-### Lançamentos
-
-- Tela de novo lançamento
-- Validação com Zod
-- Integração com Supabase
-- Seleção de categoria
-- Listagem de lançamentos
-- Filtro por tipo
-- Filtro por status
-- Filtro por mês
-- Edição de lançamento
-- Marcar lançamento como pago
-- Cancelar lançamento mantendo histórico
+- Onboarding inicial
+- Criação do espaço financeiro do usuário
+- Perfil
+- Configurações do espaço financeiro
 
 ### Categorias
 
-- Categorias padrão criadas automaticamente
-- Tela de categorias
-- Criação de categorias personalizadas
-- Edição de nome da categoria
-- Ativação de categoria
-- Desativação de categoria
+- Cadastro de categorias
 - Separação entre receitas e despesas
+- Edição de categorias
+- Ativação e desativação de categorias
+- Ícones automáticos por tipo de categoria
 
-### Perfil
+### Lançamentos
 
-- Tela de perfil criada
-- Nome completo editável
-- Telefone editável
-- E-mail somente leitura
-- Dados salvos na tabela `profiles`
+- Cadastro de receitas e despesas
+- Edição de lançamentos
+- Marcar lançamento como pago
+- Cancelar lançamento
+- Excluir lançamento cadastrado por engano
+- Filtros por busca, tipo, categoria, status e mês
+- Integração com mês de referência global
 
-### Configurações
+### Dashboard
 
-- Tela de configurações criada
-- Nome do espaço financeiro editável
-- Tipo de uso editável
-- Renda mensal aproximada editável
-- Dados salvos na tabela `financial_spaces`
+- Resumo de receitas
+- Resumo de despesas
+- Saldo previsto do mês
+- Pendências do mês
+- Gráfico de receitas x despesas
+- Lançamentos do mês
+- Mês de referência global
+- Navegação entre meses passados, atuais e futuros
 
-### Interface e identidade visual
+### Contas fixas
 
-- Layout interno repaginado
-- Componente de logo criado
-- Componentes reutilizáveis criados:
-  - `Logo`
-  - `SummaryCard`
-  - `AppSection`
-  - `AppButton`
-  - `AppLinkButton`
-  - `IncomeExpenseChart`
+- Cadastro de contas fixas
+- Edição de contas fixas
+- Ativação e desativação
+- Exclusão com modal de confirmação
+- Geração mensal de lançamentos
+- Proteção contra duplicidade
+- Integração com categorias, forma de pagamento e mês global
 
-- Botões principais padronizados
-- Telas internas padronizadas visualmente
-- Dashboard com aparência mais profissional
+### Parcelamentos e financiamentos
 
-## Stack atual
+- Cadastro de parcelamentos
+- Edição de parcelamentos
+- Ativação e desativação
+- Exclusão com modal de confirmação
+- Cálculo de parcela atual
+- Cálculo de parcelas restantes
+- Cálculo de data final prevista
+- Geração mensal de lançamentos
+- Proteção contra duplicidade no mesmo mês
+- Integração com mês global
 
-- Next.js
-- React
-- TypeScript
-- Tailwind CSS
-- Supabase
-- PostgreSQL
-- React Hook Form
-- Zod
-- Recharts
+### Cartões de crédito
 
-## Estrutura funcional atual
+- Cadastro de cartões
+- Edição de cartões
+- Ativação e desativação
+- Exclusão de cartões
+- Cadastro de compras no cartão
+- Compras à vista
+- Compras parceladas
+- Cancelamento e reativação de compras
+- Exclusão de compras
+- Preview de fatura
+- Cálculo por fechamento e vencimento
+- Geração de lançamento da fatura
+- Proteção contra duplicidade de fatura
+- Integração com mês global
 
-O fluxo principal validado é:
+## Próximas possibilidades
 
-1. Usuário cria conta.
-2. Usuário faz login.
-3. Usuário conclui onboarding.
-4. Sistema cria/configura espaço financeiro.
-5. Sistema cria categorias padrão.
-6. Usuário acessa dashboard.
-7. Usuário cadastra receitas e despesas.
-8. Usuário acompanha resumo mensal.
-9. Usuário gerencia lançamentos.
-10. Usuário gerencia categorias, perfil e configurações.
-
-## Pontos fortes atuais
-
-- Projeto já possui fluxo completo de uso.
-- Banco de dados está integrado.
-- Dados são separados por usuário e espaço financeiro.
-- Interface já possui uma identidade visual inicial.
-- Código está mais organizado com componentes reutilizáveis.
-- Funcionalidades principais de lançamento estão implementadas.
-- Dashboard já apresenta dados reais.
-
-## Pontos ainda pendentes
-
-- Melhorar responsividade mobile.
-- Adicionar ícones nos menus e botões de ação.
-- Criar logotipo definitivo.
-- Melhorar mensagens de erro para o usuário final.
-- Criar relatórios por período.
-- Criar visão anual.
-- Melhorar filtros de lançamentos.
-- Adicionar exclusão definitiva somente se necessário.
-- Criar testes automatizados futuramente.
-- Preparar versão inicial para usuários reais testarem.
-
-## Próxima fase sugerida
-
-A próxima fase pode focar em:
-
-- refinamento visual;
-- experiência mobile;
-- ícones;
-- relatórios;
-- melhorias de usabilidade;
-- preparação para teste com usuários reais;
-- documentação comercial do produto.
+- Melhorias em relatórios
+- Gráficos por categoria
+- Comparativo entre meses
+- Exportação de dados
+- Melhorias mobile
+- Melhorias de usabilidade nas telas financeiras
+- Notificações de vencimentos
+- Automação de recorrências
+- Preparação para uma versão SaaS inicial
 
 ## Observação
 
-Este projeto está sendo desenvolvido com foco em aprendizado prático, construção de portfólio e possível evolução futura para um produto real/SaaS.
-
-## Status atual - v0.2.0
-
-A versão visual v0.2.0 foi concluída.
-
-O Conta Clara agora possui uma identidade visual clara, com sidebar azul-marinho, telas internas padronizadas, componentes base refinados, formulários claros, microinterações leves e ícones automáticos por categoria.
-
-### Telas validadas
-
-- Página pública
-- Login
-- Cadastro
-- Onboarding
-- Dashboard
-- Lançamentos
-- Novo lançamento
-- Editar lançamento
-- Categorias
-- Perfil
-- Configurações
-
-### Próximos focos possíveis
-
-- Ajustes finos de responsividade mobile
-- Melhorias futuras em categorias com escolha manual de ícone e cor
-- Testes com dados reais
-- Preparação para validação com usuários
+A versão v0.3.0 representa uma etapa importante do produto, pois transforma o Conta Clara em um controle financeiro mensal mais completo e navegável por período.
