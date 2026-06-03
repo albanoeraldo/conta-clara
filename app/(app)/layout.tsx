@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import type { LucideIcon } from "lucide-react";
 import {
+  CalendarClock,
   LayoutDashboard,
   ListChecks,
   LogOut,
@@ -40,6 +41,11 @@ const navigationItems: NavigationItem[] = [
     href: "/lancamentos",
     label: "Lançamentos",
     icon: ListChecks,
+  },
+  {
+    href: "/contas-fixas",
+    label: "Contas fixas",
+    icon: CalendarClock,
   },
   {
     href: "/categorias",
