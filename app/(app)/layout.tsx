@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import type { LucideIcon } from "lucide-react";
 import {
   CalendarClock,
+  Landmark,
   LayoutDashboard,
   ListChecks,
   LogOut,
@@ -41,6 +42,11 @@ const navigationItems: NavigationItem[] = [
     href: "/lancamentos",
     label: "Lançamentos",
     icon: ListChecks,
+  },
+  {
+    href: "/parcelamentos",
+    label: "Parcelamentos",
+    icon: Landmark,
   },
   {
     href: "/contas-fixas",
