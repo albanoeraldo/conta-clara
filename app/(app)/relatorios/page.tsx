@@ -26,6 +26,44 @@ function formatCurrency(value: number) {
   }).format(value);
 }
 
+function formatDate(value: string | null | undefined) {
+  if (!value) {
+    return "Sem data";
+  }
+
+  return new Intl.DateTimeFormat("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  }).format(new Date(`${value}T00:00:00`));
+}
+
+function getTransactionDate(transaction: Transaction) {
+  if ("due_date" in transaction && typeof transaction.due_date === "string") {
+    return transaction.due_date;
+  }
+
+  if ("date" in transaction && typeof transaction.date === "string") {
+    return transaction.date;
+  }
+
+  if ("paid_at" in transaction && typeof transaction.paid_at === "string") {
+    return transaction.paid_at;
+  }
+
+  return "";
+}
+
+function formatStatus(status: string) {
+  const statusLabels: Record<string, string> = {
+    pending: "Pendente",
+    paid: "Pago",
+    cancelled: "Cancelado",
+  };
+
+  return statusLabels[status] ?? status;
+}
+
 function buildCategoryReport(
   transactions: Transaction[],
   categories: Category[],
@@ -116,6 +154,24 @@ export default function ReportsPage() {
   );
 
   const biggestCategory = categoryReport[0];
+
+  const categoryNameById = useMemo(() => {
+    return new Map(categories.map((category) => [category.id, category.name]));
+  }, [categories]);
+
+  const biggestExpenses = useMemo(() => {
+    return monthlyTransactions
+      .filter(
+        (transaction) =>
+          transaction.type === "expense" && transaction.status !== "cancelled",
+      )
+      .sort((firstTransaction, secondTransaction) => {
+        return (
+          Number(secondTransaction.amount) - Number(firstTransaction.amount)
+        );
+      })
+      .slice(0, 5);
+  }, [monthlyTransactions]);
 
   useEffect(() => {
     let isMounted = true;
@@ -339,6 +395,86 @@ export default function ReportsPage() {
             </div>
           </section>
         )}
+
+      <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+        <div className="mb-6">
+          <p className="text-sm font-black tracking-[0.25em] text-blue-700 uppercase">
+            Destaques
+          </p>
+
+          <h2 className="mt-3 text-xl font-black tracking-tight text-slate-950">
+            Maiores despesas do mês
+          </h2>
+
+          <p className="mt-2 text-sm leading-6 text-slate-500">
+            Os gastos individuais que mais pesaram em {referenceMonthLabel}.
+          </p>
+        </div>
+
+        {isLoading && (
+          <div className="rounded-3xl bg-slate-50 p-6 text-center text-sm font-semibold text-slate-500">
+            Carregando maiores despesas...
+          </div>
+        )}
+
+        {!isLoading && !errorMessage && biggestExpenses.length === 0 && (
+          <div className="rounded-3xl border border-dashed border-slate-300 bg-slate-50 p-6 text-center sm:p-8">
+            <h3 className="text-lg font-black text-slate-950">
+              Nenhuma despesa encontrada
+            </h3>
+
+            <p className="mt-2 text-sm leading-6 text-slate-500">
+              Quando houver despesas em {referenceMonthLabel}, as maiores
+              aparecerão aqui.
+            </p>
+          </div>
+        )}
+
+        {!isLoading && !errorMessage && biggestExpenses.length > 0 && (
+          <div className="space-y-3">
+            {biggestExpenses.map((transaction, index) => {
+              const categoryName =
+                categoryNameById.get(transaction.category_id ?? "") ??
+                "Sem categoria";
+
+              return (
+                <div
+                  key={`${transaction.description}-${index}`}
+                  className="flex flex-col gap-4 rounded-3xl border border-slate-100 bg-slate-50 p-5 sm:flex-row sm:items-center sm:justify-between"
+                >
+                  <div className="min-w-0">
+                    <p className="text-sm font-black text-blue-700">
+                      #{index + 1}
+                    </p>
+
+                    <h3 className="mt-1 truncate text-base font-black text-slate-950">
+                      {transaction.description}
+                    </h3>
+
+                    <div className="mt-2 flex flex-wrap gap-2 text-xs font-bold">
+                      <span className="rounded-full bg-white px-3 py-1 text-slate-600">
+                        {categoryName}
+                      </span>
+
+                      <span className="rounded-full bg-white px-3 py-1 text-slate-600">
+                        {formatDate(getTransactionDate(transaction))}
+                      </span>
+
+                      <span className="rounded-full bg-white px-3 py-1 text-slate-600">
+                        {formatStatus(transaction.status)}
+                      </span>
+                    </div>
+                  </div>
+
+                  <strong className="text-xl font-black text-red-500">
+                    {formatCurrency(Number(transaction.amount))}
+                  </strong>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </section>
 
       <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
         <div className="mb-6">
