@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import type { LucideIcon } from "lucide-react";
 import {
+  BarChart3,
   CalendarClock,
   CreditCard,
   Landmark,
@@ -38,6 +39,11 @@ const navigationItems: NavigationItem[] = [
     href: "/dashboard",
     label: "Dashboard",
     icon: LayoutDashboard,
+  },
+  {
+    href: "/relatorios",
+    label: "Relatórios",
+    icon: BarChart3,
   },
   {
     href: "/lancamentos",
