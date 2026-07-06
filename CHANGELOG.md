@@ -1,5 +1,40 @@
 # Changelog
 
+## v0.4.0 — Relatórios e inteligência financeira simples
+
+A versão `v0.4.0` adiciona uma camada de relatórios e inteligência financeira simples ao Conta Clara, ajudando o usuário a entender melhor o mês financeiro sem transformar o produto em algo complexo.
+
+### Adicionado
+
+- Criada a tela `/relatorios`.
+- Adicionado item “Relatórios” no menu lateral e mobile.
+- Criado relatório mensal por categoria.
+- Adicionado ranking de despesas por categoria.
+- Adicionado gráfico simples de barras por categoria.
+- Criada seção de maiores despesas do mês.
+- Criado resumo inteligente do mês.
+- Criada funcionalidade de fechamento mensal com resumo salvo.
+- Criada possibilidade de reabrir mês fechado.
+- Criada comparação com o mês anterior.
+- Adicionado saldo acumulado entre mês selecionado e mês anterior.
+- Criada visão de evolução dos últimos 6 meses.
+- Criada tabela `monthly_closings` no Supabase.
+- Criado service `monthly-closings`.
+
+### Melhorado
+
+- A tela de relatórios passa a respeitar o mês de referência global.
+- Os relatórios ignoram lançamentos cancelados.
+- As informações financeiras passam a ser exibidas com linguagem mais simples.
+- O usuário consegue visualizar receitas, despesas, saldo, maiores gastos e evolução recente em uma única área.
+- O fechamento mensal usa modal visual no padrão do Conta Clara.
+
+### Observações
+
+- O fechamento mensal nesta versão é informativo.
+- Meses fechados ainda não bloqueiam criação, edição, exclusão ou geração de lançamentos.
+- O bloqueio de alterações em meses fechados poderá ser implementado em uma versão futura.
+
 ## v0.3.0 - Versão financeira
 
 Esta versão consolida a primeira fase financeira mais completa do Conta Clara, adicionando controle por mês, contas fixas, parcelamentos, cartões de crédito e melhorias importantes nos lançamentos.

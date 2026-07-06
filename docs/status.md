@@ -107,3 +107,50 @@ A aplicação está validada para uso em ambiente de desenvolvimento, com foco e
 ## Observação
 
 A versão v0.3.0 representa uma etapa importante do produto, pois transforma o Conta Clara em um controle financeiro mensal mais completo e navegável por período.
+
+## Status atual — v0.4.0
+
+A versão `v0.4.0` está focada em relatórios e inteligência financeira simples.
+
+O Conta Clara agora possui uma tela dedicada de relatórios em `/relatorios`, permitindo que o usuário entenda melhor o mês financeiro de forma clara e acessível.
+
+### Funcionalidades disponíveis em relatórios
+
+- Relatório mensal por categoria.
+- Total de despesas do mês.
+- Quantidade de categorias com gasto.
+- Maior categoria de gasto.
+- Ranking de categorias por valor gasto.
+- Percentual de cada categoria sobre o total de despesas.
+- Gráfico simples de barras por categoria.
+- Maiores despesas individuais do mês.
+- Resumo inteligente do mês.
+- Fechamento mensal com resumo salvo.
+- Reabertura de mês fechado.
+- Comparação com o mês anterior.
+- Saldo acumulado entre dois meses.
+- Evolução dos últimos 6 meses.
+
+### Fechamento mensal
+
+Foi criada a tabela `monthly_closings` para registrar fechamentos mensais.
+
+O fechamento mensal salva:
+
+- mês de referência;
+- total de receitas;
+- total de despesas;
+- saldo final;
+- maior categoria de gasto;
+- maior despesa individual;
+- data e hora do fechamento.
+
+Nesta versão, o fechamento é apenas informativo e ainda não bloqueia alterações em meses fechados.
+
+### Próximos pontos possíveis
+
+- Bloquear alterações em meses fechados.
+- Criar alertas de vencimento.
+- Melhorar visão mobile dos relatórios.
+- Adicionar exportação futura em CSV ou PDF.
+- Criar visão anual simples.
