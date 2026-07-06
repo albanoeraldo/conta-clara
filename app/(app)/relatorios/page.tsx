@@ -7,6 +7,12 @@ import { getUserFinancialSpaceId } from "@/lib/auth/financial-space";
 import { getCurrentUser } from "@/lib/auth/session";
 import { getCategories, type Category } from "@/services/categories";
 import {
+  closeMonthlyClosing,
+  getMonthlyClosing,
+  reopenMonthlyClosing,
+  type MonthlyClosing,
+} from "@/services/monthly-closings";
+import {
   getTransactionsByMonth,
   type Transaction,
 } from "@/services/transactions";
@@ -36,6 +42,13 @@ function formatDate(value: string | null | undefined) {
     month: "2-digit",
     year: "numeric",
   }).format(new Date(`${value}T00:00:00`));
+}
+
+function formatDateTime(value: string) {
+  return new Intl.DateTimeFormat("pt-BR", {
+    dateStyle: "short",
+    timeStyle: "short",
+  }).format(new Date(value));
 }
 
 function getTransactionDate(transaction: Transaction) {
@@ -144,6 +157,17 @@ export default function ReportsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
 
+  const [financialSpaceId, setFinancialSpaceId] = useState("");
+  const [monthlyClosing, setMonthlyClosing] = useState<MonthlyClosing | null>(
+    null,
+  );
+  const [isClosingMonth, setIsClosingMonth] = useState(false);
+  const [isReopeningMonth, setIsReopeningMonth] = useState(false);
+
+  const [confirmationAction, setConfirmationAction] = useState<
+    "close" | "reopen" | null
+  >(null);
+
   const categoryReport = useMemo(() => {
     return buildCategoryReport(monthlyTransactions, categories);
   }, [monthlyTransactions, categories]);
@@ -211,9 +235,14 @@ export default function ReportsPage() {
           return;
         }
 
-        const [selectedMonthTransactions, userCategories] = await Promise.all([
+        const [
+          selectedMonthTransactions,
+          userCategories,
+          selectedMonthClosing,
+        ] = await Promise.all([
           getTransactionsByMonth(financialSpaceId, referenceMonth),
           getCategories(financialSpaceId),
+          getMonthlyClosing(financialSpaceId, referenceMonth),
         ]);
 
         if (!isMounted) {
@@ -222,6 +251,8 @@ export default function ReportsPage() {
 
         setMonthlyTransactions(selectedMonthTransactions);
         setCategories(userCategories);
+        setFinancialSpaceId(financialSpaceId);
+        setMonthlyClosing(selectedMonthClosing);
       } catch (error) {
         if (!isMounted) {
           return;
@@ -248,6 +279,73 @@ export default function ReportsPage() {
       window.clearTimeout(timeoutId);
     };
   }, [referenceMonth]);
+
+  async function handleCloseMonth() {
+    if (!financialSpaceId) {
+      return;
+    }
+
+    try {
+      setIsClosingMonth(true);
+      setErrorMessage("");
+
+      const closing = await closeMonthlyClosing({
+        financialSpaceId,
+        referenceMonth,
+        totalIncome,
+        totalExpenses,
+        finalBalance: monthlyBalance,
+        biggestCategoryName: biggestCategory?.categoryName ?? null,
+        biggestCategoryTotal: biggestCategory?.total ?? null,
+        biggestExpenseDescription: biggestExpense?.description ?? null,
+        biggestExpenseAmount: biggestExpense
+          ? Number(biggestExpense.amount)
+          : null,
+      });
+
+      setMonthlyClosing(closing);
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error ? error.message : "Erro ao fechar o mês.",
+      );
+    } finally {
+      setIsClosingMonth(false);
+    }
+  }
+
+  async function handleReopenMonth() {
+    if (!financialSpaceId) {
+      return;
+    }
+
+    try {
+      setIsReopeningMonth(true);
+      setErrorMessage("");
+
+      await reopenMonthlyClosing(financialSpaceId, referenceMonth);
+
+      setMonthlyClosing(null);
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error ? error.message : "Erro ao reabrir o mês.",
+      );
+    } finally {
+      setIsReopeningMonth(false);
+    }
+  }
+
+  async function handleConfirmMonthlyClosingAction() {
+    if (confirmationAction === "close") {
+      await handleCloseMonth();
+      setConfirmationAction(null);
+      return;
+    }
+
+    if (confirmationAction === "reopen") {
+      await handleReopenMonth();
+      setConfirmationAction(null);
+    }
+  }
 
   return (
     <section className="space-y-6">
@@ -299,6 +397,120 @@ export default function ReportsPage() {
           {errorMessage}
         </div>
       )}
+
+      <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+        <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <p className="text-sm font-black tracking-[0.25em] text-blue-700 uppercase">
+              Status do mês
+            </p>
+
+            <h2 className="mt-3 text-xl font-black tracking-tight text-slate-950">
+              {monthlyClosing
+                ? `${referenceMonthLabel} está fechado`
+                : `${referenceMonthLabel} está aberto`}
+            </h2>
+
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-500">
+              {monthlyClosing
+                ? "Este mês possui um resumo financeiro salvo. Nesta primeira versão, o fechamento é informativo e ainda não bloqueia alterações."
+                : "Revise seus lançamentos e feche o mês quando estiver tudo certo para salvar um resumo financeiro do período."}
+            </p>
+          </div>
+
+          {monthlyClosing ? (
+            <button
+              type="button"
+              onClick={() => setConfirmationAction("reopen")}
+              disabled={isReopeningMonth}
+              className="inline-flex items-center justify-center rounded-2xl border border-red-200 bg-white px-5 py-3 text-sm font-black text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {isReopeningMonth ? "Reabrindo..." : "Reabrir mês"}
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setConfirmationAction("close")}
+              disabled={isClosingMonth || isLoading}
+              className="inline-flex items-center justify-center rounded-2xl bg-blue-700 px-5 py-3 text-sm font-black text-white shadow-sm transition hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {isClosingMonth ? "Fechando..." : "Fechar mês"}
+            </button>
+          )}
+        </div>
+
+        {monthlyClosing && (
+          <div className="mt-6 grid gap-4 md:grid-cols-3">
+            <div className="rounded-3xl bg-emerald-50 p-5">
+              <p className="text-sm font-bold text-emerald-700">
+                Receitas salvas
+              </p>
+
+              <strong className="mt-3 block text-xl font-black text-emerald-700">
+                {formatCurrency(Number(monthlyClosing.total_income))}
+              </strong>
+            </div>
+
+            <div className="rounded-3xl bg-red-50 p-5">
+              <p className="text-sm font-bold text-red-600">Despesas salvas</p>
+
+              <strong className="mt-3 block text-xl font-black text-red-600">
+                {formatCurrency(Number(monthlyClosing.total_expenses))}
+              </strong>
+            </div>
+
+            <div className="rounded-3xl bg-blue-50 p-5">
+              <p className="text-sm font-bold text-blue-700">Saldo salvo</p>
+
+              <strong
+                className={`mt-3 block text-xl font-black ${
+                  Number(monthlyClosing.final_balance) >= 0
+                    ? "text-emerald-700"
+                    : "text-red-600"
+                }`}
+              >
+                {formatCurrency(Number(monthlyClosing.final_balance))}
+              </strong>
+            </div>
+          </div>
+        )}
+
+        {monthlyClosing && (
+          <div className="mt-4 rounded-3xl bg-slate-50 p-5 text-sm leading-6 text-slate-600">
+            <p>
+              Fechado em{" "}
+              <strong className="text-slate-950">
+                {formatDateTime(monthlyClosing.closed_at)}
+              </strong>
+              .
+            </p>
+
+            {monthlyClosing.biggest_category_name && (
+              <p className="mt-2">
+                Maior categoria salva:{" "}
+                <strong className="text-slate-950">
+                  {monthlyClosing.biggest_category_name}
+                </strong>
+                {monthlyClosing.biggest_category_total !== null &&
+                  ` (${formatCurrency(Number(monthlyClosing.biggest_category_total))})`}
+                .
+              </p>
+            )}
+
+            {monthlyClosing.biggest_expense_description && (
+              <p className="mt-2">
+                Maior despesa salva:{" "}
+                <strong className="text-slate-950">
+                  {monthlyClosing.biggest_expense_description}
+                </strong>
+                {monthlyClosing.biggest_expense_amount !== null &&
+                  ` (${formatCurrency(Number(monthlyClosing.biggest_expense_amount))})`}
+                .
+              </p>
+            )}
+          </div>
+        )}
+      </section>
 
       <section className="grid gap-4 md:grid-cols-3">
         <div className="rounded-3xl border border-red-100 bg-red-50 p-6 shadow-sm">
@@ -660,6 +872,71 @@ export default function ReportsPage() {
           </div>
         )}
       </section>
+      {confirmationAction && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 px-4 py-6 backdrop-blur-sm">
+          <div className="w-full max-w-lg rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl sm:p-8">
+            <p className="text-sm font-black tracking-[0.25em] text-blue-700 uppercase">
+              Confirmação
+            </p>
+
+            <h2 className="mt-3 text-2xl font-black tracking-tight text-slate-950">
+              {confirmationAction === "close"
+                ? `Fechar ${referenceMonthLabel}?`
+                : `Reabrir ${referenceMonthLabel}?`}
+            </h2>
+
+            <p className="mt-4 text-sm leading-6 text-slate-500">
+              {confirmationAction === "close"
+                ? "O Conta Clara vai salvar um resumo financeiro deste mês. Nesta primeira versão, o fechamento é informativo e ainda não bloqueia alterações."
+                : "O resumo salvo deste fechamento será removido. Depois disso, o mês voltará a aparecer como aberto."}
+            </p>
+
+            {confirmationAction === "close" && (
+              <div className="mt-5 rounded-3xl bg-blue-50 p-5 text-sm leading-6 text-blue-900">
+                <p>
+                  Resumo que será salvo:
+                  <br />
+                  Receitas: <strong>{formatCurrency(totalIncome)}</strong>
+                  <br />
+                  Despesas: <strong>{formatCurrency(totalExpenses)}</strong>
+                  <br />
+                  Saldo: <strong>{formatCurrency(monthlyBalance)}</strong>
+                </p>
+              </div>
+            )}
+
+            <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+              <button
+                type="button"
+                onClick={() => setConfirmationAction(null)}
+                disabled={isClosingMonth || isReopeningMonth}
+                className="inline-flex items-center justify-center rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-black text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                Cancelar
+              </button>
+
+              <button
+                type="button"
+                onClick={handleConfirmMonthlyClosingAction}
+                disabled={isClosingMonth || isReopeningMonth}
+                className={`inline-flex items-center justify-center rounded-2xl px-5 py-3 text-sm font-black text-white shadow-sm transition disabled:cursor-not-allowed disabled:opacity-60 ${
+                  confirmationAction === "close"
+                    ? "bg-blue-700 hover:bg-blue-800"
+                    : "bg-red-600 hover:bg-red-700"
+                }`}
+              >
+                {confirmationAction === "close"
+                  ? isClosingMonth
+                    ? "Fechando..."
+                    : "Fechar mês"
+                  : isReopeningMonth
+                    ? "Reabrindo..."
+                    : "Reabrir mês"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }
