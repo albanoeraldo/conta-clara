@@ -25,6 +25,14 @@ type CategoryReportRow = {
   transactionCount: number;
 };
 
+type MonthlyEvolutionRow = {
+  referenceMonth: string;
+  label: string;
+  totalIncome: number;
+  totalExpenses: number;
+  balance: number;
+};
+
 function formatCurrency(value: number) {
   return new Intl.NumberFormat("pt-BR", {
     style: "currency",
@@ -57,6 +65,18 @@ function getPreviousReferenceMonth(referenceMonth: string) {
   );
 
   return `${previousYear}-${previousMonth}`;
+}
+
+function getLastSixReferenceMonths(referenceMonth: string) {
+  const [year, month] = referenceMonth.split("-").map(Number);
+
+  return Array.from({ length: 6 }, (_, index) => {
+    const monthDate = new Date(year, month - 6 + index, 1);
+    const monthYear = monthDate.getFullYear();
+    const monthValue = String(monthDate.getMonth() + 1).padStart(2, "0");
+
+    return `${monthYear}-${monthValue}`;
+  });
 }
 
 function formatReferenceMonthFromValue(referenceMonth: string) {
@@ -192,6 +212,9 @@ export default function ReportsPage() {
   const [previousMonthTransactions, setPreviousMonthTransactions] = useState<
     Transaction[]
   >([]);
+  const [monthlyEvolution, setMonthlyEvolution] = useState<
+    MonthlyEvolutionRow[]
+  >([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
@@ -225,6 +248,10 @@ export default function ReportsPage() {
   const previousReferenceMonthLabel = useMemo(() => {
     return formatReferenceMonthFromValue(previousReferenceMonth);
   }, [previousReferenceMonth]);
+
+  const lastSixReferenceMonths = useMemo(() => {
+    return getLastSixReferenceMonths(referenceMonth);
+  }, [referenceMonth]);
 
   const validMonthlyTransactions = useMemo(() => {
     return monthlyTransactions.filter(
@@ -265,6 +292,15 @@ export default function ReportsPage() {
   const accumulatedTwoMonthsBalance = monthlyBalance + previousMonthlyBalance;
 
   const hasPreviousMonthMovement = validPreviousMonthTransactions.length > 0;
+
+  const biggestEvolutionExpense = Math.max(
+    ...monthlyEvolution.map((month) => month.totalExpenses),
+    0,
+  );
+
+  const hasEvolutionMovement = monthlyEvolution.some((month) => {
+    return month.totalIncome > 0 || month.totalExpenses > 0;
+  });
 
   const hasMonthlyMovement = validMonthlyTransactions.length > 0;
 
@@ -313,11 +349,46 @@ export default function ReportsPage() {
           previousSelectedMonthTransactions,
           userCategories,
           selectedMonthClosing,
+          lastSixMonthsTransactions,
         ] = await Promise.all([
           getTransactionsByMonth(financialSpaceId, referenceMonth),
           getTransactionsByMonth(financialSpaceId, previousReferenceMonth),
           getCategories(financialSpaceId),
           getMonthlyClosing(financialSpaceId, referenceMonth),
+          Promise.all(
+            lastSixReferenceMonths.map(async (month) => {
+              const transactions = await getTransactionsByMonth(
+                financialSpaceId,
+                month,
+              );
+
+              const validTransactions = transactions.filter(
+                (transaction) => transaction.status !== "cancelled",
+              );
+
+              const totalIncome = validTransactions
+                .filter((transaction) => transaction.type === "income")
+                .reduce(
+                  (total, transaction) => total + Number(transaction.amount),
+                  0,
+                );
+
+              const totalExpenses = validTransactions
+                .filter((transaction) => transaction.type === "expense")
+                .reduce(
+                  (total, transaction) => total + Number(transaction.amount),
+                  0,
+                );
+
+              return {
+                referenceMonth: month,
+                label: formatReferenceMonthFromValue(month),
+                totalIncome,
+                totalExpenses,
+                balance: totalIncome - totalExpenses,
+              };
+            }),
+          ),
         ]);
 
         if (!isMounted) {
@@ -326,6 +397,7 @@ export default function ReportsPage() {
 
         setMonthlyTransactions(selectedMonthTransactions);
         setPreviousMonthTransactions(previousSelectedMonthTransactions);
+        setMonthlyEvolution(lastSixMonthsTransactions);
         setCategories(userCategories);
         setFinancialSpaceId(financialSpaceId);
         setMonthlyClosing(selectedMonthClosing);
@@ -354,7 +426,7 @@ export default function ReportsPage() {
       isMounted = false;
       window.clearTimeout(timeoutId);
     };
-  }, [previousReferenceMonth, referenceMonth]);
+  }, [lastSixReferenceMonths, previousReferenceMonth, referenceMonth]);
 
   async function handleCloseMonth() {
     if (!financialSpaceId) {
@@ -868,6 +940,126 @@ export default function ReportsPage() {
                 saldo de <strong>{formatCurrency(monthlyBalance)}</strong>.
               </p>
             </div>
+          </div>
+        )}
+      </section>
+
+      <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+        <div className="mb-6">
+          <p className="text-sm font-black tracking-[0.25em] text-blue-700 uppercase">
+            Evolução
+          </p>
+
+          <h2 className="mt-3 text-xl font-black tracking-tight text-slate-950">
+            Evolução dos últimos 6 meses
+          </h2>
+
+          <p className="mt-2 text-sm leading-6 text-slate-500">
+            Uma visão simples de receitas, despesas e saldo até{" "}
+            {referenceMonthLabel}.
+          </p>
+        </div>
+
+        {isLoading && (
+          <div className="rounded-3xl bg-slate-50 p-6 text-center text-sm font-semibold text-slate-500">
+            Carregando evolução mensal...
+          </div>
+        )}
+
+        {!isLoading && !errorMessage && !hasEvolutionMovement && (
+          <div className="rounded-3xl border border-dashed border-slate-300 bg-slate-50 p-6 text-center sm:p-8">
+            <h3 className="text-lg font-black text-slate-950">
+              Sem movimentações nos últimos 6 meses
+            </h3>
+
+            <p className="mt-2 text-sm leading-6 text-slate-500">
+              Quando houver receitas ou despesas nesse período, o Conta Clara
+              vai mostrar sua evolução mês a mês.
+            </p>
+          </div>
+        )}
+
+        {!isLoading && !errorMessage && hasEvolutionMovement && (
+          <div className="space-y-4">
+            {monthlyEvolution.map((month) => {
+              const expenseBarWidth =
+                biggestEvolutionExpense > 0
+                  ? Math.max(
+                      (month.totalExpenses / biggestEvolutionExpense) * 100,
+                      6,
+                    )
+                  : 0;
+
+              return (
+                <div
+                  key={month.referenceMonth}
+                  className="rounded-3xl border border-slate-100 bg-slate-50 p-5"
+                >
+                  <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                    <div className="min-w-0">
+                      <h3 className="text-base font-black text-slate-950">
+                        {month.label}
+                      </h3>
+
+                      <p className="mt-1 text-sm leading-6 text-slate-500">
+                        Receitas, despesas e saldo do mês.
+                      </p>
+                    </div>
+
+                    <div className="grid gap-3 sm:grid-cols-3 lg:min-w-130">
+                      <div className="rounded-2xl bg-white px-4 py-3">
+                        <p className="text-xs font-bold text-emerald-700">
+                          Receitas
+                        </p>
+
+                        <strong className="mt-1 block text-sm font-black text-emerald-700">
+                          {formatCurrency(month.totalIncome)}
+                        </strong>
+                      </div>
+
+                      <div className="rounded-2xl bg-white px-4 py-3">
+                        <p className="text-xs font-bold text-red-600">
+                          Despesas
+                        </p>
+
+                        <strong className="mt-1 block text-sm font-black text-red-600">
+                          {formatCurrency(month.totalExpenses)}
+                        </strong>
+                      </div>
+
+                      <div className="rounded-2xl bg-white px-4 py-3">
+                        <p
+                          className={`text-xs font-bold ${
+                            month.balance >= 0
+                              ? "text-emerald-700"
+                              : "text-red-600"
+                          }`}
+                        >
+                          Saldo
+                        </p>
+
+                        <strong
+                          className={`mt-1 block text-sm font-black ${
+                            month.balance >= 0
+                              ? "text-emerald-700"
+                              : "text-red-600"
+                          }`}
+                        >
+                          {formatCurrency(month.balance)}
+                        </strong>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 h-3 overflow-hidden rounded-full bg-white">
+                    <div
+                      className="h-full rounded-full bg-red-500"
+                      style={{ width: `${expenseBarWidth}%` }}
+                    />
+                  </div>
+                </div>
+              );
+            })}
           </div>
         )}
       </section>
