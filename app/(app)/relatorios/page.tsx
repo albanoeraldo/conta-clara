@@ -155,6 +155,22 @@ export default function ReportsPage() {
 
   const biggestCategory = categoryReport[0];
 
+  const validMonthlyTransactions = useMemo(() => {
+    return monthlyTransactions.filter(
+      (transaction) => transaction.status !== "cancelled",
+    );
+  }, [monthlyTransactions]);
+
+  const totalIncome = useMemo(() => {
+    return validMonthlyTransactions
+      .filter((transaction) => transaction.type === "income")
+      .reduce((total, transaction) => total + Number(transaction.amount), 0);
+  }, [validMonthlyTransactions]);
+
+  const monthlyBalance = totalIncome - totalExpenses;
+
+  const hasMonthlyMovement = validMonthlyTransactions.length > 0;
+
   const categoryNameById = useMemo(() => {
     return new Map(categories.map((category) => [category.id, category.name]));
   }, [categories]);
@@ -172,6 +188,8 @@ export default function ReportsPage() {
       })
       .slice(0, 5);
   }, [monthlyTransactions]);
+
+  const biggestExpense = biggestExpenses[0];
 
   useEffect(() => {
     let isMounted = true;
@@ -324,6 +342,96 @@ export default function ReportsPage() {
             Categoria que mais pesou no mês selecionado.
           </p>
         </div>
+      </section>
+
+      <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+        <div className="mb-6">
+          <p className="text-sm font-black tracking-[0.25em] text-blue-700 uppercase">
+            Inteligência simples
+          </p>
+
+          <h2 className="mt-3 text-xl font-black tracking-tight text-slate-950">
+            Resumo inteligente do mês
+          </h2>
+
+          <p className="mt-2 text-sm leading-6 text-slate-500">
+            Uma leitura simples do seu mês financeiro em {referenceMonthLabel}.
+          </p>
+        </div>
+
+        {isLoading && (
+          <div className="rounded-3xl bg-slate-50 p-6 text-center text-sm font-semibold text-slate-500">
+            Gerando resumo do mês...
+          </div>
+        )}
+
+        {!isLoading && !errorMessage && !hasMonthlyMovement && (
+          <div className="rounded-3xl border border-dashed border-slate-300 bg-slate-50 p-6 text-center sm:p-8">
+            <h3 className="text-lg font-black text-slate-950">
+              Nenhuma movimentação encontrada
+            </h3>
+
+            <p className="mt-2 text-sm leading-6 text-slate-500">
+              Quando houver receitas ou despesas em {referenceMonthLabel}, o
+              Conta Clara vai montar um resumo simples para você.
+            </p>
+          </div>
+        )}
+
+        {!isLoading && !errorMessage && hasMonthlyMovement && (
+          <div
+            className={`rounded-3xl border p-6 ${
+              monthlyBalance >= 0
+                ? "border-emerald-100 bg-emerald-50"
+                : "border-red-100 bg-red-50"
+            }`}
+          >
+            <p className="text-base leading-8 text-slate-700">
+              Em <strong>{referenceMonthLabel}</strong>, você teve{" "}
+              <strong className="text-emerald-700">
+                {formatCurrency(totalIncome)}
+              </strong>{" "}
+              de receitas e{" "}
+              <strong className="text-red-500">
+                {formatCurrency(totalExpenses)}
+              </strong>{" "}
+              de despesas.
+            </p>
+
+            <p className="mt-4 text-base leading-8 text-slate-700">
+              Seu saldo previsto ficou{" "}
+              <strong
+                className={
+                  monthlyBalance >= 0 ? "text-emerald-700" : "text-red-600"
+                }
+              >
+                {monthlyBalance >= 0 ? "positivo" : "negativo"} em{" "}
+                {formatCurrency(Math.abs(monthlyBalance))}
+              </strong>
+              .
+            </p>
+
+            {biggestCategory && (
+              <p className="mt-4 text-base leading-8 text-slate-700">
+                A categoria que mais pesou foi{" "}
+                <strong>{biggestCategory.categoryName}</strong>, representando{" "}
+                <strong>
+                  {biggestCategory.percentage.toFixed(1).replace(".", ",")}%
+                </strong>{" "}
+                das despesas do mês.
+              </p>
+            )}
+
+            {biggestExpense && (
+              <p className="mt-4 text-base leading-8 text-slate-700">
+                Sua maior despesa individual foi{" "}
+                <strong>{biggestExpense.description}</strong>, no valor de{" "}
+                <strong>{formatCurrency(Number(biggestExpense.amount))}</strong>
+                .
+              </p>
+            )}
+          </div>
+        )}
       </section>
 
       {!isLoading &&
