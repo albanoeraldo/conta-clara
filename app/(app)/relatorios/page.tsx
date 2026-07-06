@@ -32,6 +32,42 @@ function formatCurrency(value: number) {
   }).format(value);
 }
 
+function formatCurrencyWithSign(value: number) {
+  const formattedValue = formatCurrency(Math.abs(value));
+
+  if (value > 0) {
+    return `+${formattedValue}`;
+  }
+
+  if (value < 0) {
+    return `-${formattedValue}`;
+  }
+
+  return formattedValue;
+}
+
+function getPreviousReferenceMonth(referenceMonth: string) {
+  const [year, month] = referenceMonth.split("-").map(Number);
+  const previousMonthDate = new Date(year, month - 2, 1);
+
+  const previousYear = previousMonthDate.getFullYear();
+  const previousMonth = String(previousMonthDate.getMonth() + 1).padStart(
+    2,
+    "0",
+  );
+
+  return `${previousYear}-${previousMonth}`;
+}
+
+function formatReferenceMonthFromValue(referenceMonth: string) {
+  const [year, month] = referenceMonth.split("-").map(Number);
+
+  return new Intl.DateTimeFormat("pt-BR", {
+    month: "long",
+    year: "numeric",
+  }).format(new Date(year, month - 1, 1));
+}
+
 function formatDate(value: string | null | undefined) {
   if (!value) {
     return "Sem data";
@@ -153,6 +189,9 @@ export default function ReportsPage() {
   const [monthlyTransactions, setMonthlyTransactions] = useState<Transaction[]>(
     [],
   );
+  const [previousMonthTransactions, setPreviousMonthTransactions] = useState<
+    Transaction[]
+  >([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
@@ -179,11 +218,25 @@ export default function ReportsPage() {
 
   const biggestCategory = categoryReport[0];
 
+  const previousReferenceMonth = useMemo(() => {
+    return getPreviousReferenceMonth(referenceMonth);
+  }, [referenceMonth]);
+
+  const previousReferenceMonthLabel = useMemo(() => {
+    return formatReferenceMonthFromValue(previousReferenceMonth);
+  }, [previousReferenceMonth]);
+
   const validMonthlyTransactions = useMemo(() => {
     return monthlyTransactions.filter(
       (transaction) => transaction.status !== "cancelled",
     );
   }, [monthlyTransactions]);
+
+  const validPreviousMonthTransactions = useMemo(() => {
+    return previousMonthTransactions.filter(
+      (transaction) => transaction.status !== "cancelled",
+    );
+  }, [previousMonthTransactions]);
 
   const totalIncome = useMemo(() => {
     return validMonthlyTransactions
@@ -192,6 +245,26 @@ export default function ReportsPage() {
   }, [validMonthlyTransactions]);
 
   const monthlyBalance = totalIncome - totalExpenses;
+
+  const previousTotalIncome = useMemo(() => {
+    return validPreviousMonthTransactions
+      .filter((transaction) => transaction.type === "income")
+      .reduce((total, transaction) => total + Number(transaction.amount), 0);
+  }, [validPreviousMonthTransactions]);
+
+  const previousTotalExpenses = useMemo(() => {
+    return validPreviousMonthTransactions
+      .filter((transaction) => transaction.type === "expense")
+      .reduce((total, transaction) => total + Number(transaction.amount), 0);
+  }, [validPreviousMonthTransactions]);
+
+  const previousMonthlyBalance = previousTotalIncome - previousTotalExpenses;
+
+  const incomeDifference = totalIncome - previousTotalIncome;
+  const expensesDifference = totalExpenses - previousTotalExpenses;
+  const accumulatedTwoMonthsBalance = monthlyBalance + previousMonthlyBalance;
+
+  const hasPreviousMonthMovement = validPreviousMonthTransactions.length > 0;
 
   const hasMonthlyMovement = validMonthlyTransactions.length > 0;
 
@@ -237,10 +310,12 @@ export default function ReportsPage() {
 
         const [
           selectedMonthTransactions,
+          previousSelectedMonthTransactions,
           userCategories,
           selectedMonthClosing,
         ] = await Promise.all([
           getTransactionsByMonth(financialSpaceId, referenceMonth),
+          getTransactionsByMonth(financialSpaceId, previousReferenceMonth),
           getCategories(financialSpaceId),
           getMonthlyClosing(financialSpaceId, referenceMonth),
         ]);
@@ -250,6 +325,7 @@ export default function ReportsPage() {
         }
 
         setMonthlyTransactions(selectedMonthTransactions);
+        setPreviousMonthTransactions(previousSelectedMonthTransactions);
         setCategories(userCategories);
         setFinancialSpaceId(financialSpaceId);
         setMonthlyClosing(selectedMonthClosing);
@@ -278,7 +354,7 @@ export default function ReportsPage() {
       isMounted = false;
       window.clearTimeout(timeoutId);
     };
-  }, [referenceMonth]);
+  }, [previousReferenceMonth, referenceMonth]);
 
   async function handleCloseMonth() {
     if (!financialSpaceId) {
@@ -642,6 +718,156 @@ export default function ReportsPage() {
                 .
               </p>
             )}
+          </div>
+        )}
+      </section>
+
+      <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+        <div className="mb-6">
+          <p className="text-sm font-black tracking-[0.25em] text-blue-700 uppercase">
+            Comparação
+          </p>
+
+          <h2 className="mt-3 text-xl font-black tracking-tight text-slate-950">
+            Comparação com o mês anterior
+          </h2>
+
+          <p className="mt-2 text-sm leading-6 text-slate-500">
+            Compare {referenceMonthLabel} com {previousReferenceMonthLabel} e
+            veja se receitas, despesas e saldo melhoraram ou pioraram.
+          </p>
+        </div>
+
+        {isLoading && (
+          <div className="rounded-3xl bg-slate-50 p-6 text-center text-sm font-semibold text-slate-500">
+            Carregando comparação mensal...
+          </div>
+        )}
+
+        {!isLoading && !errorMessage && !hasPreviousMonthMovement && (
+          <div className="rounded-3xl border border-dashed border-slate-300 bg-slate-50 p-6 text-center sm:p-8">
+            <h3 className="text-lg font-black text-slate-950">
+              Sem dados do mês anterior
+            </h3>
+
+            <p className="mt-2 text-sm leading-6 text-slate-500">
+              Quando houver movimentações em {previousReferenceMonthLabel}, o
+              Conta Clara vai comparar os dois meses para você.
+            </p>
+          </div>
+        )}
+
+        {!isLoading && !errorMessage && hasPreviousMonthMovement && (
+          <div className="space-y-4">
+            <div className="grid gap-4 md:grid-cols-3">
+              <div
+                className={`rounded-3xl border p-5 ${
+                  incomeDifference >= 0
+                    ? "border-emerald-100 bg-emerald-50"
+                    : "border-yellow-100 bg-yellow-50"
+                }`}
+              >
+                <p className="text-sm font-bold text-emerald-700">Receitas</p>
+
+                <strong
+                  className={`mt-3 block text-xl font-black ${
+                    incomeDifference >= 0
+                      ? "text-emerald-700"
+                      : "text-yellow-700"
+                  }`}
+                >
+                  {formatCurrencyWithSign(incomeDifference)}
+                </strong>
+
+                <p className="mt-3 text-sm leading-6 text-slate-600">
+                  {incomeDifference > 0 &&
+                    "Você recebeu mais do que no mês anterior."}
+                  {incomeDifference < 0 &&
+                    "Você recebeu menos do que no mês anterior."}
+                  {incomeDifference === 0 &&
+                    "Suas receitas ficaram iguais ao mês anterior."}
+                </p>
+              </div>
+
+              <div
+                className={`rounded-3xl border p-5 ${
+                  expensesDifference > 0
+                    ? "border-red-100 bg-red-50"
+                    : "border-emerald-100 bg-emerald-50"
+                }`}
+              >
+                <p className="text-sm font-bold text-red-600">Despesas</p>
+
+                <strong
+                  className={`mt-3 block text-xl font-black ${
+                    expensesDifference > 0 ? "text-red-600" : "text-emerald-700"
+                  }`}
+                >
+                  {formatCurrencyWithSign(expensesDifference)}
+                </strong>
+
+                <p className="mt-3 text-sm leading-6 text-slate-600">
+                  {expensesDifference > 0 &&
+                    "Você gastou mais do que no mês anterior."}
+                  {expensesDifference < 0 &&
+                    "Você gastou menos do que no mês anterior."}
+                  {expensesDifference === 0 &&
+                    "Suas despesas ficaram iguais ao mês anterior."}
+                </p>
+              </div>
+
+              <div
+                className={`rounded-3xl border p-5 ${
+                  accumulatedTwoMonthsBalance >= 0
+                    ? "border-emerald-100 bg-emerald-50"
+                    : "border-red-100 bg-red-50"
+                }`}
+              >
+                <p
+                  className={`text-sm font-bold ${
+                    accumulatedTwoMonthsBalance >= 0
+                      ? "text-emerald-700"
+                      : "text-red-600"
+                  }`}
+                >
+                  Saldo acumulado
+                </p>
+
+                <strong
+                  className={`mt-3 block text-xl font-black ${
+                    accumulatedTwoMonthsBalance >= 0
+                      ? "text-emerald-700"
+                      : "text-red-600"
+                  }`}
+                >
+                  {formatCurrency(accumulatedTwoMonthsBalance)}
+                </strong>
+
+                <p className="mt-3 text-sm leading-6 text-slate-600">
+                  {accumulatedTwoMonthsBalance >= 0
+                    ? `Somando ${previousReferenceMonthLabel} e ${referenceMonthLabel}, ainda sobrou dinheiro.`
+                    : `Somando ${previousReferenceMonthLabel} e ${referenceMonthLabel}, o resultado ficou negativo.`}
+                </p>
+              </div>
+            </div>
+
+            <div className="rounded-3xl bg-slate-50 p-5 text-sm leading-7 text-slate-600">
+              <p>
+                Em <strong>{previousReferenceMonthLabel}</strong>, você teve{" "}
+                <strong>{formatCurrency(previousTotalIncome)}</strong> de
+                receitas,{" "}
+                <strong>{formatCurrency(previousTotalExpenses)}</strong> de
+                despesas e saldo de{" "}
+                <strong>{formatCurrency(previousMonthlyBalance)}</strong>.
+              </p>
+
+              <p className="mt-2">
+                Em <strong>{referenceMonthLabel}</strong>, você teve{" "}
+                <strong>{formatCurrency(totalIncome)}</strong> de receitas,{" "}
+                <strong>{formatCurrency(totalExpenses)}</strong> de despesas e
+                saldo de <strong>{formatCurrency(monthlyBalance)}</strong>.
+              </p>
+            </div>
           </div>
         )}
       </section>
