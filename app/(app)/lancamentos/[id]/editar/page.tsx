@@ -22,7 +22,12 @@ import {
   type TransactionFormData,
 } from "@/lib/validations/auth";
 import { getActiveCategories, type Category } from "@/services/categories";
+import { isReferenceMonthClosed } from "@/services/monthly-closings";
 import { getTransactionById, updateTransaction } from "@/services/transactions";
+
+function getReferenceMonthFromDate(date: string) {
+  return date.slice(0, 7);
+}
 
 export default function EditarLancamentoPage() {
   const router = useRouter();
@@ -33,6 +38,9 @@ export default function EditarLancamentoPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [statusMessage, setStatusMessage] = useState("");
   const [statusType, setStatusType] = useState<"success" | "error" | "">("");
+
+  const [isTransactionMonthClosed, setIsTransactionMonthClosed] =
+    useState(false);
 
   const {
     register,
@@ -94,8 +102,25 @@ export default function EditarLancamentoPage() {
         getActiveCategories(currentFinancialSpaceId),
       ]);
 
+      const transactionReferenceMonth = getReferenceMonthFromDate(
+        transaction.due_date,
+      );
+
+      const isMonthClosed = await isReferenceMonthClosed(
+        currentFinancialSpaceId,
+        transactionReferenceMonth,
+      );
+
       setFinancialSpaceId(currentFinancialSpaceId);
       setCategories(activeCategories);
+      setIsTransactionMonthClosed(isMonthClosed);
+
+      if (isMonthClosed) {
+        setStatusType("error");
+        setStatusMessage(
+          "Este lançamento pertence a um mês fechado. Para editar este lançamento, reabra o mês na tela de relatórios.",
+        );
+      }
 
       reset({
         description: transaction.description,
@@ -134,6 +159,28 @@ export default function EditarLancamentoPage() {
     if (!financialSpaceId) {
       setStatusType("error");
       setStatusMessage("Não foi possível identificar sua Conta Clara.");
+      return;
+    }
+
+    if (isTransactionMonthClosed) {
+      setStatusType("error");
+      setStatusMessage(
+        "Este lançamento pertence a um mês fechado. Para editar este lançamento, reabra o mês na tela de relatórios.",
+      );
+      return;
+    }
+
+    const transactionReferenceMonth = getReferenceMonthFromDate(data.dueDate);
+    const isSelectedMonthClosed = await isReferenceMonthClosed(
+      financialSpaceId,
+      transactionReferenceMonth,
+    );
+
+    if (isSelectedMonthClosed) {
+      setStatusType("error");
+      setStatusMessage(
+        "Este mês está fechado. Para salvar alterações neste período, reabra o mês na tela de relatórios.",
+      );
       return;
     }
 
@@ -198,6 +245,14 @@ export default function EditarLancamentoPage() {
         title="Dados do lançamento"
         description="Revise e atualize as informações cadastradas."
       >
+        {isTransactionMonthClosed && (
+          <AppFeedback
+            type="error"
+            message="Este lançamento pertence a um mês fechado. Para editar, reabra o mês na tela de relatórios."
+            className="mb-6"
+          />
+        )}
+
         <form onSubmit={handleSubmit(onSubmit)} className="grid gap-5">
           <div>
             <label
@@ -416,7 +471,10 @@ export default function EditarLancamentoPage() {
               Cancelar
             </AppLinkButton>
 
-            <AppButton type="submit" disabled={isSubmitting}>
+            <AppButton
+              type="submit"
+              disabled={isSubmitting || isTransactionMonthClosed}
+            >
               <Save className="h-4 w-4" />
               {isSubmitting ? "Salvando..." : "Salvar alterações"}
             </AppButton>

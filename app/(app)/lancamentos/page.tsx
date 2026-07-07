@@ -42,6 +42,7 @@ import {
 import { getUserFinancialSpaceId } from "@/lib/auth/financial-space";
 import { getCurrentUser } from "@/lib/auth/session";
 import { getActiveCategories, type Category } from "@/services/categories";
+import { isReferenceMonthClosed } from "@/services/monthly-closings";
 import {
   cancelTransaction,
   deleteTransaction,
@@ -258,6 +259,7 @@ export default function LancamentosPage() {
   const [errorMessage, setErrorMessage] = useState("");
   const [statusMessage, setStatusMessage] = useState("");
   const [statusType, setStatusType] = useState<"success" | "error" | "">("");
+  const [isSelectedMonthClosed, setIsSelectedMonthClosed] = useState(false);
 
   const hasActiveFilters =
     searchTerm.trim().length > 0 ||
@@ -294,6 +296,13 @@ export default function LancamentosPage() {
     );
   });
 
+  function showClosedMonthMessage() {
+    setStatusType("error");
+    setStatusMessage(
+      `Este mês está fechado. Para fazer alterações em ${referenceMonthLabel}, reabra o mês na tela de relatórios.`,
+    );
+  }
+
   const loadTransactions = useCallback(async () => {
     try {
       setErrorMessage("");
@@ -310,14 +319,17 @@ export default function LancamentosPage() {
         return;
       }
 
-      const [userTransactions, activeCategories] = await Promise.all([
-        getTransactions(currentFinancialSpaceId),
-        getActiveCategories(currentFinancialSpaceId),
-      ]);
+      const [userTransactions, activeCategories, selectedMonthClosed] =
+        await Promise.all([
+          getTransactions(currentFinancialSpaceId),
+          getActiveCategories(currentFinancialSpaceId),
+          isReferenceMonthClosed(currentFinancialSpaceId, referenceMonth),
+        ]);
 
       setFinancialSpaceId(currentFinancialSpaceId);
       setTransactions(userTransactions);
       setCategories(activeCategories);
+      setIsSelectedMonthClosed(selectedMonthClosed);
     } catch (error) {
       setErrorMessage(
         error instanceof Error
@@ -327,7 +339,7 @@ export default function LancamentosPage() {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [referenceMonth]);
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
@@ -342,6 +354,11 @@ export default function LancamentosPage() {
   async function handleMarkAsPaid(transactionId: string) {
     setStatusMessage("");
     setStatusType("");
+
+    if (isSelectedMonthClosed) {
+      showClosedMonthMessage();
+      return;
+    }
 
     if (!financialSpaceId) {
       setStatusType("error");
@@ -374,6 +391,13 @@ export default function LancamentosPage() {
   }
 
   async function handleCancelTransaction(transactionId: string) {
+    setStatusMessage("");
+    setStatusType("");
+
+    if (isSelectedMonthClosed) {
+      showClosedMonthMessage();
+      return;
+    }
     const confirmCancel = window.confirm(
       "Tem certeza que deseja cancelar este lançamento?",
     );
@@ -381,9 +405,6 @@ export default function LancamentosPage() {
     if (!confirmCancel) {
       return;
     }
-
-    setStatusMessage("");
-    setStatusType("");
 
     if (!financialSpaceId) {
       setStatusType("error");
@@ -416,11 +437,23 @@ export default function LancamentosPage() {
   function openDeleteTransactionModal(transaction: Transaction) {
     setStatusMessage("");
     setStatusType("");
+
+    if (isSelectedMonthClosed) {
+      showClosedMonthMessage();
+      return;
+    }
+
     setTransactionToDelete(transaction);
   }
 
   async function confirmDeleteTransaction() {
     if (!transactionToDelete) {
+      return;
+    }
+
+    if (isSelectedMonthClosed) {
+      setTransactionToDelete(null);
+      showClosedMonthMessage();
       return;
     }
 
@@ -478,10 +511,45 @@ export default function LancamentosPage() {
           </p>
         </div>
 
-        <AppLinkButton href="/lancamentos/novo">
-          <Plus className="h-4 w-4" />
-          Novo lançamento
-        </AppLinkButton>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <div className="rounded-3xl border border-slate-200 bg-white p-2 shadow-sm">
+            <label htmlFor="transactionsReferenceMonth" className="sr-only">
+              Mês de referência
+            </label>
+
+            <input
+              id="transactionsReferenceMonth"
+              type="month"
+              value={referenceMonth}
+              onChange={(event) => setReferenceMonth(event.target.value)}
+              className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-bold text-slate-700 transition outline-none focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-100"
+            />
+          </div>
+
+          <button
+            type="button"
+            onClick={resetReferenceMonth}
+            className="inline-flex items-center justify-center rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-black text-slate-700 transition hover:bg-slate-50"
+          >
+            Atual
+          </button>
+
+          {isSelectedMonthClosed ? (
+            <button
+              type="button"
+              onClick={showClosedMonthMessage}
+              className="inline-flex items-center justify-center gap-2 rounded-2xl bg-slate-200 px-5 py-3 text-sm font-black text-slate-500"
+            >
+              <Plus className="h-4 w-4" />
+              Mês fechado
+            </button>
+          ) : (
+            <AppLinkButton href="/lancamentos/novo">
+              <Plus className="h-4 w-4" />
+              Novo lançamento
+            </AppLinkButton>
+          )}
+        </div>
       </div>
 
       <AppSection
@@ -628,6 +696,14 @@ export default function LancamentosPage() {
         />
       )}
 
+      {isSelectedMonthClosed && (
+        <AppFeedback
+          type="error"
+          message={`Este mês está fechado. Para criar, editar, excluir, pagar ou cancelar lançamentos em ${referenceMonthLabel}, reabra o mês na tela de relatórios.`}
+          className="mb-6"
+        />
+      )}
+
       {isLoading && (
         <AppSection>
           <AppLoadingState message="Carregando lançamentos..." />
@@ -759,22 +835,35 @@ export default function LancamentosPage() {
                     </strong>
 
                     <div className="flex w-full items-center gap-3 xl:justify-end">
-                      <Link
-                        href={`/lancamentos/${transaction.id}/editar`}
-                        title="Editar"
-                        aria-label="Editar lançamento"
-                        className="inline-flex items-center justify-center rounded-2xl bg-slate-50 p-2 text-slate-500 transition-all duration-200 hover:-translate-y-0.5 hover:bg-blue-50 hover:text-blue-700"
-                      >
-                        <SquarePen className="h-5 w-5" />
-                        <span className="sr-only">Editar</span>
-                      </Link>
+                      {isSelectedMonthClosed ? (
+                        <button
+                          type="button"
+                          title="Mês fechado"
+                          aria-label="Mês fechado"
+                          onClick={showClosedMonthMessage}
+                          className="inline-flex items-center justify-center rounded-2xl bg-slate-100 p-2 text-slate-400"
+                        >
+                          <SquarePen className="h-5 w-5" />
+                          <span className="sr-only">Mês fechado</span>
+                        </button>
+                      ) : (
+                        <Link
+                          href={`/lancamentos/${transaction.id}/editar`}
+                          title="Editar"
+                          aria-label="Editar lançamento"
+                          className="inline-flex items-center justify-center rounded-2xl bg-slate-50 p-2 text-slate-500 transition-all duration-200 hover:-translate-y-0.5 hover:bg-blue-50 hover:text-blue-700"
+                        >
+                          <SquarePen className="h-5 w-5" />
+                          <span className="sr-only">Editar</span>
+                        </Link>
+                      )}
 
                       <button
                         type="button"
                         title="Excluir lançamento"
                         aria-label="Excluir lançamento"
                         onClick={() => openDeleteTransactionModal(transaction)}
-                        disabled={isUpdating}
+                        disabled={isUpdating || isSelectedMonthClosed}
                         className="inline-flex cursor-pointer items-center justify-center rounded-2xl bg-slate-50 p-2 text-slate-500 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         <Trash2 className="h-5 w-5" />
@@ -789,7 +878,7 @@ export default function LancamentosPage() {
                           onClick={() =>
                             void handleCancelTransaction(transaction.id)
                           }
-                          disabled={isUpdating}
+                          disabled={isUpdating || isSelectedMonthClosed}
                           className="inline-flex items-center justify-center rounded-2xl bg-red-50 p-2 text-red-500 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-100 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
                         >
                           {isUpdating ? (
@@ -809,7 +898,7 @@ export default function LancamentosPage() {
                           title="Marcar como pago"
                           aria-label="Marcar lançamento como pago"
                           onClick={() => void handleMarkAsPaid(transaction.id)}
-                          disabled={isUpdating}
+                          disabled={isUpdating || isSelectedMonthClosed}
                           className="inline-flex items-center justify-center rounded-2xl bg-blue-50 p-2 text-blue-600 transition-all duration-200 hover:-translate-y-0.5 hover:bg-blue-100 hover:text-blue-700 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
                         >
                           {isUpdating ? (

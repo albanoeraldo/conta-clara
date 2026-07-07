@@ -39,6 +39,7 @@ import {
   type CreditCardPurchaseFormData,
 } from "@/lib/validations/credit-card-purchase";
 import { getActiveCategories, type Category } from "@/services/categories";
+import { isReferenceMonthClosed } from "@/services/monthly-closings";
 import {
   createCreditCard,
   createCreditCardPurchase,
@@ -101,6 +102,7 @@ export default function CartoesPage() {
   } = useReferenceMonth();
   const [isLoading, setIsLoading] = useState(true);
   const [isGeneratingStatement, setIsGeneratingStatement] = useState(false);
+  const [isSelectedMonthClosed, setIsSelectedMonthClosed] = useState(false);
   const [statusMessage, setStatusMessage] = useState("");
   const [statusType, setStatusType] = useState<"success" | "error" | "">("");
   const [editingCreditCardId, setEditingCreditCardId] = useState<string | null>(
@@ -199,6 +201,13 @@ export default function CartoesPage() {
       ? Number(selectedCreditCard.limit_amount) - statementTotal
       : null;
 
+  function showClosedMonthMessage() {
+    setStatusType("error");
+    setStatusMessage(
+      `Este mês está fechado. Para gerar fatura em ${referenceMonthLabel}, reabra o mês na tela de relatórios.`,
+    );
+  }
+
   const ensureFinancialSpaceId = useCallback(async () => {
     if (financialSpaceId) {
       return financialSpaceId;
@@ -250,17 +259,23 @@ export default function CartoesPage() {
         return;
       }
 
-      const [userCreditCards, userPurchases, activeCategories] =
-        await Promise.all([
-          getCreditCards(currentFinancialSpaceId),
-          getCreditCardPurchases(currentFinancialSpaceId),
-          getActiveCategories(currentFinancialSpaceId),
-        ]);
+      const [
+        userCreditCards,
+        userPurchases,
+        activeCategories,
+        selectedMonthClosed,
+      ] = await Promise.all([
+        getCreditCards(currentFinancialSpaceId),
+        getCreditCardPurchases(currentFinancialSpaceId),
+        getActiveCategories(currentFinancialSpaceId),
+        isReferenceMonthClosed(currentFinancialSpaceId, referenceMonth),
+      ]);
 
       setFinancialSpaceId(currentFinancialSpaceId);
       setCreditCards(userCreditCards);
       setPurchases(userPurchases);
       setCategories(activeCategories);
+      setIsSelectedMonthClosed(selectedMonthClosed);
 
       setSelectedCreditCardId((currentSelectedCreditCardId) => {
         if (
@@ -282,7 +297,7 @@ export default function CartoesPage() {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [referenceMonth]);
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
@@ -671,6 +686,17 @@ export default function CartoesPage() {
       return;
     }
 
+    const isMonthClosed = await isReferenceMonthClosed(
+      currentFinancialSpaceId,
+      referenceMonth,
+    );
+
+    if (isMonthClosed) {
+      setIsSelectedMonthClosed(true);
+      showClosedMonthMessage();
+      return;
+    }
+
     try {
       setIsGeneratingStatement(true);
 
@@ -793,16 +819,28 @@ export default function CartoesPage() {
               disabled={
                 isGeneratingStatement ||
                 !selectedCreditCardId ||
-                statementTotal <= 0
+                statementTotal <= 0 ||
+                isSelectedMonthClosed
               }
               className="inline-flex items-center justify-center gap-2 rounded-2xl bg-blue-600 px-4 py-3 text-sm font-black text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-60"
             >
               <FileText className="h-4 w-4" />
-              {isGeneratingStatement ? "Gerando..." : "Gerar"}
+              {isGeneratingStatement
+                ? "Gerando..."
+                : isSelectedMonthClosed
+                  ? "Mês fechado"
+                  : "Gerar"}
             </button>
           </div>
         </div>
       </section>
+
+      {isSelectedMonthClosed && (
+        <AppFeedback
+          type="error"
+          message={`Este mês está fechado. Para gerar fatura em ${referenceMonthLabel}, reabra o mês na tela de relatórios.`}
+        />
+      )}
 
       <AppSection
         title={editingCreditCardId ? "Editar cartão" : "Novo cartão"}

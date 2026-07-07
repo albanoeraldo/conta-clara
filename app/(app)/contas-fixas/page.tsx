@@ -34,6 +34,7 @@ import {
   type FixedExpenseFormData,
 } from "@/lib/validations/fixed-expense";
 import { getActiveCategories, type Category } from "@/services/categories";
+import { isReferenceMonthClosed } from "@/services/monthly-closings";
 import {
   createFixedExpense,
   deleteFixedExpense,
@@ -83,6 +84,7 @@ export default function ContasFixasPage() {
     referenceMonthLabel,
   } = useReferenceMonth();
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isSelectedMonthClosed, setIsSelectedMonthClosed] = useState(false);
 
   const {
     register,
@@ -142,6 +144,13 @@ export default function ContasFixasPage() {
     return currentFinancialSpaceId;
   }, [financialSpaceId]);
 
+  function showClosedMonthMessage() {
+    setStatusType("error");
+    setStatusMessage(
+      `Este mês está fechado. Para gerar contas fixas em ${referenceMonthLabel}, reabra o mês na tela de relatórios.`,
+    );
+  }
+
   const loadFixedExpenses = useCallback(async () => {
     try {
       setStatusMessage("");
@@ -167,14 +176,17 @@ export default function ContasFixasPage() {
         return;
       }
 
-      const [userFixedExpenses, activeCategories] = await Promise.all([
-        getFixedExpenses(currentFinancialSpaceId),
-        getActiveCategories(currentFinancialSpaceId),
-      ]);
+      const [userFixedExpenses, activeCategories, selectedMonthClosed] =
+        await Promise.all([
+          getFixedExpenses(currentFinancialSpaceId),
+          getActiveCategories(currentFinancialSpaceId),
+          isReferenceMonthClosed(currentFinancialSpaceId, referenceMonth),
+        ]);
 
       setFinancialSpaceId(currentFinancialSpaceId);
       setFixedExpenses(userFixedExpenses);
       setCategories(activeCategories);
+      setIsSelectedMonthClosed(selectedMonthClosed);
     } catch (error) {
       setStatusType("error");
       setStatusMessage(
@@ -185,7 +197,7 @@ export default function ContasFixasPage() {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [referenceMonth]);
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
@@ -377,6 +389,17 @@ export default function ContasFixasPage() {
       return;
     }
 
+    const isMonthClosed = await isReferenceMonthClosed(
+      currentFinancialSpaceId,
+      referenceMonth,
+    );
+
+    if (isMonthClosed) {
+      setIsSelectedMonthClosed(true);
+      showClosedMonthMessage();
+      return;
+    }
+
     try {
       setIsGenerating(true);
 
@@ -484,15 +507,30 @@ export default function ContasFixasPage() {
             <button
               type="button"
               onClick={() => void handleGenerateMonthlyTransactions()}
-              disabled={isGenerating || activeFixedExpensesCount === 0}
+              disabled={
+                isGenerating ||
+                activeFixedExpensesCount === 0 ||
+                isSelectedMonthClosed
+              }
               className="inline-flex items-center justify-center gap-2 rounded-2xl bg-blue-600 px-4 py-3 text-sm font-black text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-60"
             >
               <CalendarClock className="h-4 w-4" />
-              {isGenerating ? "Gerando..." : "Gerar"}
+              {isGenerating
+                ? "Gerando..."
+                : isSelectedMonthClosed
+                  ? "Mês fechado"
+                  : "Gerar"}
             </button>
           </div>
         </div>
       </section>
+
+      {isSelectedMonthClosed && (
+        <AppFeedback
+          type="error"
+          message={`Este mês está fechado. Para gerar contas fixas em ${referenceMonthLabel}, reabra o mês na tela de relatórios.`}
+        />
+      )}
 
       <AppSection
         title={editingFixedExpenseId ? "Editar conta fixa" : "Nova conta fixa"}

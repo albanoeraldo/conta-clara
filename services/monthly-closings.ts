@@ -91,3 +91,15 @@ export async function reopenMonthlyClosing(
     throw new Error(error.message);
   }
 }
+
+export async function isReferenceMonthClosed(
+  financialSpaceId: string,
+  referenceMonth: string,
+) {
+  const monthlyClosing = await getMonthlyClosing(
+    financialSpaceId,
+    referenceMonth,
+  );
+
+  return Boolean(monthlyClosing);
+}

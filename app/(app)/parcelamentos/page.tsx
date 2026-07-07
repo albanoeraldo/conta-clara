@@ -34,6 +34,7 @@ import {
   type InstallmentPlanFormData,
 } from "@/lib/validations/installment-plan";
 import { getActiveCategories, type Category } from "@/services/categories";
+import { isReferenceMonthClosed } from "@/services/monthly-closings";
 import {
   createInstallmentPlan,
   deleteInstallmentPlan,
@@ -124,6 +125,7 @@ export default function ParcelamentosPage() {
     referenceMonthLabel,
   } = useReferenceMonth();
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isSelectedMonthClosed, setIsSelectedMonthClosed] = useState(false);
 
   const {
     register,
@@ -190,6 +192,13 @@ export default function ParcelamentosPage() {
     return currentFinancialSpaceId;
   }, [financialSpaceId]);
 
+  function showClosedMonthMessage() {
+    setStatusType("error");
+    setStatusMessage(
+      `Este mês está fechado. Para gerar parcelamentos em ${referenceMonthLabel}, reabra o mês na tela de relatórios.`,
+    );
+  }
+
   const loadInstallmentPlans = useCallback(async () => {
     try {
       setStatusMessage("");
@@ -215,14 +224,17 @@ export default function ParcelamentosPage() {
         return;
       }
 
-      const [userInstallmentPlans, activeCategories] = await Promise.all([
-        getInstallmentPlans(currentFinancialSpaceId),
-        getActiveCategories(currentFinancialSpaceId),
-      ]);
+      const [userInstallmentPlans, activeCategories, selectedMonthClosed] =
+        await Promise.all([
+          getInstallmentPlans(currentFinancialSpaceId),
+          getActiveCategories(currentFinancialSpaceId),
+          isReferenceMonthClosed(currentFinancialSpaceId, referenceMonth),
+        ]);
 
       setFinancialSpaceId(currentFinancialSpaceId);
       setInstallmentPlans(userInstallmentPlans);
       setCategories(activeCategories);
+      setIsSelectedMonthClosed(selectedMonthClosed);
     } catch (error) {
       setStatusType("error");
       setStatusMessage(
@@ -233,7 +245,7 @@ export default function ParcelamentosPage() {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [referenceMonth]);
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
@@ -437,6 +449,17 @@ export default function ParcelamentosPage() {
       return;
     }
 
+    const isMonthClosed = await isReferenceMonthClosed(
+      currentFinancialSpaceId,
+      referenceMonth,
+    );
+
+    if (isMonthClosed) {
+      setIsSelectedMonthClosed(true);
+      showClosedMonthMessage();
+      return;
+    }
+
     try {
       setIsGenerating(true);
 
@@ -550,15 +573,28 @@ export default function ParcelamentosPage() {
             <button
               type="button"
               onClick={() => void handleGenerateMonthlyTransactions()}
-              disabled={isGenerating || activePlansCount === 0}
+              disabled={
+                isGenerating || activePlansCount === 0 || isSelectedMonthClosed
+              }
               className="inline-flex items-center justify-center gap-2 rounded-2xl bg-blue-600 px-4 py-3 text-sm font-black text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-60"
             >
               <CalendarClock className="h-4 w-4" />
-              {isGenerating ? "Gerando..." : "Gerar"}
+              {isGenerating
+                ? "Gerando..."
+                : isSelectedMonthClosed
+                  ? "Mês fechado"
+                  : "Gerar"}
             </button>
           </div>
         </div>
       </section>
+
+      {isSelectedMonthClosed && (
+        <AppFeedback
+          type="error"
+          message={`Este mês está fechado. Para gerar parcelamentos em ${referenceMonthLabel}, reabra o mês na tela de relatórios.`}
+        />
+      )}
 
       <AppSection
         title={

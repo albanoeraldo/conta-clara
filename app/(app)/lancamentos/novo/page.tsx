@@ -17,6 +17,11 @@ import {
   type TransactionFormData,
 } from "@/lib/validations/auth";
 import { getActiveCategories, type Category } from "@/services/categories";
+import { isReferenceMonthClosed } from "@/services/monthly-closings";
+
+function getReferenceMonthFromDate(date: string) {
+  return date.slice(0, 7);
+}
 
 export default function NovoLancamentoPage() {
   const [financialSpaceId, setFinancialSpaceId] = useState<string | null>(null);
@@ -113,6 +118,20 @@ export default function NovoLancamentoPage() {
     if (!financialSpaceId) {
       setStatusType("error");
       setStatusMessage("Configure sua Conta Clara antes de criar lançamentos.");
+      return;
+    }
+
+    const transactionReferenceMonth = getReferenceMonthFromDate(data.dueDate);
+    const isMonthClosed = await isReferenceMonthClosed(
+      financialSpaceId,
+      transactionReferenceMonth,
+    );
+
+    if (isMonthClosed) {
+      setStatusType("error");
+      setStatusMessage(
+        "Este mês está fechado. Para criar lançamentos neste período, reabra o mês na tela de relatórios.",
+      );
       return;
     }
 
