@@ -145,9 +145,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-slate-100 px-4 text-slate-950 sm:px-6">
         <section className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-6 text-center shadow-sm sm:p-8">
-          <div className="mx-auto mb-6 flex justify-center">
-            <Logo />
-          </div>
+          <Logo href="/dashboard" variant="sidebar" />
 
           <p className="mb-3 text-sm font-black tracking-[0.25em] text-blue-700 uppercase">
             Conta Clara
@@ -168,10 +166,8 @@ export default function AppLayout({ children }: AppLayoutProps) {
   return (
     <div className="min-h-screen bg-slate-100 text-slate-950">
       <aside className="fixed inset-y-0 left-0 z-40 hidden w-72 bg-[#0F2A5F] text-white lg:flex lg:flex-col">
-        <div className="border-b border-white/10 px-4 py-5">
-          <div className="rounded-3xl bg-white px-4 py-3 shadow-sm">
-            <Logo />
-          </div>
+        <div className="border-b border-white/10">
+          <Logo href="/dashboard" variant="sidebar" />
         </div>
 
         <nav className="flex-1 space-y-2 px-4 py-6">
@@ -215,7 +211,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
 
       <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/95 px-4 py-4 backdrop-blur lg:hidden">
         <div className="flex items-center justify-between gap-4">
-          <Logo />
+          <Logo href="/dashboard" variant="sidebar" />
 
           <button
             type="button"

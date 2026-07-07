@@ -106,7 +106,11 @@ export default function HomePage() {
 
         <div className="relative z-10 mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
           <header className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <Logo href="/" variant="landing" className="w-full sm:w-auto" />
+            <Logo
+              href="/"
+              variant="landing"
+              className="w-full justify-center sm:w-auto sm:justify-start"
+            />
 
             <nav className="flex w-full items-center gap-2 sm:w-auto">
               <Link

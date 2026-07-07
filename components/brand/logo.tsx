@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 
-type LogoVariant = "internal" | "full" | "symbol" | "landing";
+type LogoVariant = "internal" | "full" | "symbol" | "landing" | "sidebar";
 type LogoSize = "sm" | "md" | "lg";
 
 type LogoProps = {
@@ -29,31 +29,59 @@ export function Logo({
   size = "md",
   className = "",
 }: LogoProps) {
+  if (variant === "sidebar") {
+    return (
+      <Link
+        href={href}
+        aria-label="Ir para o Conta Clara"
+        className={`inline-flex w-full items-center gap-3 px-5 py-6 ${className}`}
+      >
+        <Image
+          src="/brand/conta-clara-symbol-white.png"
+          alt="Conta Clara"
+          width={64}
+          height={64}
+          priority
+          className="h-15 w-15 shrink-0 object-contain"
+        />
+
+        <span className="leading-tight">
+          <span className="block text-lg font-black tracking-[0.16em] text-white uppercase">
+            Conta Clara
+          </span>
+
+          <span className="mt-1 block text-xs font-semibold text-blue-100">
+            Controle financeiro simples
+          </span>
+        </span>
+      </Link>
+    );
+  }
   if (variant === "landing") {
     return (
       <Link
         href={href}
         aria-label="Ir para o Conta Clara"
-        className={`group inline-flex max-w-full items-center gap-3 rounded-3xl border border-white/70 bg-white/95 px-4 py-3 shadow-lg shadow-blue-950/10 backdrop-blur transition hover:-translate-y-0.5 hover:bg-white ${className}`}
+        className={`group inline-flex max-w-full items-center gap-3 rounded-4xl border border-white/80 bg-white px-4 py-3 shadow-xl ring-1 shadow-blue-950/15 ring-blue-950/5 transition hover:-translate-y-0.5 hover:shadow-2xl hover:shadow-blue-950/20 ${className}`}
       >
-        <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-blue-50">
+        <span className="flex h-13 w-13 shrink-0 items-center justify-center rounded-2xl bg-linear-to-br from-blue-50 to-white ring-1 ring-blue-100">
           <Image
             src="/brand/conta-clara-symbol.png"
             alt="Conta Clara"
-            width={56}
-            height={56}
+            width={64}
+            height={64}
             priority
-            className="h-10 w-10 object-contain"
+            className="h-11 w-11 object-contain"
           />
         </span>
 
         <span className="min-w-0 leading-tight">
-          <span className="flex flex-wrap items-center gap-2">
-            <span className="text-xl font-black tracking-tight text-slate-950 sm:text-2xl">
+          <span className="flex items-center gap-2">
+            <span className="text-lg font-black tracking-[0.18em] text-blue-700 uppercase sm:text-xl">
               Conta Clara
             </span>
 
-            <span className="rounded-full bg-blue-50 px-2 py-1 text-[10px] font-black tracking-[0.18em] text-blue-700 uppercase">
+            <span className="hidden rounded-full bg-blue-50 px-2 py-1 text-[10px] font-black tracking-[0.16em] text-blue-700 uppercase ring-1 ring-blue-100 sm:inline-flex">
               Beta
             </span>
           </span>
