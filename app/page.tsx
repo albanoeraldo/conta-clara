@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { Logo } from "@/components/brand/logo";
 import {
   ArrowRight,
   BarChart3,
@@ -105,21 +106,7 @@ export default function HomePage() {
 
         <div className="relative z-10 mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
           <header className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <Link
-              href="/"
-              className="inline-flex max-w-full items-center justify-center overflow-hidden rounded-2xl bg-white/95 px-3 py-2 shadow-sm sm:px-4 sm:py-3"
-              aria-label="Ir para o início"
-            >
-              <div className="relative h-18 w-70 sm:h-20.5 sm:w-82.5 lg:h-20.5 lg:w-87.5">
-                <Image
-                  src="/brand/conta-clara-logo-horizontal.png"
-                  alt="Conta Clara"
-                  fill
-                  priority
-                  className="scale-[2.2] object-contain object-center sm:scale-[2.35] lg:scale-[2.45]"
-                />
-              </div>
-            </Link>
+            <Logo href="/" variant="landing" className="w-full sm:w-auto" />
 
             <nav className="flex w-full items-center gap-2 sm:w-auto">
               <Link
