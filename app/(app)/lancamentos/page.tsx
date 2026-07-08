@@ -243,6 +243,8 @@ export default function LancamentosPage() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [transactionToDelete, setTransactionToDelete] =
     useState<Transaction | null>(null);
+  const [transactionToCancel, setTransactionToCancel] =
+    useState<Transaction | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
@@ -390,7 +392,7 @@ export default function LancamentosPage() {
     }
   }
 
-  async function handleCancelTransaction(transactionId: string) {
+  function openCancelTransactionModal(transaction: Transaction) {
     setStatusMessage("");
     setStatusType("");
 
@@ -398,11 +400,16 @@ export default function LancamentosPage() {
       showClosedMonthMessage();
       return;
     }
-    const confirmCancel = window.confirm(
-      "Tem certeza que deseja cancelar este lançamento?",
-    );
 
-    if (!confirmCancel) {
+    setTransactionToCancel(transaction);
+  }
+
+  async function handleCancelTransaction(transactionId: string) {
+    setStatusMessage("");
+    setStatusType("");
+
+    if (isSelectedMonthClosed) {
+      showClosedMonthMessage();
       return;
     }
 
@@ -422,6 +429,8 @@ export default function LancamentosPage() {
 
       setStatusType("success");
       setStatusMessage("Lançamento cancelado com sucesso.");
+
+      setTransactionToCancel(null);
 
       await loadTransactions();
     } catch (error) {
@@ -876,7 +885,7 @@ export default function LancamentosPage() {
                           title="Cancelar"
                           aria-label="Cancelar lançamento"
                           onClick={() =>
-                            void handleCancelTransaction(transaction.id)
+                            openCancelTransactionModal(transaction)
                           }
                           disabled={isUpdating || isSelectedMonthClosed}
                           className="inline-flex items-center justify-center rounded-2xl bg-red-50 p-2 text-red-500 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-100 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
@@ -979,6 +988,72 @@ export default function LancamentosPage() {
                 {updatingTransactionId === transactionToDelete.id
                   ? "Excluindo..."
                   : "Excluir lançamento"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {transactionToCancel && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 px-4 backdrop-blur-sm">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="cancel-transaction-title"
+            className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-6 shadow-xl"
+          >
+            <div className="mb-5 flex items-start gap-4">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-red-50 text-red-600">
+                <Ban className="h-6 w-6" />
+              </div>
+
+              <div>
+                <h2
+                  id="cancel-transaction-title"
+                  className="text-xl font-black tracking-tight text-slate-950"
+                >
+                  Cancelar lançamento?
+                </h2>
+
+                <p className="mt-2 text-sm leading-6 text-slate-600">
+                  Você está prestes a cancelar{" "}
+                  <strong className="font-black text-slate-950">
+                    {transactionToCancel.description}
+                  </strong>
+                  . O lançamento continuará no histórico, mas não será
+                  considerado nos totais do mês.
+                </p>
+              </div>
+            </div>
+
+            <div className="rounded-2xl bg-slate-50 px-4 py-3">
+              <p className="text-sm font-semibold text-slate-600">
+                Use essa opção quando quiser manter o registro sem apagar a
+                informação.
+              </p>
+            </div>
+
+            <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+              <button
+                type="button"
+                onClick={() => setTransactionToCancel(null)}
+                disabled={updatingTransactionId === transactionToCancel.id}
+                className="inline-flex items-center justify-center rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-black text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                Voltar
+              </button>
+
+              <button
+                type="button"
+                onClick={() =>
+                  void handleCancelTransaction(transactionToCancel.id)
+                }
+                disabled={updatingTransactionId === transactionToCancel.id}
+                className="inline-flex items-center justify-center gap-2 rounded-2xl bg-red-600 px-5 py-3 text-sm font-black text-white transition hover:bg-red-500 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                <Ban className="h-4 w-4" />
+                {updatingTransactionId === transactionToCancel.id
+                  ? "Cancelando..."
+                  : "Cancelar lançamento"}
               </button>
             </div>
           </div>
