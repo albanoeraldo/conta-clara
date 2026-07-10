@@ -266,12 +266,14 @@ function MetricCard({
   const styles = metricStyles[tone];
 
   return (
-    <div className={`rounded-3xl border p-6 ${styles.card}`}>
-      <div className="mb-6 flex items-start justify-between gap-4">
-        <div>
+    <div className={`rounded-3xl border p-5 sm:p-6 ${styles.card}`}>
+      <div className="mb-5 flex items-start justify-between gap-4 sm:mb-6">
+        <div className="min-w-0">
           <p className={`text-sm font-bold ${styles.title}`}>{title}</p>
 
-          <strong className={`mt-4 block text-2xl font-black ${styles.value}`}>
+          <strong
+            className={`mt-3 block text-2xl font-black tracking-tight wrap-break-word sm:mt-4 sm:text-2xl ${styles.value}`}
+          >
             {value}
           </strong>
         </div>
@@ -298,9 +300,9 @@ function DashboardPanel({
   children: ReactNode;
 }) {
   return (
-    <section className="rounded-3xl border border-slate-200 bg-slate-50 p-6 shadow-sm">
-      <div className="mb-6">
-        <h2 className="text-xl font-black tracking-tight text-slate-950">
+    <section className="rounded-3xl border border-slate-200 bg-slate-50 p-5 shadow-sm sm:p-6">
+      <div className="mb-5 sm:mb-6">
+        <h2 className="text-lg font-black tracking-tight text-slate-950 sm:text-xl">
           {title}
         </h2>
 
@@ -355,6 +357,11 @@ export default function DashboardPage() {
 
     async function loadDashboardData() {
       try {
+        if (isMounted) {
+          setIsLoading(true);
+          setErrorMessage("");
+        }
+
         const user = await getCurrentUser();
 
         if (!user) {
@@ -413,24 +420,24 @@ export default function DashboardPage() {
       : "Acompanhando";
 
   return (
-    <main className="space-y-8">
-      <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div>
+    <main className="space-y-6 sm:space-y-8">
+      <header className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+        <div className="min-w-0">
           <p className="text-sm font-black tracking-[0.25em] text-blue-700 uppercase">
             Conta Clara
           </p>
 
-          <h1 className="mt-3 text-3xl font-black tracking-tight text-slate-950">
+          <h1 className="mt-3 text-2xl font-black tracking-tight text-slate-950 sm:text-3xl">
             Dashboard de {referenceMonthLabel}
           </h1>
 
-          <p className="mt-2 text-sm leading-6 text-slate-500">
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-500">
             Acompanhe suas receitas, despesas, contas pendentes e saldo previsto
             de forma simples.
           </p>
         </div>
 
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="grid gap-3 sm:flex sm:flex-wrap sm:items-center md:justify-end">
           <div className="rounded-3xl border border-slate-200 bg-white p-2 shadow-sm">
             <label htmlFor="dashboardReferenceMonth" className="sr-only">
               Mês de referência
@@ -441,14 +448,14 @@ export default function DashboardPage() {
               type="month"
               value={referenceMonth}
               onChange={(event) => setReferenceMonth(event.target.value)}
-              className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-bold text-slate-700 transition outline-none focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-100"
+              className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-bold text-slate-700 transition outline-none focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-100 sm:w-auto"
             />
           </div>
 
           <button
             type="button"
             onClick={resetReferenceMonth}
-            className="inline-flex items-center justify-center rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-black text-slate-700 transition hover:bg-slate-50"
+            className="inline-flex min-h-12 items-center justify-center rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-black text-slate-700 shadow-sm transition hover:bg-slate-50 active:scale-[0.99]"
           >
             Mês Atual
           </button>
@@ -466,12 +473,12 @@ export default function DashboardPage() {
         </div>
       )}
 
-      <section className="rounded-3xl border border-blue-100 bg-blue-50 p-6 shadow-sm">
+      <section className="rounded-3xl border border-blue-100 bg-blue-50 p-5 shadow-sm sm:p-6">
         <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
-          <div>
+          <div className="min-w-0">
             <p className="text-sm font-bold text-blue-700">Saúde do mês</p>
 
-            <h2 className="mt-2 text-2xl font-black tracking-tight text-slate-950">
+            <h2 className="mt-2 text-xl font-black tracking-tight text-slate-950 sm:text-2xl">
               {monthlyTransactions.length > 0
                 ? monthlySummary.predictedBalance >= 0
                   ? "Seu mês está positivo"
@@ -486,7 +493,7 @@ export default function DashboardPage() {
             </p>
           </div>
 
-          <div className="rounded-3xl bg-white px-6 py-4 text-center">
+          <div className="w-full rounded-3xl bg-white px-5 py-4 text-left shadow-sm sm:w-auto sm:min-w-40 sm:text-center">
             <p className="text-xs font-black tracking-[0.2em] text-slate-400 uppercase">
               Status
             </p>
@@ -498,7 +505,7 @@ export default function DashboardPage() {
         </div>
       </section>
 
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <MetricCard
           title="Receitas"
           value={isLoading ? "..." : formatCurrency(monthlySummary.incomeTotal)}
@@ -553,7 +560,7 @@ export default function DashboardPage() {
           description="Informações principais do período atual."
         >
           <div className="space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+            <div className="grid gap-1 border-b border-slate-100 pb-4 sm:flex sm:items-center sm:justify-between sm:gap-4">
               <span className="text-sm font-medium text-slate-500">
                 Mês selecionado
               </span>
@@ -563,7 +570,7 @@ export default function DashboardPage() {
               </strong>
             </div>
 
-            <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+            <div className="grid gap-1 border-b border-slate-100 pb-4 sm:flex sm:items-center sm:justify-between sm:gap-4">
               <span className="text-sm font-medium text-slate-500">Status</span>
 
               <strong className="text-sm font-black text-blue-700">
@@ -571,7 +578,7 @@ export default function DashboardPage() {
               </strong>
             </div>
 
-            <div className="flex items-center justify-between">
+            <div className="grid gap-1 sm:flex sm:items-center sm:justify-between sm:gap-4">
               <span className="text-sm font-medium text-slate-500">Plano</span>
 
               <strong className="text-sm font-black text-blue-700">
@@ -588,7 +595,7 @@ export default function DashboardPage() {
           description={`Lançamentos mais recentes de ${referenceMonthLabel}.`}
         >
           {isLoading && (
-            <div className="rounded-3xl bg-slate-50 p-6 text-center text-sm font-semibold text-slate-500">
+            <div className="rounded-3xl bg-white p-6 text-center text-sm font-semibold text-slate-500 shadow-sm">
               Carregando lançamentos...
             </div>
           )}
@@ -623,11 +630,11 @@ export default function DashboardPage() {
                   return (
                     <div
                       key={transaction.id}
-                      className="flex flex-col gap-3 rounded-2xl border border-slate-100 bg-white px-4 py-4 shadow-sm transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-blue-100 hover:shadow-md sm:flex-row sm:items-center sm:justify-between"
+                      className="rounded-2xl border border-slate-100 bg-white px-4 py-4 shadow-sm transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-blue-100 hover:shadow-md"
                     >
                       <div className="flex items-start gap-3">
                         <div
-                          className={`mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl ${
+                          className={`mt-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl ${
                             isIncome
                               ? "bg-blue-100 text-blue-700"
                               : "bg-red-100 text-red-700"
@@ -636,30 +643,37 @@ export default function DashboardPage() {
                           <Icon className="h-4 w-4" />
                         </div>
 
-                        <div>
-                          <p className="font-black text-slate-950">
+                        <div className="min-w-0 flex-1">
+                          <p className="font-black wrap-break-word text-slate-950">
                             {transaction.description}
                           </p>
 
-                          <p className="mt-1 text-sm text-slate-500">
-                            Vencimento: {formatDate(transaction.due_date)} •{" "}
-                            {statusLabels[transaction.status]}
+                          <p className="mt-1 text-sm leading-5 text-slate-500">
+                            Vencimento: {formatDate(transaction.due_date)}
                           </p>
 
-                          <p className="mt-1 text-xs font-semibold text-slate-400">
-                            {category?.name ?? "Sem categoria"}
-                          </p>
+                          <div className="mt-2 flex flex-wrap items-center gap-2">
+                            <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-black text-slate-500">
+                              {statusLabels[transaction.status]}
+                            </span>
+
+                            <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-black text-slate-500">
+                              {category?.name ?? "Sem categoria"}
+                            </span>
+                          </div>
                         </div>
                       </div>
 
-                      <strong
-                        className={`text-base font-black ${
-                          isIncome ? "text-blue-700" : "text-red-500"
-                        }`}
-                      >
-                        {isIncome ? "+" : "-"}{" "}
-                        {formatCurrency(Number(transaction.amount))}
-                      </strong>
+                      <div className="mt-4 flex justify-end">
+                        <strong
+                          className={`text-base font-black ${
+                            isIncome ? "text-blue-700" : "text-red-500"
+                          }`}
+                        >
+                          {isIncome ? "+" : "-"}{" "}
+                          {formatCurrency(Number(transaction.amount))}
+                        </strong>
+                      </div>
                     </div>
                   );
                 })}
@@ -672,7 +686,7 @@ export default function DashboardPage() {
           description={`Despesas pendentes de ${referenceMonthLabel}.`}
         >
           {isLoading && (
-            <div className="rounded-3xl bg-slate-50 p-6 text-center text-sm font-semibold text-slate-500">
+            <div className="rounded-3xl bg-white p-6 text-center text-sm font-semibold text-slate-500 shadow-sm">
               Carregando próximas contas...
             </div>
           )}
@@ -700,28 +714,34 @@ export default function DashboardPage() {
                     key={transaction.id}
                     className="rounded-2xl border border-slate-100 bg-white px-4 py-4 shadow-sm transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-blue-100 hover:shadow-md"
                   >
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="flex items-start gap-3">
-                        <div className="mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-red-100 text-red-700">
-                          <Icon className="h-4 w-4" />
-                        </div>
-
-                        <div>
-                          <p className="font-black text-slate-950">
-                            {transaction.description}
-                          </p>
-
-                          <p className="mt-1 text-sm text-slate-500">
-                            Vence em {formatDate(transaction.due_date)}
-                          </p>
-
-                          <p className="mt-1 text-xs font-semibold text-slate-400">
-                            {category?.name ?? "Sem categoria"}
-                          </p>
-                        </div>
+                    <div className="flex items-start gap-3">
+                      <div className="mt-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-red-100 text-red-700">
+                        <Icon className="h-4 w-4" />
                       </div>
 
-                      <strong className="text-sm font-black text-red-500">
+                      <div className="min-w-0 flex-1">
+                        <p className="font-black wrap-break-word text-slate-950">
+                          {transaction.description}
+                        </p>
+
+                        <p className="mt-1 text-sm leading-5 text-slate-500">
+                          Vence em {formatDate(transaction.due_date)}
+                        </p>
+
+                        <div className="mt-2 flex flex-wrap items-center gap-2">
+                          <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-black text-slate-500">
+                            {category?.name ?? "Sem categoria"}
+                          </span>
+
+                          <span className="rounded-full bg-yellow-50 px-3 py-1 text-xs font-black text-yellow-700 ring-1 ring-yellow-100">
+                            Pendente
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="mt-4 flex justify-end">
+                      <strong className="text-base font-black text-red-500">
                         {formatCurrency(Number(transaction.amount))}
                       </strong>
                     </div>

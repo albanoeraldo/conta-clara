@@ -500,14 +500,14 @@ export default function LancamentosPage() {
   }
 
   return (
-    <main className="space-y-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
+    <main className="space-y-5 sm:space-y-6">
+      <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+        <div className="min-w-0">
           <p className="text-sm font-black tracking-[0.25em] text-blue-700 uppercase">
             Lançamentos
           </p>
 
-          <h1 className="mt-3 text-3xl font-black tracking-tight text-slate-950">
+          <h1 className="mt-3 text-2xl font-black tracking-tight text-slate-950 sm:text-3xl">
             Meus lançamentos
           </h1>
 
@@ -520,7 +520,7 @@ export default function LancamentosPage() {
           </p>
         </div>
 
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="grid gap-3 sm:flex sm:flex-wrap sm:items-center lg:justify-end">
           <div className="rounded-3xl border border-slate-200 bg-white p-2 shadow-sm">
             <label htmlFor="transactionsReferenceMonth" className="sr-only">
               Mês de referência
@@ -531,14 +531,14 @@ export default function LancamentosPage() {
               type="month"
               value={referenceMonth}
               onChange={(event) => setReferenceMonth(event.target.value)}
-              className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-bold text-slate-700 transition outline-none focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-100"
+              className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-bold text-slate-700 transition outline-none focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-100 sm:w-auto"
             />
           </div>
 
           <button
             type="button"
             onClick={resetReferenceMonth}
-            className="inline-flex items-center justify-center rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-black text-slate-700 transition hover:bg-slate-50"
+            className="inline-flex min-h-12 items-center justify-center rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-black text-slate-700 shadow-sm transition hover:bg-slate-50 active:scale-[0.99]"
           >
             Atual
           </button>
@@ -547,7 +547,7 @@ export default function LancamentosPage() {
             <button
               type="button"
               onClick={showClosedMonthMessage}
-              className="inline-flex items-center justify-center gap-2 rounded-2xl bg-slate-200 px-5 py-3 text-sm font-black text-slate-500"
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-slate-200 px-5 py-3 text-sm font-black text-slate-500"
             >
               <Plus className="h-4 w-4" />
               Mês fechado
@@ -565,7 +565,7 @@ export default function LancamentosPage() {
         title="Filtros"
         description="Refine a visualização dos lançamentos por busca, tipo, categoria, status e mês."
       >
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
           <div>
             <label
               htmlFor="searchTerm"
@@ -676,7 +676,7 @@ export default function LancamentosPage() {
               Mês
             </label>
 
-            <div className="flex gap-2">
+            <div className="grid gap-2 sm:flex">
               <input
                 id="monthFilter"
                 type="month"
@@ -688,7 +688,7 @@ export default function LancamentosPage() {
               <button
                 type="button"
                 onClick={resetReferenceMonth}
-                className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-black text-slate-700 transition hover:bg-slate-50"
+                className="inline-flex min-h-12 items-center justify-center rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-black text-slate-700 transition hover:bg-slate-50 active:scale-[0.99]"
               >
                 Atual
               </button>
@@ -738,9 +738,19 @@ export default function LancamentosPage() {
                 : "Cadastre uma receita ou despesa para este mês e acompanhe tudo com mais clareza."
             }
             action={
-              <AppLinkButton href="/lancamentos/novo" size="sm">
-                Cadastrar lançamento
-              </AppLinkButton>
+              isSelectedMonthClosed ? (
+                <button
+                  type="button"
+                  onClick={showClosedMonthMessage}
+                  className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-slate-200 px-4 py-2 text-sm font-black text-slate-500"
+                >
+                  Mês fechado
+                </button>
+              ) : (
+                <AppLinkButton href="/lancamentos/novo" size="sm">
+                  Cadastrar lançamento
+                </AppLinkButton>
+              )
             }
           />
         </AppSection>
@@ -765,7 +775,7 @@ export default function LancamentosPage() {
               return (
                 <div
                   key={transaction.id}
-                  className="grid gap-4 rounded-3xl border border-slate-200 bg-white p-4 shadow-sm transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-blue-100 hover:shadow-md md:grid-cols-2 xl:grid-cols-[1.5fr_1fr_1fr_1fr_auto] xl:items-center"
+                  className="grid gap-4 rounded-3xl border border-slate-200 bg-white p-4 shadow-sm transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-blue-100 hover:shadow-md sm:p-5 md:grid-cols-2 xl:grid-cols-[1.5fr_1fr_1fr_1fr_auto] xl:items-center"
                 >
                   <div className="flex items-start gap-3">
                     <div
@@ -778,8 +788,8 @@ export default function LancamentosPage() {
                       <Icon className="h-5 w-5" />
                     </div>
 
-                    <div>
-                      <p className="font-black text-slate-950">
+                    <div className="min-w-0 flex-1">
+                      <p className="font-black wrap-break-word text-slate-950">
                         {transaction.description}
                       </p>
 
@@ -843,14 +853,14 @@ export default function LancamentosPage() {
                       {formatCurrency(Number(transaction.amount))}
                     </strong>
 
-                    <div className="flex w-full items-center gap-3 xl:justify-end">
+                    <div className="grid w-full grid-cols-4 gap-2 sm:flex sm:items-center sm:gap-3 xl:justify-end">
                       {isSelectedMonthClosed ? (
                         <button
                           type="button"
                           title="Mês fechado"
                           aria-label="Mês fechado"
                           onClick={showClosedMonthMessage}
-                          className="inline-flex items-center justify-center rounded-2xl bg-slate-100 p-2 text-slate-400"
+                          className="inline-flex h-11 w-full items-center justify-center rounded-2xl bg-slate-100 p-2 text-slate-400 sm:w-auto"
                         >
                           <SquarePen className="h-5 w-5" />
                           <span className="sr-only">Mês fechado</span>
@@ -860,7 +870,7 @@ export default function LancamentosPage() {
                           href={`/lancamentos/${transaction.id}/editar`}
                           title="Editar"
                           aria-label="Editar lançamento"
-                          className="inline-flex items-center justify-center rounded-2xl bg-slate-50 p-2 text-slate-500 transition-all duration-200 hover:-translate-y-0.5 hover:bg-blue-50 hover:text-blue-700"
+                          className="inline-flex h-11 w-full items-center justify-center rounded-2xl bg-slate-50 p-2 text-slate-500 transition-all duration-200 hover:-translate-y-0.5 hover:bg-blue-50 hover:text-blue-700 sm:w-auto"
                         >
                           <SquarePen className="h-5 w-5" />
                           <span className="sr-only">Editar</span>
@@ -873,7 +883,7 @@ export default function LancamentosPage() {
                         aria-label="Excluir lançamento"
                         onClick={() => openDeleteTransactionModal(transaction)}
                         disabled={isUpdating || isSelectedMonthClosed}
-                        className="inline-flex cursor-pointer items-center justify-center rounded-2xl bg-slate-50 p-2 text-slate-500 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="inline-flex h-11 w-full cursor-pointer items-center justify-center rounded-2xl bg-slate-50 p-2 text-slate-500 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
                       >
                         <Trash2 className="h-5 w-5" />
                         <span className="sr-only">Excluir</span>
@@ -888,7 +898,7 @@ export default function LancamentosPage() {
                             openCancelTransactionModal(transaction)
                           }
                           disabled={isUpdating || isSelectedMonthClosed}
-                          className="inline-flex items-center justify-center rounded-2xl bg-red-50 p-2 text-red-500 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-100 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
+                          className="inline-flex h-11 w-full items-center justify-center rounded-2xl bg-red-50 p-2 text-red-500 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-100 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 sm:w-auto"
                         >
                           {isUpdating ? (
                             <span className="text-xs">...</span>
@@ -908,7 +918,7 @@ export default function LancamentosPage() {
                           aria-label="Marcar lançamento como pago"
                           onClick={() => void handleMarkAsPaid(transaction.id)}
                           disabled={isUpdating || isSelectedMonthClosed}
-                          className="inline-flex items-center justify-center rounded-2xl bg-blue-50 p-2 text-blue-600 transition-all duration-200 hover:-translate-y-0.5 hover:bg-blue-100 hover:text-blue-700 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
+                          className="inline-flex h-11 w-full items-center justify-center rounded-2xl bg-blue-50 p-2 text-blue-600 transition-all duration-200 hover:-translate-y-0.5 hover:bg-blue-100 hover:text-blue-700 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 sm:w-auto"
                         >
                           {isUpdating ? (
                             <span className="text-xs">...</span>
@@ -935,7 +945,7 @@ export default function LancamentosPage() {
             role="dialog"
             aria-modal="true"
             aria-labelledby="delete-transaction-title"
-            className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-6 shadow-xl"
+            className="max-h-[calc(100dvh-2rem)] w-full max-w-md overflow-y-auto rounded-3xl border border-slate-200 bg-white p-5 shadow-xl sm:p-6"
           >
             <div className="mb-5 flex items-start gap-4">
               <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-red-50 text-red-600">
@@ -973,7 +983,7 @@ export default function LancamentosPage() {
                 type="button"
                 onClick={() => setTransactionToDelete(null)}
                 disabled={updatingTransactionId === transactionToDelete.id}
-                className="inline-flex items-center justify-center rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-black text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+                className="inline-flex min-h-12 items-center justify-center rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-black text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 Cancelar
               </button>
@@ -982,7 +992,7 @@ export default function LancamentosPage() {
                 type="button"
                 onClick={() => void confirmDeleteTransaction()}
                 disabled={updatingTransactionId === transactionToDelete.id}
-                className="inline-flex items-center justify-center gap-2 rounded-2xl bg-red-600 px-5 py-3 text-sm font-black text-white transition hover:bg-red-500 disabled:cursor-not-allowed disabled:opacity-60"
+                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-red-600 px-5 py-3 text-sm font-black text-white transition hover:bg-red-500 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 <Trash2 className="h-4 w-4" />
                 {updatingTransactionId === transactionToDelete.id
@@ -999,7 +1009,7 @@ export default function LancamentosPage() {
             role="dialog"
             aria-modal="true"
             aria-labelledby="cancel-transaction-title"
-            className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-6 shadow-xl"
+            className="max-h-[calc(100dvh-2rem)] w-full max-w-md overflow-y-auto rounded-3xl border border-slate-200 bg-white p-5 shadow-xl sm:p-6"
           >
             <div className="mb-5 flex items-start gap-4">
               <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-red-50 text-red-600">
@@ -1037,7 +1047,7 @@ export default function LancamentosPage() {
                 type="button"
                 onClick={() => setTransactionToCancel(null)}
                 disabled={updatingTransactionId === transactionToCancel.id}
-                className="inline-flex items-center justify-center rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-black text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+                className="inline-flex min-h-12 items-center justify-center rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-black text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 Voltar
               </button>
@@ -1048,7 +1058,7 @@ export default function LancamentosPage() {
                   void handleCancelTransaction(transactionToCancel.id)
                 }
                 disabled={updatingTransactionId === transactionToCancel.id}
-                className="inline-flex items-center justify-center gap-2 rounded-2xl bg-red-600 px-5 py-3 text-sm font-black text-white transition hover:bg-red-500 disabled:cursor-not-allowed disabled:opacity-60"
+                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-red-600 px-5 py-3 text-sm font-black text-white transition hover:bg-red-500 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 <Ban className="h-4 w-4" />
                 {updatingTransactionId === transactionToCancel.id
