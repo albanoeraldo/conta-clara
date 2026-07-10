@@ -108,7 +108,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
       setIsCheckingSession(false);
     }
 
-    checkSession();
+    void checkSession();
 
     return () => {
       isMounted = false;
@@ -141,11 +141,17 @@ export default function AppLayout({ children }: AppLayoutProps) {
     return pathname === href || pathname.startsWith(`${href}/`);
   }
 
+  const currentNavigationItem = navigationItems.find((item) =>
+    isNavigationItemActive(item.href),
+  );
+
   if (isCheckingSession) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-slate-100 px-4 text-slate-950 sm:px-6">
         <section className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-6 text-center shadow-sm sm:p-8">
-          <Logo href="/dashboard" variant="sidebar" />
+          <div className="mb-6 flex justify-center">
+            <Logo href="/dashboard" variant="internal" />
+          </div>
 
           <p className="mb-3 text-sm font-black tracking-[0.25em] text-blue-700 uppercase">
             Conta Clara
@@ -170,7 +176,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
           <Logo href="/dashboard" variant="sidebar" />
         </div>
 
-        <nav className="flex-1 space-y-2 px-4 py-6">
+        <nav className="flex-1 space-y-2 overflow-y-auto px-4 py-6">
           {navigationItems.map((item) => {
             const isActive = isNavigationItemActive(item.href);
             const Icon = item.icon;
@@ -186,11 +192,12 @@ export default function AppLayout({ children }: AppLayoutProps) {
                 }`}
               >
                 <Icon
-                  className={`h-5 w-5 transition-transform duration-200 group-hover:scale-110 ${
+                  className={`h-5 w-5 shrink-0 transition-transform duration-200 group-hover:scale-110 ${
                     isActive ? "text-blue-600" : "text-blue-100"
                   }`}
                 />
-                {item.label}
+
+                <span className="truncate">{item.label}</span>
               </Link>
             );
           })}
@@ -203,77 +210,94 @@ export default function AppLayout({ children }: AppLayoutProps) {
             disabled={isLoggingOut}
             className="group flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold text-blue-100 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-white/10 hover:text-white disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
           >
-            <LogOut className="h-5 w-5 transition-transform duration-200 group-hover:scale-110" />
+            <LogOut className="h-5 w-5 shrink-0 transition-transform duration-200 group-hover:scale-110" />
             {isLoggingOut ? "Saindo..." : "Sair"}
           </button>
         </div>
       </aside>
 
-      <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/95 px-4 py-4 backdrop-blur lg:hidden">
-        <div className="flex items-center justify-between gap-4">
-          <Logo href="/dashboard" variant="sidebar" />
+      <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/95 px-4 py-3 shadow-sm backdrop-blur lg:hidden">
+        <div className="flex items-center justify-between gap-3">
+          <div className="min-w-0">
+            <Logo href="/dashboard" variant="internal" />
+          </div>
 
           <button
             type="button"
             onClick={() => setIsMobileMenuOpen((current) => !current)}
-            className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-bold text-slate-700 shadow-sm transition hover:bg-slate-50"
+            aria-expanded={isMobileMenuOpen}
+            aria-label={isMobileMenuOpen ? "Fechar menu" : "Abrir menu"}
+            className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-700 shadow-sm transition hover:bg-slate-50 active:scale-95"
           >
             {isMobileMenuOpen ? (
-              <>
-                <X className="h-5 w-5" />
-                Fechar
-              </>
+              <X className="h-5 w-5" />
             ) : (
-              <>
-                <Menu className="h-5 w-5" />
-                Menu
-              </>
+              <Menu className="h-5 w-5" />
             )}
           </button>
         </div>
 
+        <div className="mt-3 flex items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+          <div className="min-w-0">
+            <p className="text-xs font-black tracking-[0.18em] text-slate-400 uppercase">
+              Você está em
+            </p>
+
+            <p className="mt-1 truncate text-sm font-black text-slate-800">
+              {currentNavigationItem?.label ?? "Conta Clara"}
+            </p>
+          </div>
+
+          <span className="shrink-0 rounded-full bg-blue-50 px-3 py-1 text-xs font-black text-blue-700 ring-1 ring-blue-100">
+            Beta
+          </span>
+        </div>
+
         {isMobileMenuOpen && (
-          <nav className="mt-4 grid gap-2 rounded-3xl border border-slate-200 bg-white p-3 shadow-sm">
-            {navigationItems.map((item) => {
-              const isActive = isNavigationItemActive(item.href);
-              const Icon = item.icon;
+          <div className="mt-3 max-h-[calc(100dvh-9rem)] overflow-y-auto rounded-3xl border border-slate-200 bg-white p-3 shadow-xl">
+            <nav className="grid gap-2">
+              {navigationItems.map((item) => {
+                const isActive = isNavigationItemActive(item.href);
+                const Icon = item.icon;
 
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`group flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold transition-all duration-200 ease-out active:scale-[0.99] ${
-                    isActive
-                      ? "bg-blue-50 text-blue-700 shadow-sm"
-                      : "text-slate-700 hover:bg-blue-50 hover:text-blue-700"
-                  }`}
-                >
-                  <Icon
-                    className={`h-5 w-5 transition-transform duration-200 group-hover:scale-110 ${
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`group flex min-h-12 items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold transition-all duration-200 ease-out active:scale-[0.99] ${
                       isActive
-                        ? "text-blue-600"
-                        : "text-slate-400 group-hover:text-blue-600"
+                        ? "bg-blue-50 text-blue-700 shadow-sm ring-1 ring-blue-100"
+                        : "text-slate-700 hover:bg-blue-50 hover:text-blue-700"
                     }`}
-                  />
-                  {item.label}
-                </Link>
-              );
-            })}
+                  >
+                    <Icon
+                      className={`h-5 w-5 shrink-0 transition-transform duration-200 group-hover:scale-110 ${
+                        isActive
+                          ? "text-blue-600"
+                          : "text-slate-400 group-hover:text-blue-600"
+                      }`}
+                    />
 
-            <button
-              type="button"
-              onClick={handleLogout}
-              disabled={isLoggingOut}
-              className="mt-2 flex items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-bold text-slate-700 transition-all duration-200 hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              <LogOut className="h-5 w-5" />
-              {isLoggingOut ? "Saindo..." : "Sair"}
-            </button>
-          </nav>
+                    <span className="truncate">{item.label}</span>
+                  </Link>
+                );
+              })}
+
+              <button
+                type="button"
+                onClick={handleLogout}
+                disabled={isLoggingOut}
+                className="mt-2 flex min-h-12 items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-bold text-slate-700 transition-all duration-200 hover:bg-red-50 hover:text-red-600 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                <LogOut className="h-5 w-5 shrink-0" />
+                {isLoggingOut ? "Saindo..." : "Sair"}
+              </button>
+            </nav>
+          </div>
         )}
       </header>
 
-      <main className="min-h-screen bg-slate-100 px-4 py-6 sm:px-6 sm:py-8 lg:pr-8 lg:pl-80">
+      <main className="min-h-screen bg-slate-100 px-4 pt-5 pb-24 sm:px-6 sm:py-8 lg:pr-8 lg:pb-8 lg:pl-80">
         {children}
       </main>
     </div>
