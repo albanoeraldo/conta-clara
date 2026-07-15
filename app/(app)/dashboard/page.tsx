@@ -68,15 +68,33 @@ function calculateMonthlySummary(transactions: Transaction[]) {
     .filter((transaction) => transaction.type === "expense")
     .reduce((total, transaction) => total + Number(transaction.amount), 0);
 
-  const pendingCount = activeTransactions.filter(
-    (transaction) => transaction.status === "pending",
-  ).length;
+  const pendingExpenseTransactions = activeTransactions.filter(
+    (transaction) =>
+      transaction.type === "expense" && transaction.status === "pending",
+  );
+
+  const paidExpenseTransactions = activeTransactions.filter(
+    (transaction) =>
+      transaction.type === "expense" && transaction.status === "paid",
+  );
+
+  const paidExpenseTotal = paidExpenseTransactions.reduce(
+    (total, transaction) => total + Number(transaction.amount),
+    0,
+  );
+
+  const pendingExpenseTotal = pendingExpenseTransactions.reduce(
+    (total, transaction) => total + Number(transaction.amount),
+    0,
+  );
 
   return {
     incomeTotal,
     expenseTotal,
     predictedBalance: incomeTotal - expenseTotal,
-    pendingCount,
+    pendingCount: pendingExpenseTransactions.length,
+    pendingExpenseTotal,
+    paidExpenseTotal,
   };
 }
 
@@ -535,9 +553,13 @@ export default function DashboardPage() {
         />
 
         <MetricCard
-          title="A vencer"
-          value={isLoading ? "..." : monthlySummary.pendingCount}
-          description="Lançamentos pendentes no mês selecionado."
+          title="Falta pagar"
+          value={
+            isLoading
+              ? "..."
+              : formatCurrency(monthlySummary.pendingExpenseTotal)
+          }
+          description={`${monthlySummary.pendingCount} despesa(s) pendente(s) no mês selecionado.`}
           tone="yellow"
           icon={CalendarClock}
         />
@@ -575,6 +597,26 @@ export default function DashboardPage() {
 
               <strong className="text-sm font-black text-blue-700">
                 {monthStatus}
+              </strong>
+            </div>
+
+            <div className="grid gap-1 border-b border-slate-100 pb-4 sm:flex sm:items-center sm:justify-between sm:gap-4">
+              <span className="text-sm font-medium text-slate-500">
+                Falta pagar
+              </span>
+
+              <strong className="text-sm font-black text-yellow-700">
+                {formatCurrency(monthlySummary.pendingExpenseTotal)}
+              </strong>
+            </div>
+
+            <div className="grid gap-1 border-b border-slate-100 pb-4 sm:flex sm:items-center sm:justify-between sm:gap-4">
+              <span className="text-sm font-medium text-slate-500">
+                Já pago
+              </span>
+
+              <strong className="text-sm font-black text-emerald-700">
+                {formatCurrency(monthlySummary.paidExpenseTotal)}
               </strong>
             </div>
 
@@ -683,11 +725,27 @@ export default function DashboardPage() {
 
         <DashboardPanel
           title="Pendências do mês"
-          description={`Despesas pendentes de ${referenceMonthLabel}.`}
+          description={`Despesas que ainda faltam pagar em ${referenceMonthLabel}.`}
         >
           {isLoading && (
             <div className="rounded-3xl bg-white p-6 text-center text-sm font-semibold text-slate-500 shadow-sm">
               Carregando próximas contas...
+            </div>
+          )}
+
+          {!isLoading && pendingMonthTransactions.length > 0 && (
+            <div className="mb-4 rounded-3xl border border-yellow-100 bg-yellow-50 px-5 py-4">
+              <p className="text-xs font-black tracking-[0.18em] text-yellow-700 uppercase">
+                Total pendente
+              </p>
+
+              <strong className="mt-1 block text-2xl font-black text-yellow-700">
+                {formatCurrency(monthlySummary.pendingExpenseTotal)}
+              </strong>
+
+              <p className="mt-2 text-sm leading-6 text-slate-600">
+                Esse valor diminui conforme você marca as despesas como pagas.
+              </p>
             </div>
           )}
 
