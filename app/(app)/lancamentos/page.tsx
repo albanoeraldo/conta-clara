@@ -21,6 +21,7 @@ import {
   PiggyBank,
   Plus,
   Receipt,
+  RotateCcw,
   Search,
   ShoppingCart,
   Smartphone,
@@ -48,6 +49,7 @@ import {
   deleteTransaction,
   getTransactions,
   markTransactionAsPaid,
+  markTransactionAsPending,
   type Transaction,
 } from "@/services/transactions";
 
@@ -381,6 +383,40 @@ export default function LancamentosPage() {
         error instanceof Error
           ? error.message
           : "Erro ao marcar lançamento como pago.",
+      );
+    } finally {
+      setUpdatingTransactionId(null);
+    }
+  }
+
+  async function handleMarkAsPending(transactionId: string) {
+    setStatusMessage("");
+    setStatusType("");
+
+    if (!financialSpaceId) {
+      setStatusType("error");
+      setStatusMessage("Não foi possível identificar sua Conta Clara.");
+      return;
+    }
+
+    try {
+      setUpdatingTransactionId(transactionId);
+
+      await markTransactionAsPending({
+        transactionId,
+        financialSpaceId,
+      });
+
+      setStatusType("success");
+      setStatusMessage("Lançamento marcado como pendente.");
+
+      await loadTransactions();
+    } catch (error) {
+      setStatusType("error");
+      setStatusMessage(
+        error instanceof Error
+          ? error.message
+          : "Erro ao marcar lançamento como pendente.",
       );
     } finally {
       setUpdatingTransactionId(null);
@@ -760,6 +796,7 @@ export default function LancamentosPage() {
             {filteredTransactions.map((transaction) => {
               const isIncome = transaction.type === "income";
               const isPending = transaction.status === "pending";
+              const isPaid = transaction.status === "paid";
               const isUpdating = updatingTransactionId === transaction.id;
               const category = categories.find(
                 (currentCategory) =>
@@ -921,6 +958,29 @@ export default function LancamentosPage() {
                             <>
                               <CircleCheck className="h-5 w-5" />
                               <span className="sr-only">Marcar como pago</span>
+                            </>
+                          )}
+                        </button>
+                      )}
+                      {isPaid && (
+                        <button
+                          type="button"
+                          title="Marcar como pendente"
+                          aria-label="Marcar lançamento como pendente"
+                          onClick={() =>
+                            void handleMarkAsPending(transaction.id)
+                          }
+                          disabled={isUpdating}
+                          className="inline-flex items-center justify-center rounded-2xl bg-yellow-50 p-2 text-yellow-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-yellow-100 hover:text-yellow-800 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
+                        >
+                          {isUpdating ? (
+                            <span className="text-xs">...</span>
+                          ) : (
+                            <>
+                              <RotateCcw className="h-5 w-5" />
+                              <span className="sr-only">
+                                Marcar como pendente
+                              </span>
                             </>
                           )}
                         </button>

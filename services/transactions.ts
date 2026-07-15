@@ -125,6 +125,25 @@ export async function markTransactionAsPaid({
   }
 }
 
+export async function markTransactionAsPending({
+  transactionId,
+  financialSpaceId,
+}: MarkTransactionAsPaidInput) {
+  const { error } = await supabase
+    .from("transactions")
+    .update({
+      status: "pending",
+      paid_date: null,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", transactionId)
+    .eq("financial_space_id", financialSpaceId);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+}
+
 export async function getTransactionById({
   transactionId,
   financialSpaceId,
