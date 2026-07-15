@@ -20,8 +20,10 @@ import {
 import { usePathname, useRouter } from "next/navigation";
 
 import { Logo } from "@/components/brand/logo";
+import { UserAvatar } from "@/components/profile/user-avatar";
 import { getCurrentUser } from "@/lib/auth/session";
 import { supabase } from "@/lib/supabase/client";
+import { getProfile } from "@/services/profile";
 
 type AppLayoutProps = {
   children: ReactNode;
@@ -87,6 +89,8 @@ export default function AppLayout({ children }: AppLayoutProps) {
 
   const [isCheckingSession, setIsCheckingSession] = useState(true);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [userDisplayName, setUserDisplayName] = useState("Usuário");
+  const [userAvatarKey, setUserAvatarKey] = useState<string | null>(null);
 
   const isMenuPage = pathname === "/menu";
 
@@ -105,13 +109,47 @@ export default function AppLayout({ children }: AppLayoutProps) {
         return;
       }
 
+      let profile = null;
+
+      try {
+        profile = await getProfile(user.id);
+      } catch {
+        profile = null;
+      }
+
+      if (!isMounted) {
+        return;
+      }
+
+      const displayName =
+        profile?.full_name ??
+        user.user_metadata?.full_name ??
+        user.user_metadata?.name ??
+        user.email?.split("@")[0] ??
+        "Usuário";
+
+      setUserDisplayName(displayName);
+      setUserAvatarKey(profile?.avatar_key ?? null);
       setIsCheckingSession(false);
+    }
+
+    function handleProfileUpdated() {
+      void checkSession();
     }
 
     void checkSession();
 
+    window.addEventListener(
+      "conta-clara-profile-updated",
+      handleProfileUpdated,
+    );
+
     return () => {
       isMounted = false;
+      window.removeEventListener(
+        "conta-clara-profile-updated",
+        handleProfileUpdated,
+      );
     };
   }, [router]);
 
@@ -194,6 +232,26 @@ export default function AppLayout({ children }: AppLayoutProps) {
         </nav>
 
         <div className="border-t border-white/10 p-4">
+          <Link
+            href="/perfil"
+            className="mb-3 flex items-center gap-3 rounded-3xl bg-white/10 px-4 py-3 text-white ring-1 ring-white/10 transition-all duration-200 hover:-translate-y-0.5 hover:bg-white/15"
+          >
+            <UserAvatar
+              avatarKey={userAvatarKey}
+              name={userDisplayName}
+              size="sm"
+              fallbackTone="dark"
+            />
+
+            <div className="min-w-0">
+              <p className="truncate text-sm font-black">{userDisplayName}</p>
+
+              <p className="mt-1 text-xs font-semibold text-blue-100">
+                Meu perfil
+              </p>
+            </div>
+          </Link>
+
           <button
             type="button"
             onClick={handleLogout}

@@ -1,36 +1,31 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { type ComponentType, useCallback, useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
-import type { LucideIcon } from "lucide-react";
+import type { IconProps } from "@phosphor-icons/react";
 import {
-  Ban,
-  BriefcaseBusiness,
-  Car,
-  Check,
-  CircleDollarSign,
-  Clapperboard,
-  CreditCard,
-  Gift,
-  GraduationCap,
-  HeartPulse,
-  Home,
-  Landmark,
-  Lightbulb,
-  PawPrint,
-  PiggyBank,
-  Plus,
-  Receipt,
-  RotateCcw,
-  ShoppingCart,
-  Smartphone,
-  SquarePen,
-  Utensils,
-  Wifi,
-  X,
-} from "lucide-react";
+  BankIcon,
+  BriefcaseIcon,
+  CarIcon,
+  CreditCardIcon,
+  CurrencyCircleDollarIcon,
+  DeviceMobileIcon,
+  FilmSlateIcon,
+  ForkKnifeIcon,
+  GiftIcon,
+  GraduationCapIcon,
+  HeartbeatIcon,
+  HouseIcon,
+  LightbulbIcon,
+  PawPrintIcon,
+  PiggyBankIcon,
+  ReceiptIcon,
+  ShoppingCartIcon,
+  WifiHighIcon,
+} from "@phosphor-icons/react";
+import { Ban, Check, Plus, RotateCcw, SquarePen, X } from "lucide-react";
 
 import { AppButton } from "@/components/ui/app-button";
 import { AppEmptyState } from "@/components/ui/app-empty-state";
@@ -51,6 +46,8 @@ import {
   updateCategoryName,
 } from "@/services/categories";
 
+type CategoryIcon = ComponentType<IconProps>;
+
 function normalizeCategoryName(value: string) {
   return value
     .normalize("NFD")
@@ -58,27 +55,38 @@ function normalizeCategoryName(value: string) {
     .toLowerCase();
 }
 
-function getCategoryIcon(category: Category): LucideIcon {
+function getCategoryIcon(category: Category): CategoryIcon {
   const name = normalizeCategoryName(category.name);
 
   if (category.type === "income") {
     if (
       name.includes("salario") ||
       name.includes("comissao") ||
-      name.includes("trabalho")
+      name.includes("trabalho") ||
+      name.includes("servico")
     ) {
-      return BriefcaseBusiness;
+      return BriefcaseIcon;
     }
 
     if (
       name.includes("invest") ||
       name.includes("rendimento") ||
-      name.includes("dividendo")
+      name.includes("dividendo") ||
+      name.includes("aplicacao")
     ) {
-      return PiggyBank;
+      return PiggyBankIcon;
     }
 
-    return CircleDollarSign;
+    if (
+      name.includes("extra") ||
+      name.includes("bonus") ||
+      name.includes("freela") ||
+      name.includes("freelancer")
+    ) {
+      return CurrencyCircleDollarIcon;
+    }
+
+    return CurrencyCircleDollarIcon;
   }
 
   if (
@@ -86,24 +94,27 @@ function getCategoryIcon(category: Category): LucideIcon {
     name.includes("supermercado") ||
     name.includes("compras")
   ) {
-    return ShoppingCart;
+    return ShoppingCartIcon;
   }
 
   if (
     name.includes("alimentacao") ||
     name.includes("restaurante") ||
     name.includes("ifood") ||
-    name.includes("lanche")
+    name.includes("lanche") ||
+    name.includes("comida")
   ) {
-    return Utensils;
+    return ForkKnifeIcon;
   }
 
   if (
     name.includes("casa") ||
+    name.includes("moradia") ||
     name.includes("aluguel") ||
-    name.includes("condominio")
+    name.includes("condominio") ||
+    name.includes("apartamento")
   ) {
-    return Home;
+    return HouseIcon;
   }
 
   if (
@@ -111,60 +122,70 @@ function getCategoryIcon(category: Category): LucideIcon {
     name.includes("wifi") ||
     name.includes("telefone")
   ) {
-    return Wifi;
+    return WifiHighIcon;
   }
 
   if (name.includes("celular")) {
-    return Smartphone;
+    return DeviceMobileIcon;
   }
 
   if (name.includes("energia") || name.includes("luz")) {
-    return Lightbulb;
+    return LightbulbIcon;
   }
 
   if (
     name.includes("transporte") ||
     name.includes("combustivel") ||
     name.includes("uber") ||
-    name.includes("carro")
+    name.includes("carro") ||
+    name.includes("onibus")
   ) {
-    return Car;
+    return CarIcon;
   }
 
-  if (name.includes("cartao") || name.includes("credito")) {
-    return CreditCard;
+  if (
+    name.includes("cartao") ||
+    name.includes("credito") ||
+    name.includes("fatura")
+  ) {
+    return CreditCardIcon;
   }
 
   if (name.includes("pet") || name.includes("animal")) {
-    return PawPrint;
+    return PawPrintIcon;
   }
 
   if (
     name.includes("saude") ||
     name.includes("farmacia") ||
-    name.includes("medico")
+    name.includes("medico") ||
+    name.includes("hospital")
   ) {
-    return HeartPulse;
+    return HeartbeatIcon;
   }
 
   if (
     name.includes("curso") ||
     name.includes("faculdade") ||
-    name.includes("estudo")
+    name.includes("estudo") ||
+    name.includes("escola") ||
+    name.includes("educacao")
   ) {
-    return GraduationCap;
+    return GraduationCapIcon;
   }
 
   if (
     name.includes("lazer") ||
     name.includes("netflix") ||
-    name.includes("streaming")
+    name.includes("streaming") ||
+    name.includes("cinema") ||
+    name.includes("assinatura")
   ) {
-    return Clapperboard;
+    return FilmSlateIcon;
   }
 
   if (name.includes("presente")) {
-    return Gift;
+    return GiftIcon;
   }
 
   if (
@@ -172,10 +193,18 @@ function getCategoryIcon(category: Category): LucideIcon {
     name.includes("taxa") ||
     name.includes("tarifa")
   ) {
-    return Landmark;
+    return BankIcon;
   }
 
-  return Receipt;
+  return ReceiptIcon;
+}
+
+function getCategoryAccentColor(category: Category) {
+  if (category.color) {
+    return category.color;
+  }
+
+  return category.type === "income" ? "#10b981" : "#2563eb";
 }
 
 export default function CategoriasPage() {
@@ -563,6 +592,7 @@ function CategoryGroup({
             const isEditing = editingCategoryId === category.id;
             const isUpdating = updatingCategoryId === category.id;
             const Icon = getCategoryIcon(category);
+            const accentColor = getCategoryAccentColor(category);
 
             return (
               <div
@@ -572,12 +602,16 @@ function CategoryGroup({
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                   <div className="flex flex-1 items-center gap-3">
                     <div
-                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border bg-white shadow-sm"
-                      style={{ borderColor: category.color ?? "#dbeafe" }}
+                      className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border shadow-sm ring-4 ring-white"
+                      style={{
+                        borderColor: accentColor,
+                        backgroundColor: `${accentColor}14`,
+                      }}
                     >
                       <Icon
-                        className="h-5 w-5"
-                        style={{ color: category.color ?? "#2563eb" }}
+                        size={23}
+                        weight="duotone"
+                        style={{ color: accentColor }}
                       />
                     </div>
 

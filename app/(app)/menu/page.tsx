@@ -20,8 +20,10 @@ import {
 import { useRouter } from "next/navigation";
 
 import { Logo } from "@/components/brand/logo";
+import { UserAvatar } from "@/components/profile/user-avatar";
 import { getCurrentUser } from "@/lib/auth/session";
 import { supabase } from "@/lib/supabase/client";
+import { getProfile } from "@/services/profile";
 
 type MenuItem = {
   href: string;
@@ -118,6 +120,7 @@ export default function MenuPage() {
   const router = useRouter();
 
   const [userDisplayName, setUserDisplayName] = useState("Usuário");
+  const [userAvatarKey, setUserAvatarKey] = useState<string | null>(null);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   useEffect(() => {
@@ -130,13 +133,27 @@ export default function MenuPage() {
         return;
       }
 
+      let profile = null;
+
+      try {
+        profile = await getProfile(user.id);
+      } catch {
+        profile = null;
+      }
+
+      if (!isMounted) {
+        return;
+      }
+
       const displayName =
+        profile?.full_name ??
         user.user_metadata?.full_name ??
         user.user_metadata?.name ??
         user.email?.split("@")[0] ??
         "Usuário";
 
       setUserDisplayName(displayName);
+      setUserAvatarKey(profile?.avatar_key ?? null);
     }
 
     void loadUser();
@@ -170,9 +187,12 @@ export default function MenuPage() {
 
           <section className="rounded-4xl bg-white/10 p-4 ring-1 ring-white/10">
             <div className="flex items-center gap-3">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white/15 text-base font-black text-white ring-1 ring-white/20">
-                {firstName.charAt(0).toUpperCase()}
-              </div>
+              <UserAvatar
+                avatarKey={userAvatarKey}
+                name={userDisplayName}
+                size="lg"
+                fallbackTone="dark"
+              />
 
               <div className="min-w-0">
                 <p className="truncate text-lg font-black text-white">

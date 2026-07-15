@@ -3,8 +3,9 @@
 import { useCallback, useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Mail, Phone, Save, UserRound } from "lucide-react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 
+import { AvatarPicker } from "@/components/profile/avatar-picker";
 import { AppButton } from "@/components/ui/app-button";
 import { AppFeedback } from "@/components/ui/app-feedback";
 import { AppLoadingState } from "@/components/ui/app-loading-state";
@@ -15,6 +16,9 @@ import { getProfile, saveProfile } from "@/services/profile";
 
 export default function PerfilPage() {
   const [email, setEmail] = useState("");
+  const [selectedAvatarKey, setSelectedAvatarKey] = useState<string | null>(
+    null,
+  );
   const [isLoading, setIsLoading] = useState(true);
   const [statusMessage, setStatusMessage] = useState("");
   const [statusType, setStatusType] = useState<"success" | "error" | "">("");
@@ -23,6 +27,7 @@ export default function PerfilPage() {
     register,
     handleSubmit,
     reset,
+    control,
     formState: { errors, isSubmitting },
   } = useForm<ProfileFormData>({
     resolver: zodResolver(profileSchema),
@@ -31,6 +36,12 @@ export default function PerfilPage() {
       phone: "",
     },
   });
+
+  const watchedFullName =
+    useWatch({
+      control,
+      name: "fullName",
+    }) || "Usuário Conta Clara";
 
   const loadProfile = useCallback(async () => {
     try {
@@ -46,6 +57,7 @@ export default function PerfilPage() {
       const userEmail = user.email ?? "";
 
       setEmail(userEmail);
+      setSelectedAvatarKey(profile?.avatar_key ?? null);
 
       reset({
         fullName:
@@ -92,7 +104,10 @@ export default function PerfilPage() {
         fullName: data.fullName,
         email,
         phone: data.phone,
+        avatarKey: selectedAvatarKey,
       });
+
+      window.dispatchEvent(new Event("conta-clara-profile-updated"));
 
       setStatusType("success");
       setStatusMessage("Perfil atualizado com sucesso!");
@@ -132,9 +147,15 @@ export default function PerfilPage() {
 
       <AppSection
         title="Dados pessoais"
-        description="Atualize suas informações básicas de cadastro."
+        description="Atualize suas informações básicas de cadastro e escolha seu avatar."
       >
         <form onSubmit={handleSubmit(onSubmit)} className="grid gap-5">
+          <AvatarPicker
+            value={selectedAvatarKey}
+            userName={watchedFullName}
+            onChange={setSelectedAvatarKey}
+          />
+
           <div>
             <label
               htmlFor="fullName"

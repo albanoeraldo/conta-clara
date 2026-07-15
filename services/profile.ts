@@ -6,6 +6,7 @@ export type Profile = {
   email: string;
   phone: string | null;
   avatar_url: string | null;
+  avatar_key: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -13,7 +14,9 @@ export type Profile = {
 export async function getProfile(userId: string) {
   const { data, error } = await supabase
     .from("profiles")
-    .select("id, full_name, email, phone, avatar_url, created_at, updated_at")
+    .select(
+      "id, full_name, email, phone, avatar_url, avatar_key, created_at, updated_at",
+    )
     .eq("id", userId)
     .maybeSingle();
 
@@ -29,6 +32,7 @@ type SaveProfileInput = {
   fullName: string;
   email: string;
   phone?: string;
+  avatarKey?: string | null;
 };
 
 export async function saveProfile({
@@ -36,12 +40,14 @@ export async function saveProfile({
   fullName,
   email,
   phone,
+  avatarKey,
 }: SaveProfileInput) {
   const { error } = await supabase.from("profiles").upsert({
     id: userId,
     full_name: fullName,
     email,
     phone: phone?.trim() || null,
+    avatar_key: avatarKey?.trim() || null,
     updated_at: new Date().toISOString(),
   });
 
