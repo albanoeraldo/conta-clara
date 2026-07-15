@@ -357,11 +357,6 @@ export default function LancamentosPage() {
     setStatusMessage("");
     setStatusType("");
 
-    if (isSelectedMonthClosed) {
-      showClosedMonthMessage();
-      return;
-    }
-
     if (!financialSpaceId) {
       setStatusType("error");
       setStatusMessage("Não foi possível identificar sua Conta Clara.");
@@ -708,7 +703,7 @@ export default function LancamentosPage() {
       {isSelectedMonthClosed && (
         <AppFeedback
           type="error"
-          message={`Este mês está fechado. Para criar, editar, excluir, pagar ou cancelar lançamentos em ${referenceMonthLabel}, reabra o mês na tela de relatórios.`}
+          message={`Este mês está fechado. Você ainda pode marcar lançamentos pendentes como pagos, mas para criar, editar, excluir ou cancelar lançamentos em ${referenceMonthLabel}, reabra o mês na tela de relatórios.`}
           className="mb-6"
         />
       )}
@@ -917,7 +912,7 @@ export default function LancamentosPage() {
                           title="Marcar como pago"
                           aria-label="Marcar lançamento como pago"
                           onClick={() => void handleMarkAsPaid(transaction.id)}
-                          disabled={isUpdating || isSelectedMonthClosed}
+                          disabled={isUpdating}
                           className="inline-flex h-11 w-full items-center justify-center rounded-2xl bg-blue-50 p-2 text-blue-600 transition-all duration-200 hover:-translate-y-0.5 hover:bg-blue-100 hover:text-blue-700 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 sm:w-auto"
                         >
                           {isUpdating ? (
