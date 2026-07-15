@@ -10,6 +10,16 @@ import { getUserFinancialSpaceId } from "@/lib/auth/financial-space";
 import { getCurrentUser } from "@/lib/auth/session";
 import { supabase } from "@/lib/supabase/client";
 
+function getPostLoginRedirectPath() {
+  if (typeof window === "undefined") {
+    return "/dashboard";
+  }
+
+  const isMobile = window.matchMedia("(max-width: 1023px)").matches;
+
+  return isMobile ? "/menu" : "/dashboard";
+}
+
 export default function LoginPage() {
   const router = useRouter();
 
@@ -28,7 +38,9 @@ export default function LoginPage() {
 
       const financialSpaceId = await getUserFinancialSpaceId(user.id);
 
-      router.replace(financialSpaceId ? "/dashboard" : "/onboarding");
+      router.replace(
+        financialSpaceId ? getPostLoginRedirectPath() : "/onboarding",
+      );
     }
 
     const timeoutId = window.setTimeout(() => {
@@ -68,7 +80,9 @@ export default function LoginPage() {
 
       const financialSpaceId = await getUserFinancialSpaceId(data.user.id);
 
-      router.replace(financialSpaceId ? "/dashboard" : "/onboarding");
+      router.replace(
+        financialSpaceId ? getPostLoginRedirectPath() : "/onboarding",
+      );
     } catch (error) {
       setErrorMessage(
         error instanceof Error ? error.message : "Erro ao entrar na sua conta.",
