@@ -1,141 +1,64 @@
-import type { ComponentType } from "react";
-import type { IconProps } from "@phosphor-icons/react";
-import {
-  BankIcon,
-  BriefcaseIcon,
-  CarIcon,
-  CreditCardIcon,
-  CurrencyCircleDollarIcon,
-  GraduationCapIcon,
-  HeartbeatIcon,
-  HouseIcon,
-  LightbulbIcon,
-  PawPrintIcon,
-  PiggyBankIcon,
-  ReceiptIcon,
-  ShoppingCartIcon,
-} from "@phosphor-icons/react";
-
 export type AvatarOption = {
   key: string;
+  url: string;
   label: string;
-  icon: ComponentType<IconProps>;
-  backgroundColor: string;
-  iconColor: string;
-  borderColor: string;
 };
 
 export const avatarOptions: AvatarOption[] = [
   {
-    key: "blue-receipt",
-    label: "Controle azul",
-    icon: ReceiptIcon,
-    backgroundColor: "#dbeafe",
-    iconColor: "#2563eb",
-    borderColor: "#93c5fd",
+    key: "eraldo-1",
+    url: "https://api.dicebear.com/7.x/avataaars/svg?seed=Eraldo&backgroundColor=b6e3f4",
+    label: "Avatar 1",
   },
   {
-    key: "green-piggy",
-    label: "Cofrinho verde",
-    icon: PiggyBankIcon,
-    backgroundColor: "#d1fae5",
-    iconColor: "#059669",
-    borderColor: "#6ee7b7",
+    key: "eraldo-2",
+    url: "https://api.dicebear.com/7.x/avataaars/svg?seed=Felix&backgroundColor=c0aede",
+    label: "Avatar 2",
   },
   {
-    key: "purple-card",
-    label: "Cartão roxo",
-    icon: CreditCardIcon,
-    backgroundColor: "#ede9fe",
-    iconColor: "#7c3aed",
-    borderColor: "#c4b5fd",
+    key: "eraldo-3",
+    url: "https://api.dicebear.com/7.x/avataaars/svg?seed=Aneka&backgroundColor=d1d4f9",
+    label: "Avatar 3",
   },
   {
-    key: "orange-house",
-    label: "Casa laranja",
-    icon: HouseIcon,
-    backgroundColor: "#ffedd5",
-    iconColor: "#ea580c",
-    borderColor: "#fdba74",
+    key: "eraldo-4",
+    url: "https://api.dicebear.com/7.x/avataaars/svg?seed=Simon&backgroundColor=ffd5dc",
+    label: "Avatar 4",
   },
   {
-    key: "pink-heart",
-    label: "Cuidado rosa",
-    icon: HeartbeatIcon,
-    backgroundColor: "#fce7f3",
-    iconColor: "#db2777",
-    borderColor: "#f9a8d4",
+    key: "eraldo-5",
+    url: "https://api.dicebear.com/7.x/avataaars/svg?seed=Leah&backgroundColor=ffdfbf",
+    label: "Avatar 5",
   },
   {
-    key: "yellow-car",
-    label: "Transporte amarelo",
-    icon: CarIcon,
-    backgroundColor: "#fef3c7",
-    iconColor: "#d97706",
-    borderColor: "#fcd34d",
+    key: "eraldo-6",
+    url: "https://api.dicebear.com/7.x/avataaars/svg?seed=Oliver&backgroundColor=c0aede",
+    label: "Avatar 6",
   },
   {
-    key: "emerald-money",
-    label: "Moeda verde",
-    icon: CurrencyCircleDollarIcon,
-    backgroundColor: "#ccfbf1",
-    iconColor: "#0f766e",
-    borderColor: "#5eead4",
+    key: "eraldo-7",
+    url: "https://api.dicebear.com/7.x/avataaars/svg?seed=Jasper&backgroundColor=b6e3f4",
+    label: "Avatar 7",
   },
   {
-    key: "indigo-bank",
-    label: "Banco azul",
-    icon: BankIcon,
-    backgroundColor: "#e0e7ff",
-    iconColor: "#4f46e5",
-    borderColor: "#a5b4fc",
+    key: "eraldo-8",
+    url: "https://api.dicebear.com/7.x/avataaars/svg?seed=Cali&backgroundColor=ffdfbf",
+    label: "Avatar 8",
   },
   {
-    key: "cyan-lightbulb",
-    label: "Ideia clara",
-    icon: LightbulbIcon,
-    backgroundColor: "#cffafe",
-    iconColor: "#0891b2",
-    borderColor: "#67e8f9",
+    key: "eraldo-9",
+    url: "https://api.dicebear.com/7.x/avataaars/svg?seed=Coco&backgroundColor=ffd5dc",
+    label: "Avatar 9",
   },
   {
-    key: "rose-pet",
-    label: "Pet vermelho",
-    icon: PawPrintIcon,
-    backgroundColor: "#ffe4e6",
-    iconColor: "#e11d48",
-    borderColor: "#fda4af",
-  },
-  {
-    key: "red-shopping",
-    label: "Compras vermelho",
-    icon: ShoppingCartIcon,
-    backgroundColor: "#fee2e2",
-    iconColor: "#dc2626",
-    borderColor: "#fca5a5",
-  },
-  {
-    key: "slate-work",
-    label: "Trabalho cinza",
-    icon: BriefcaseIcon,
-    backgroundColor: "#f1f5f9",
-    iconColor: "#475569",
-    borderColor: "#cbd5e1",
-  },
-  {
-    key: "blue-study",
-    label: "Estudos azul",
-    icon: GraduationCapIcon,
-    backgroundColor: "#e0f2fe",
-    iconColor: "#0284c7",
-    borderColor: "#7dd3fc",
+    key: "eraldo-10",
+    url: "https://api.dicebear.com/7.x/avataaars/svg?seed=Midnight&backgroundColor=d1d4f9",
+    label: "Avatar 10",
   },
 ];
 
-export function getAvatarOption(avatarKey?: string | null) {
-  if (!avatarKey) {
-    return null;
-  }
-
-  return avatarOptions.find((avatar) => avatar.key === avatarKey) ?? null;
+export function getAvatarOption(key?: string | null): AvatarOption {
+  if (!key) return avatarOptions[0];
+  const option = avatarOptions.find((opt) => opt.key === key);
+  return option || avatarOptions[0];
 }

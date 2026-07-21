@@ -2,287 +2,243 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import type { LucideIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
 import {
   BarChart3,
-  CalendarClock,
+  CalendarDays,
+  ChevronRight,
   CreditCard,
   Landmark,
   LayoutDashboard,
-  ListChecks,
   LogOut,
-  Plus,
+  PlusCircle,
+  Receipt,
   Settings,
   Tags,
-  UserRound,
-  Wallet,
+  User,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
 
-import { Logo } from "@/components/brand/logo";
 import { UserAvatar } from "@/components/profile/user-avatar";
 import { getCurrentUser } from "@/lib/auth/session";
 import { supabase } from "@/lib/supabase/client";
-import { getProfile } from "@/services/profile";
 
-type MenuItem = {
-  href: string;
-  label: string;
-  description: string;
-  icon: LucideIcon;
-};
-
-const quickAccessItems: MenuItem[] = [
+const menuGroups = [
   {
-    href: "/dashboard",
-    label: "Resumo",
-    description: "Visão geral do mês",
-    icon: Wallet,
+    title: "Dia a Dia",
+    items: [
+      {
+        name: "Resumo",
+        href: "/dashboard",
+        icon: LayoutDashboard,
+        highlight: false,
+      },
+      {
+        name: "Novo Lançamento",
+        href: "/lancamentos/novo",
+        icon: PlusCircle,
+        highlight: true,
+      },
+      {
+        name: "Lançamentos",
+        href: "/lancamentos",
+        icon: Receipt,
+        highlight: false,
+      },
+    ],
   },
   {
-    href: "/lancamentos/novo",
-    label: "Novo lançamento",
-    description: "Cadastrar receita ou despesa",
-    icon: Plus,
+    title: "Gestão Financeira",
+    items: [
+      {
+        name: "Parcelamentos",
+        href: "/parcelamentos",
+        icon: Landmark,
+        highlight: false,
+      },
+      { name: "Cartões", href: "/cartoes", icon: CreditCard, highlight: false },
+      {
+        name: "Contas Fixas",
+        href: "/contas-fixas",
+        icon: CalendarDays,
+        highlight: false,
+      },
+    ],
   },
   {
-    href: "/lancamentos",
-    label: "Lançamentos",
-    description: "Ver contas do mês",
-    icon: ListChecks,
+    title: "Análise & Organização",
+    items: [
+      {
+        name: "Relatórios",
+        href: "/relatorios",
+        icon: BarChart3,
+        highlight: false,
+      },
+      { name: "Categorias", href: "/categorias", icon: Tags, highlight: false },
+    ],
   },
   {
-    href: "/relatorios",
-    label: "Relatórios",
-    description: "Analisar o mês",
-    icon: BarChart3,
-  },
-];
-
-const menuItems: MenuItem[] = [
-  {
-    href: "/dashboard",
-    label: "Dashboard",
-    description: "Resumo financeiro do mês",
-    icon: LayoutDashboard,
-  },
-  {
-    href: "/relatorios",
-    label: "Relatórios",
-    description: "Categorias, maiores despesas e fechamento",
-    icon: BarChart3,
-  },
-  {
-    href: "/lancamentos",
-    label: "Lançamentos",
-    description: "Receitas, despesas e pagamentos",
-    icon: ListChecks,
-  },
-  {
-    href: "/parcelamentos",
-    label: "Parcelamentos",
-    description: "Compras parceladas e financiamentos",
-    icon: Landmark,
-  },
-  {
-    href: "/cartoes",
-    label: "Cartões",
-    description: "Cartões de crédito e faturas",
-    icon: CreditCard,
-  },
-  {
-    href: "/contas-fixas",
-    label: "Contas fixas",
-    description: "Contas recorrentes do mês",
-    icon: CalendarClock,
-  },
-  {
-    href: "/categorias",
-    label: "Categorias",
-    description: "Organização das receitas e despesas",
-    icon: Tags,
-  },
-  {
-    href: "/perfil",
-    label: "Perfil",
-    description: "Dados da sua conta",
-    icon: UserRound,
-  },
-  {
-    href: "/configuracoes",
-    label: "Configurações",
-    description: "Preferências do sistema",
-    icon: Settings,
+    title: "Minha Conta",
+    items: [
+      { name: "Perfil", href: "/perfil", icon: User, highlight: false },
+      {
+        name: "Configurações",
+        href: "/configuracoes",
+        icon: Settings,
+        highlight: false,
+      },
+      {
+        name: "Sair",
+        href: "#",
+        icon: LogOut,
+        highlight: false,
+        isDestructive: true,
+      },
+    ],
   },
 ];
 
 export default function MenuPage() {
   const router = useRouter();
-
-  const [userDisplayName, setUserDisplayName] = useState("Usuário");
+  const [userName, setUserName] = useState<string>("Usuário");
   const [userAvatarKey, setUserAvatarKey] = useState<string | null>(null);
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   useEffect(() => {
-    let isMounted = true;
-
-    async function loadUser() {
-      const user = await getCurrentUser();
-
-      if (!isMounted || !user) {
-        return;
-      }
-
-      let profile = null;
-
+    async function loadUserProfile() {
       try {
-        profile = await getProfile(user.id);
-      } catch {
-        profile = null;
+        const user = await getCurrentUser();
+        if (user) {
+          // Consulta direta à tabela profiles do Supabase
+          const { data: profile } = await supabase
+            .from("profiles")
+            .select("full_name, avatar_url")
+            .eq("user_id", user.id)
+            .single();
+
+          if (profile) {
+            setUserName(profile.full_name || "Usuário");
+            setUserAvatarKey(profile.avatar_url || null);
+          }
+        }
+      } catch (error) {
+        console.error("Erro ao carregar perfil no menu:", error);
       }
-
-      if (!isMounted) {
-        return;
-      }
-
-      const displayName =
-        profile?.full_name ??
-        user.user_metadata?.full_name ??
-        user.user_metadata?.name ??
-        user.email?.split("@")[0] ??
-        "Usuário";
-
-      setUserDisplayName(displayName);
-      setUserAvatarKey(profile?.avatar_key ?? null);
     }
 
-    void loadUser();
-
-    return () => {
-      isMounted = false;
-    };
+    void loadUserProfile();
   }, []);
 
-  async function handleLogout() {
-    setIsLoggingOut(true);
-
-    await supabase.auth.signOut();
-
-    router.replace("/login");
+  async function handleSignOut() {
+    try {
+      await supabase.auth.signOut();
+      router.push("/login");
+    } catch (error) {
+      console.error("Erro ao sair da conta:", error);
+    }
   }
 
-  const firstName = userDisplayName.split(" ")[0] || "Usuário";
-
   return (
-    <main className="min-h-screen bg-[#0F2A5F] px-4 py-5 text-white lg:min-h-0 lg:rounded-4xl lg:p-6">
-      <div className="mx-auto w-full max-w-md lg:max-w-3xl">
-        <header className="mb-6">
-          <div className="mb-5 flex items-center justify-between gap-4">
-            <Logo href="/dashboard" variant="sidebar" />
-
-            <span className="shrink-0 rounded-full bg-white/10 px-3 py-1 text-[10px] font-black tracking-[0.18em] text-blue-100 uppercase ring-1 ring-white/10">
-              Beta
-            </span>
+    <main className="min-h-screen bg-[#0A1629] pt-6 pb-12">
+      <div className="mx-auto max-w-md px-4 sm:px-6">
+        {/* Cabeçalho */}
+        <div className="mb-8 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-600 text-white">
+              <BarChart3 className="h-6 w-6" />
+            </div>
+            <div>
+              <h1 className="text-lg font-black tracking-tight text-white uppercase">
+                Conta Clara
+              </h1>
+              <p className="text-xs text-slate-400">
+                Controle financeiro simples
+              </p>
+            </div>
           </div>
+          <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-black tracking-wider text-white uppercase">
+            Beta
+          </span>
+        </div>
 
-          <section className="rounded-4xl bg-white/10 p-4 ring-1 ring-white/10">
-            <div className="flex items-center gap-3">
-              <UserAvatar
-                avatarKey={userAvatarKey}
-                name={userDisplayName}
-                size="lg"
-                fallbackTone="dark"
-              />
+        {/* Card do Usuário Dinâmico */}
+        <div className="mb-8 flex items-center gap-4 rounded-3xl bg-[#122343] p-5 shadow-lg">
+          <UserAvatar
+            avatarKey={userAvatarKey}
+            name={userName}
+            className="h-16 w-16 border-2 border-blue-500"
+          />
+          <div>
+            <h2 className="text-xl font-black text-white">Olá, {userName}</h2>
+            <p className="mt-1 text-sm text-slate-400">
+              Escolha uma área para continuar.
+            </p>
+          </div>
+        </div>
 
-              <div className="min-w-0">
-                <p className="truncate text-lg font-black text-white">
-                  Olá, {firstName}
-                </p>
+        {/* Grupos do Menu */}
+        <div className="space-y-6">
+          {menuGroups.map((group) => (
+            <div key={group.title}>
+              <h3 className="mb-3 ml-2 text-xs font-black tracking-[0.18em] text-slate-400 uppercase">
+                {group.title}
+              </h3>
 
-                <p className="mt-1 text-sm font-medium text-blue-100">
-                  Escolha uma área para continuar.
-                </p>
+              <div className="overflow-hidden rounded-3xl bg-[#122343] shadow-sm">
+                <ul className="divide-y divide-white/5">
+                  {group.items.map((item) => {
+                    const Icon = item.icon;
+
+                    if (item.name === "Sair") {
+                      return (
+                        <li key={item.name}>
+                          <button
+                            type="button"
+                            onClick={handleSignOut}
+                            className="flex w-full items-center justify-between p-4 transition-colors hover:bg-white/5 active:bg-white/10"
+                          >
+                            <div className="flex items-center gap-4">
+                              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-red-500/10 text-red-400">
+                                <Icon className="h-5 w-5" />
+                              </div>
+                              <span className="font-semibold text-red-400">
+                                {item.name}
+                              </span>
+                            </div>
+                            <ChevronRight className="h-5 w-5 text-slate-600" />
+                          </button>
+                        </li>
+                      );
+                    }
+
+                    return (
+                      <li key={item.name}>
+                        <Link
+                          href={item.href}
+                          className="flex items-center justify-between p-4 transition-colors hover:bg-white/5 active:bg-white/10"
+                        >
+                          <div className="flex items-center gap-4">
+                            <div
+                              className={`flex h-10 w-10 items-center justify-center rounded-xl ${
+                                item.highlight
+                                  ? "bg-blue-500 text-white"
+                                  : "bg-white/5 text-blue-400"
+                              }`}
+                            >
+                              <Icon className="h-5 w-5" />
+                            </div>
+                            <span className="font-semibold text-slate-200">
+                              {item.name}
+                            </span>
+                          </div>
+                          <ChevronRight className="h-5 w-5 text-slate-600" />
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ul>
               </div>
             </div>
-          </section>
-        </header>
-
-        <section className="mb-6">
-          <p className="mb-3 text-xs font-black tracking-[0.22em] text-blue-200 uppercase">
-            Acessos rápidos
-          </p>
-
-          <div className="-mx-4 flex gap-3 overflow-x-auto px-4 pb-2">
-            {quickAccessItems.map((item) => {
-              const Icon = item.icon;
-
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className="flex min-h-32 min-w-40 flex-col justify-between rounded-3xl bg-white/10 p-4 text-white ring-1 ring-white/10 transition active:scale-[0.98]"
-                >
-                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/15">
-                    <Icon className="h-5 w-5" />
-                  </div>
-
-                  <div>
-                    <p className="text-sm leading-5 font-black">{item.label}</p>
-
-                    <p className="mt-1 text-xs leading-5 text-blue-100">
-                      {item.description}
-                    </p>
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
-        </section>
-
-        <section>
-          <p className="mb-3 text-xs font-black tracking-[0.22em] text-blue-200 uppercase">
-            Menu principal
-          </p>
-
-          <nav className="grid gap-3">
-            {menuItems.map((item) => {
-              const Icon = item.icon;
-
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className="group flex min-h-20 items-center gap-4 rounded-3xl bg-white/5 px-4 py-4 text-white ring-1 ring-white/10 transition hover:bg-white/10 active:scale-[0.99]"
-                >
-                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white/10 text-blue-100 transition group-hover:bg-white/15 group-hover:text-white">
-                    <Icon className="h-5 w-5" />
-                  </div>
-
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-black">{item.label}</p>
-
-                    <p className="mt-1 line-clamp-2 text-xs leading-5 text-blue-100">
-                      {item.description}
-                    </p>
-                  </div>
-                </Link>
-              );
-            })}
-
-            <button
-              type="button"
-              onClick={handleLogout}
-              disabled={isLoggingOut}
-              className="mt-2 flex min-h-14 items-center gap-4 rounded-3xl bg-white/5 px-4 py-4 text-left text-sm font-black text-blue-50 ring-1 ring-white/10 transition hover:bg-red-500/15 hover:text-white active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white/10">
-                <LogOut className="h-5 w-5" />
-              </div>
-
-              {isLoggingOut ? "Saindo..." : "Sair"}
-            </button>
-          </nav>
-        </section>
+          ))}
+        </div>
       </div>
     </main>
   );
