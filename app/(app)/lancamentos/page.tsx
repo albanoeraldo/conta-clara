@@ -2,33 +2,14 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import type { LucideIcon } from "lucide-react";
 import {
   Ban,
-  BriefcaseBusiness,
-  Car,
   CircleCheck,
-  CircleDollarSign,
-  Clapperboard,
-  CreditCard,
-  Gift,
-  GraduationCap,
-  HeartPulse,
-  Home,
-  Landmark,
-  Lightbulb,
-  PawPrint,
-  PiggyBank,
   Plus,
-  Receipt,
   RotateCcw,
   Search,
-  ShoppingCart,
-  Smartphone,
   SquarePen,
   Trash2,
-  Utensils,
-  Wifi,
 } from "lucide-react";
 
 import { AppEmptyState } from "@/components/ui/app-empty-state";
@@ -52,6 +33,9 @@ import {
   markTransactionAsPending,
   type Transaction,
 } from "@/services/transactions";
+
+// Importando a nossa nova inteligência centralizada de ícones!
+import { getTransactionVisuals } from "@/lib/utils/visuals";
 
 function formatCurrency(value: number) {
   return new Intl.NumberFormat("pt-BR", {
@@ -89,140 +73,6 @@ const paymentMethodLabels: Record<Transaction["payment_method"], string> = {
   boleto: "Boleto",
   other: "Outro",
 };
-
-function normalizeCategoryName(value: string) {
-  return value
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase();
-}
-
-function getCategoryIcon(
-  category: Category | undefined,
-  transactionType: Transaction["type"],
-): LucideIcon {
-  if (!category) {
-    return transactionType === "income" ? CircleDollarSign : Receipt;
-  }
-
-  const name = normalizeCategoryName(category.name);
-
-  if (category.type === "income") {
-    if (
-      name.includes("salario") ||
-      name.includes("comissao") ||
-      name.includes("trabalho")
-    ) {
-      return BriefcaseBusiness;
-    }
-
-    if (
-      name.includes("invest") ||
-      name.includes("rendimento") ||
-      name.includes("dividendo")
-    ) {
-      return PiggyBank;
-    }
-
-    return CircleDollarSign;
-  }
-
-  if (
-    name.includes("mercado") ||
-    name.includes("supermercado") ||
-    name.includes("compras")
-  ) {
-    return ShoppingCart;
-  }
-
-  if (
-    name.includes("alimentacao") ||
-    name.includes("restaurante") ||
-    name.includes("ifood") ||
-    name.includes("lanche")
-  ) {
-    return Utensils;
-  }
-
-  if (
-    name.includes("casa") ||
-    name.includes("aluguel") ||
-    name.includes("condominio")
-  ) {
-    return Home;
-  }
-
-  if (
-    name.includes("internet") ||
-    name.includes("wifi") ||
-    name.includes("telefone")
-  ) {
-    return Wifi;
-  }
-
-  if (name.includes("celular")) {
-    return Smartphone;
-  }
-
-  if (name.includes("energia") || name.includes("luz")) {
-    return Lightbulb;
-  }
-
-  if (
-    name.includes("transporte") ||
-    name.includes("combustivel") ||
-    name.includes("uber") ||
-    name.includes("carro")
-  ) {
-    return Car;
-  }
-
-  if (name.includes("cartao") || name.includes("credito")) {
-    return CreditCard;
-  }
-
-  if (name.includes("pet") || name.includes("animal")) {
-    return PawPrint;
-  }
-
-  if (
-    name.includes("saude") ||
-    name.includes("farmacia") ||
-    name.includes("medico")
-  ) {
-    return HeartPulse;
-  }
-
-  if (
-    name.includes("curso") ||
-    name.includes("faculdade") ||
-    name.includes("estudo")
-  ) {
-    return GraduationCap;
-  }
-
-  if (
-    name.includes("lazer") ||
-    name.includes("netflix") ||
-    name.includes("streaming")
-  ) {
-    return Clapperboard;
-  }
-
-  if (name.includes("presente")) {
-    return Gift;
-  }
-
-  if (
-    name.includes("banco") ||
-    name.includes("taxa") ||
-    name.includes("tarifa")
-  ) {
-    return Landmark;
-  }
-
-  return Receipt;
-}
 
 const statusBadgeClasses: Record<Transaction["status"], string> = {
   pending: "bg-yellow-50 text-yellow-700 border-yellow-100",
@@ -792,204 +642,247 @@ export default function LancamentosPage() {
           title="Lista de lançamentos"
           description={`${filteredTransactions.length} lançamento(s) encontrado(s) em ${referenceMonthLabel}.`}
         >
-          <div className="space-y-3">
-            {filteredTransactions.map((transaction) => {
-              const isIncome = transaction.type === "income";
-              const isPending = transaction.status === "pending";
-              const isPaid = transaction.status === "paid";
-              const isUpdating = updatingTransactionId === transaction.id;
-              const category = categories.find(
-                (currentCategory) =>
-                  currentCategory.id === transaction.category_id,
-              );
-              const Icon = getCategoryIcon(category, transaction.type);
+          <div className="w-full lg:overflow-hidden lg:rounded-3xl lg:border lg:border-slate-200 lg:bg-white lg:shadow-sm">
+            <table className="w-full border-collapse">
+              <thead className="hidden border-b border-slate-200 bg-slate-50 text-left lg:table-header-group">
+                <tr>
+                  <th className="p-4 text-xs font-black tracking-[0.18em] text-slate-500 uppercase sm:p-5">
+                    Lançamento
+                  </th>
+                  <th className="p-4 text-xs font-black tracking-[0.18em] text-slate-500 uppercase sm:p-5">
+                    Tipo
+                  </th>
+                  <th className="p-4 text-xs font-black tracking-[0.18em] text-slate-500 uppercase sm:p-5">
+                    Status
+                  </th>
+                  <th className="p-4 text-xs font-black tracking-[0.18em] text-slate-500 uppercase sm:p-5">
+                    Pagamento
+                  </th>
+                  <th className="p-4 text-right text-xs font-black tracking-[0.18em] text-slate-500 uppercase sm:p-5">
+                    Valor / Ações
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="block lg:table-row-group">
+                {filteredTransactions.map((transaction) => {
+                  const isIncome = transaction.type === "income";
+                  const isPending = transaction.status === "pending";
+                  const isPaid = transaction.status === "paid";
+                  const isUpdating = updatingTransactionId === transaction.id;
+                  const category = categories.find(
+                    (currentCategory) =>
+                      currentCategory.id === transaction.category_id,
+                  );
 
-              return (
-                <div
-                  key={transaction.id}
-                  className="grid gap-4 rounded-3xl border border-slate-200 bg-white p-4 shadow-sm transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-blue-100 hover:shadow-md sm:p-5 md:grid-cols-2 xl:grid-cols-[1.5fr_1fr_1fr_1fr_auto] xl:items-center"
-                >
-                  <div className="flex items-start gap-3">
-                    <div
-                      className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl ${
-                        isIncome
-                          ? "bg-blue-50 text-blue-700"
-                          : "bg-red-50 text-red-600"
-                      }`}
+                  // Chamando nossa nova função externa!
+                  const { icon: Icon, colors: iconColors } =
+                    getTransactionVisuals(
+                      transaction.description,
+                      category,
+                      transaction.type,
+                    );
+
+                  return (
+                    <tr
+                      key={transaction.id}
+                      className="mb-4 block rounded-3xl border border-slate-200 bg-white shadow-sm transition-all hover:border-blue-100 hover:shadow-md lg:mb-0 lg:table-row lg:rounded-none lg:border-0 lg:border-b lg:border-slate-100 lg:shadow-none lg:last:border-0 lg:hover:translate-y-0 lg:hover:bg-slate-50"
                     >
-                      <Icon className="h-5 w-5" />
-                    </div>
+                      {/* Célula: Lançamento */}
+                      <td className="block border-b border-slate-100 p-4 sm:p-5 lg:table-cell lg:border-none">
+                        <div className="flex items-start gap-3">
+                          <div
+                            className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl ${iconColors}`}
+                          >
+                            <Icon className="h-5 w-5" />
+                          </div>
 
-                    <div className="min-w-0 flex-1">
-                      <p className="font-black wrap-break-word text-slate-950">
-                        {transaction.description}
-                      </p>
+                          <div className="min-w-0 flex-1">
+                            <p className="font-black wrap-break-word text-slate-950">
+                              {transaction.description}
+                            </p>
 
-                      <p className="mt-1 text-sm text-slate-500">
-                        Vencimento: {formatDate(transaction.due_date)}
-                      </p>
+                            <p className="mt-1 text-sm text-slate-500">
+                              Vencimento: {formatDate(transaction.due_date)}
+                            </p>
 
-                      <p className="mt-1 text-xs font-semibold text-slate-400">
-                        {category?.name ?? "Sem categoria"}
-                      </p>
-                    </div>
-                  </div>
+                            <p className="mt-1 text-xs font-semibold text-slate-400">
+                              {category?.name ?? "Sem categoria"}
+                            </p>
+                          </div>
+                        </div>
+                      </td>
 
-                  <div>
-                    <p className="text-xs font-black tracking-[0.18em] text-slate-400 uppercase">
-                      Tipo
-                    </p>
-
-                    <p
-                      className={`mt-2 inline-flex rounded-full border px-3 py-1 text-xs font-black ${
-                        isIncome
-                          ? "border-blue-100 bg-blue-50 text-blue-700"
-                          : "border-red-100 bg-red-50 text-red-600"
-                      }`}
-                    >
-                      {typeLabels[transaction.type]}
-                    </p>
-                  </div>
-
-                  <div>
-                    <p className="text-xs font-black tracking-[0.18em] text-slate-400 uppercase">
-                      Status
-                    </p>
-
-                    <p
-                      className={`mt-2 inline-flex rounded-full border px-3 py-1 text-xs font-black ${
-                        statusBadgeClasses[transaction.status]
-                      }`}
-                    >
-                      {statusLabels[transaction.status]}
-                    </p>
-                  </div>
-
-                  <div>
-                    <p className="text-xs font-black tracking-[0.18em] text-slate-400 uppercase">
-                      Pagamento
-                    </p>
-
-                    <p className="mt-2 text-sm font-semibold text-slate-600">
-                      {paymentMethodLabels[transaction.payment_method]}
-                    </p>
-                  </div>
-
-                  <div className="flex flex-col items-start gap-3 md:col-span-2 xl:col-span-1 xl:items-end">
-                    <strong
-                      className={`text-lg font-black ${
-                        isIncome ? "text-blue-700" : "text-red-500"
-                      }`}
-                    >
-                      {isIncome ? "+" : "-"}{" "}
-                      {formatCurrency(Number(transaction.amount))}
-                    </strong>
-
-                    <div className="grid w-full grid-cols-4 gap-2 sm:flex sm:items-center sm:gap-3 xl:justify-end">
-                      {isSelectedMonthClosed ? (
-                        <button
-                          type="button"
-                          title="Mês fechado"
-                          aria-label="Mês fechado"
-                          onClick={showClosedMonthMessage}
-                          className="inline-flex h-11 w-full items-center justify-center rounded-2xl bg-slate-100 p-2 text-slate-400 sm:w-auto"
+                      {/* Célula: Tipo */}
+                      <td className="flex items-center justify-between border-b border-slate-100 p-4 sm:p-5 lg:table-cell lg:border-none">
+                        <span className="text-xs font-black tracking-[0.18em] text-slate-400 uppercase lg:hidden">
+                          Tipo
+                        </span>
+                        <p
+                          className={`inline-flex rounded-full border px-3 py-1 text-xs font-black ${
+                            isIncome
+                              ? "border-blue-100 bg-blue-50 text-blue-700"
+                              : "border-red-100 bg-red-50 text-red-600"
+                          }`}
                         >
-                          <SquarePen className="h-5 w-5" />
-                          <span className="sr-only">Mês fechado</span>
-                        </button>
-                      ) : (
-                        <Link
-                          href={`/lancamentos/${transaction.id}/editar`}
-                          title="Editar"
-                          aria-label="Editar lançamento"
-                          className="inline-flex h-11 w-full items-center justify-center rounded-2xl bg-slate-50 p-2 text-slate-500 transition-all duration-200 hover:-translate-y-0.5 hover:bg-blue-50 hover:text-blue-700 sm:w-auto"
-                        >
-                          <SquarePen className="h-5 w-5" />
-                          <span className="sr-only">Editar</span>
-                        </Link>
-                      )}
+                          {typeLabels[transaction.type]}
+                        </p>
+                      </td>
 
-                      <button
-                        type="button"
-                        title="Excluir lançamento"
-                        aria-label="Excluir lançamento"
-                        onClick={() => openDeleteTransactionModal(transaction)}
-                        disabled={isUpdating || isSelectedMonthClosed}
-                        className="inline-flex h-11 w-full cursor-pointer items-center justify-center rounded-2xl bg-slate-50 p-2 text-slate-500 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
-                      >
-                        <Trash2 className="h-5 w-5" />
-                        <span className="sr-only">Excluir</span>
-                      </button>
+                      {/* Célula: Status */}
+                      <td className="flex items-center justify-between border-b border-slate-100 p-4 sm:p-5 lg:table-cell lg:border-none">
+                        <span className="text-xs font-black tracking-[0.18em] text-slate-400 uppercase lg:hidden">
+                          Status
+                        </span>
+                        <p
+                          className={`inline-flex rounded-full border px-3 py-1 text-xs font-black ${
+                            statusBadgeClasses[transaction.status]
+                          }`}
+                        >
+                          {statusLabels[transaction.status]}
+                        </p>
+                      </td>
 
-                      {transaction.status !== "cancelled" && (
-                        <button
-                          type="button"
-                          title="Cancelar"
-                          aria-label="Cancelar lançamento"
-                          onClick={() =>
-                            openCancelTransactionModal(transaction)
-                          }
-                          disabled={isUpdating || isSelectedMonthClosed}
-                          className="inline-flex h-11 w-full items-center justify-center rounded-2xl bg-red-50 p-2 text-red-500 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-100 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 sm:w-auto"
-                        >
-                          {isUpdating ? (
-                            <span className="text-xs">...</span>
-                          ) : (
-                            <>
-                              <Ban className="h-5 w-5" />
-                              <span className="sr-only">Cancelar</span>
-                            </>
-                          )}
-                        </button>
-                      )}
+                      {/* Célula: Pagamento */}
+                      <td className="flex items-center justify-between border-b border-slate-100 p-4 sm:p-5 lg:table-cell lg:border-none">
+                        <span className="text-xs font-black tracking-[0.18em] text-slate-400 uppercase lg:hidden">
+                          Pagamento
+                        </span>
+                        <p className="text-sm font-semibold text-slate-600">
+                          {paymentMethodLabels[transaction.payment_method]}
+                        </p>
+                      </td>
 
-                      {isPending && (
-                        <button
-                          type="button"
-                          title="Marcar como pago"
-                          aria-label="Marcar lançamento como pago"
-                          onClick={() => void handleMarkAsPaid(transaction.id)}
-                          disabled={isUpdating}
-                          className="inline-flex h-11 w-full items-center justify-center rounded-2xl bg-blue-50 p-2 text-blue-600 transition-all duration-200 hover:-translate-y-0.5 hover:bg-blue-100 hover:text-blue-700 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 sm:w-auto"
-                        >
-                          {isUpdating ? (
-                            <span className="text-xs">...</span>
-                          ) : (
-                            <>
-                              <CircleCheck className="h-5 w-5" />
-                              <span className="sr-only">Marcar como pago</span>
-                            </>
-                          )}
-                        </button>
-                      )}
-                      {isPaid && (
-                        <button
-                          type="button"
-                          title="Marcar como pendente"
-                          aria-label="Marcar lançamento como pendente"
-                          onClick={() =>
-                            void handleMarkAsPending(transaction.id)
-                          }
-                          disabled={isUpdating}
-                          className="inline-flex items-center justify-center rounded-2xl bg-yellow-50 p-2 text-yellow-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-yellow-100 hover:text-yellow-800 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
-                        >
-                          {isUpdating ? (
-                            <span className="text-xs">...</span>
-                          ) : (
-                            <>
-                              <RotateCcw className="h-5 w-5" />
-                              <span className="sr-only">
-                                Marcar como pendente
-                              </span>
-                            </>
-                          )}
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+                      {/* Célula: Valor / Ações */}
+                      <td className="block p-4 sm:p-5 lg:table-cell lg:text-right">
+                        <div className="flex flex-col gap-4 lg:items-end">
+                          <div className="flex w-full items-center justify-between lg:justify-end">
+                            <span className="text-xs font-black tracking-[0.18em] text-slate-400 uppercase lg:hidden">
+                              Valor
+                            </span>
+                            <strong
+                              className={`text-lg font-black ${
+                                isIncome ? "text-blue-700" : "text-red-500"
+                              }`}
+                            >
+                              {isIncome ? "+" : "-"}{" "}
+                              {formatCurrency(Number(transaction.amount))}
+                            </strong>
+                          </div>
+
+                          <div className="grid w-full grid-cols-4 gap-2 sm:flex sm:items-center sm:gap-3 lg:justify-end">
+                            {isSelectedMonthClosed ? (
+                              <button
+                                type="button"
+                                title="Mês fechado"
+                                aria-label="Mês fechado"
+                                onClick={showClosedMonthMessage}
+                                className="inline-flex h-11 w-full items-center justify-center rounded-2xl bg-slate-100 p-2 text-slate-400 sm:w-auto"
+                              >
+                                <SquarePen className="h-5 w-5" />
+                                <span className="sr-only">Mês fechado</span>
+                              </button>
+                            ) : (
+                              <Link
+                                href={`/lancamentos/${transaction.id}/editar`}
+                                title="Editar"
+                                aria-label="Editar lançamento"
+                                className="inline-flex h-11 w-full items-center justify-center rounded-2xl bg-slate-50 p-2 text-slate-500 transition-all duration-200 hover:-translate-y-0.5 hover:bg-blue-50 hover:text-blue-700 sm:w-auto"
+                              >
+                                <SquarePen className="h-5 w-5" />
+                                <span className="sr-only">Editar</span>
+                              </Link>
+                            )}
+
+                            <button
+                              type="button"
+                              title="Excluir lançamento"
+                              aria-label="Excluir lançamento"
+                              onClick={() =>
+                                openDeleteTransactionModal(transaction)
+                              }
+                              disabled={isUpdating || isSelectedMonthClosed}
+                              className="inline-flex h-11 w-full cursor-pointer items-center justify-center rounded-2xl bg-slate-50 p-2 text-slate-500 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+                            >
+                              <Trash2 className="h-5 w-5" />
+                              <span className="sr-only">Excluir</span>
+                            </button>
+
+                            {transaction.status !== "cancelled" && (
+                              <button
+                                type="button"
+                                title="Cancelar"
+                                aria-label="Cancelar lançamento"
+                                onClick={() =>
+                                  openCancelTransactionModal(transaction)
+                                }
+                                disabled={isUpdating || isSelectedMonthClosed}
+                                className="inline-flex h-11 w-full items-center justify-center rounded-2xl bg-red-50 p-2 text-red-500 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-100 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 sm:w-auto"
+                              >
+                                {isUpdating ? (
+                                  <span className="text-xs">...</span>
+                                ) : (
+                                  <>
+                                    <Ban className="h-5 w-5" />
+                                    <span className="sr-only">Cancelar</span>
+                                  </>
+                                )}
+                              </button>
+                            )}
+
+                            {isPending && (
+                              <button
+                                type="button"
+                                title="Marcar como pago"
+                                aria-label="Marcar lançamento como pago"
+                                onClick={() =>
+                                  void handleMarkAsPaid(transaction.id)
+                                }
+                                disabled={isUpdating}
+                                className="inline-flex h-11 w-full items-center justify-center rounded-2xl bg-blue-50 p-2 text-blue-600 transition-all duration-200 hover:-translate-y-0.5 hover:bg-blue-100 hover:text-blue-700 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 sm:w-auto"
+                              >
+                                {isUpdating ? (
+                                  <span className="text-xs">...</span>
+                                ) : (
+                                  <>
+                                    <CircleCheck className="h-5 w-5" />
+                                    <span className="sr-only">
+                                      Marcar como pago
+                                    </span>
+                                  </>
+                                )}
+                              </button>
+                            )}
+                            {isPaid && (
+                              <button
+                                type="button"
+                                title="Marcar como pendente"
+                                aria-label="Marcar lançamento como pendente"
+                                onClick={() =>
+                                  void handleMarkAsPending(transaction.id)
+                                }
+                                disabled={isUpdating}
+                                className="inline-flex items-center justify-center rounded-2xl bg-yellow-50 p-2 text-yellow-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-yellow-100 hover:text-yellow-800 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
+                              >
+                                {isUpdating ? (
+                                  <span className="text-xs">...</span>
+                                ) : (
+                                  <>
+                                    <RotateCcw className="h-5 w-5" />
+                                    <span className="sr-only">
+                                      Marcar como pendente
+                                    </span>
+                                  </>
+                                )}
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
         </AppSection>
       )}
